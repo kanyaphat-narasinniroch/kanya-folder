@@ -83,44 +83,46 @@ Point Redeem_table = IF('LoyaltyProgramHistory'[Action] = "Points Redeemed", ABS
 
 5. TIER CODE
 
-UserUpgradeCount = 
-VAR CurrentCustomer = [CustomerId]
-VAR CountUp = 
-    CALCULATE(
-        COUNT('LoyaltyProgramHistory'[Action]),
-        FILTER(
-            'LoyaltyProgramHistory',
-            'LoyaltyProgramHistory'[Action] = "Tier Upgrade" && 
-            'LoyaltyProgramHistory'[CustomerId] = CurrentCustomer
-        )
+Level = 
+VAR CustomerID = 'LoyaltyProgramHistory'[CustomerId]
+RETURN
+CALCULATE(
+    COUNT('LoyaltyProgramHistory'[Action]),
+    FILTER(
+        'LoyaltyProgramHistory',
+        'LoyaltyProgramHistory'[CustomerId] = CustomerID && 
+        'LoyaltyProgramHistory'[Action] = "Tier Upgrade"
     )
-RETURN 
-    IF(ISBLANK(CountUp), 0, CountUp) -- ถ้าเป็นค่าว่างให้เป็น 0
+) + 1
 
-********************************************************************************
-
-Tier_Detailed = 
-VAR Up = [UserUpgradeCount]
-RETURN
-SWITCH( TRUE(),
-    Up <= 3, "Basic " & (Up + 1),
-    Up <= 7, "Silver " & (Up - 3),
-    Up <= 11, "Gold " & (Up - 7),
-    "Platinum " & (Up - 11)
+-------------------------------------------------------------------
+Detailed Tier = 
+SWITCH(
+    TRUE(),
+    'LoyaltyProgramHistory'[TierLevel] = 1, "Basic 1",
+    'LoyaltyProgramHistory'[TierLevel] = 2, "Basic 2",
+    'LoyaltyProgramHistory'[TierLevel] = 3, "Basic 3",
+    'LoyaltyProgramHistory'[TierLevel] = 4, "Basic 4",
+    'LoyaltyProgramHistory'[TierLevel] = 5, "Silver 1",
+    'LoyaltyProgramHistory'[TierLevel] = 6, "Silver 2",
+    'LoyaltyProgramHistory'[TierLevel] = 7, "Silver 3",
+    'LoyaltyProgramHistory'[TierLevel] = 8, "Silver 4",
+    'LoyaltyProgramHistory'[TierLevel] = 9, "Gold 1",
+    'LoyaltyProgramHistory'[TierLevel] = 10, "Gold 2",
+    'LoyaltyProgramHistory'[TierLevel] = 11, "Gold 3",
+    'LoyaltyProgramHistory'[TierLevel] = 12, "Gold 4",
+    'LoyaltyProgramHistory'[TierLevel] = 13, "Platinum 1",
+    'LoyaltyProgramHistory'[TierLevel] = 14, "Platinum 2",
+    'LoyaltyProgramHistory'[TierLevel] = 15, "Platinum 3",
+    'LoyaltyProgramHistory'[TierLevel] >= 16, "Platinum 4",
+    "Basic 1" 
 )
-
-*********************************************************************************
-
-Tier_Simplified = 
-VAR Up = [UserUpgradeCount]
-RETURN
-SWITCH( TRUE(),
-    Up <= 3, "Basic",
-    Up <= 7, "Silver",
-    Up <= 11, "Gold",
-    "Platinum"
+-----------------------------------------------------------------------
+Tier = 
+SWITCH(
+    TRUE(),
+    'LoyaltyProgramHistory'[TierLevel] <=4 , "Basic",
+    'LoyaltyProgramHistory'[TierLevel] <=8, "Silver",
+    'LoyaltyProgramHistory'[TierLevel] <=12, "Gold",
+    "Platinum" 
 )
-
-------------------------------------------------------------------------------------
-
-6.
