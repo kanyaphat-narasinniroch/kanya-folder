@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WSC2024 | อธิบายโค้ด task1_1_exploration.py ทุกบรรทัด</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&family=JetBrains+Mono:wght@400;600&family=Prompt:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #0c0f16;
+  --bg2:     #111520;
+  --card:    #151b27;
+  --border:  #1e2a3d;
+  --blue:    #5b9cf6;
+  --teal:    #2dd4bf;
+  --green:   #4ade80;
+  --yellow:  #fbbf24;
+  --orange:  #fb923c;
+  --pink:    #f472b6;
+  --red:     #f87171;
+  --purple:  #a78bfa;
+  --text:    #dde4f0;
+  --muted:   #5a6a85;
+  --dim:     #8899b4;
+  --code-bg: #080c12;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body {
+  font-family:'Sarabun',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  font-size:15px;
+  line-height:1.75;
+}
+
+/* HERO */
+.hero {
+  padding:52px 24px 44px;
+  text-align:center;
+  background:linear-gradient(160deg,#0c0f16,#0e1524,#0c0f16);
+  border-bottom:1px solid var(--border);
+  position:relative;
+  overflow:hidden;
+}
+.hero::after {
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 60% 40% at 50% 0%,rgba(91,156,246,.1),transparent 70%);
+}
+.eyebrow {
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  letter-spacing:.12em;color:var(--teal);
+  background:rgba(45,212,191,.08);border:1px solid rgba(45,212,191,.2);
+  padding:4px 16px;border-radius:20px;display:inline-block;margin-bottom:18px;
+}
+.hero h1 {
+  font-family:'Prompt',sans-serif;font-weight:900;
+  font-size:clamp(26px,4.5vw,46px);line-height:1.15;
+  background:linear-gradient(120deg,#dde4f0 20%,#5b9cf6 65%,#2dd4bf);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  margin-bottom:12px;
+}
+.hero p{color:var(--muted);font-size:16px;max-width:540px;margin:0 auto 28px;}
+.hero-file {
+  display:inline-flex;align-items:center;gap:10px;
+  background:var(--card);border:1px solid var(--border);
+  padding:8px 20px;border-radius:8px;
+  font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--dim);
+}
+.hero-file span{color:var(--green);}
+
+/* LAYOUT */
+.wrap{max-width:960px;margin:0 auto;padding:0 20px;}
+
+/* NAV PILLS */
+.nav-pills {
+  display:flex;flex-wrap:wrap;gap:8px;
+  padding:20px 0 4px;
+  position:sticky;top:0;z-index:50;
+  background:var(--bg);
+  border-bottom:1px solid var(--border);
+  padding:12px 20px;
+  margin:0 -20px 0;
+}
+.nav-pill {
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  padding:4px 14px;border-radius:20px;
+  background:var(--card);border:1px solid var(--border);
+  color:var(--muted);cursor:pointer;
+  text-decoration:none;transition:all .2s;
+}
+.nav-pill:hover,.nav-pill.active{background:var(--blue);color:#0c0f16;border-color:var(--blue);font-weight:700;}
+
+/* SECTION */
+.sec{margin:40px 0 20px;}
+.sec-label {
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;
+  letter-spacing:.08em;padding:4px 12px;border-radius:6px;
+  margin-bottom:10px;
+}
+.sl-blue  {background:rgba(91,156,246,.12);color:var(--blue);  border:1px solid rgba(91,156,246,.2);}
+.sl-teal  {background:rgba(45,212,246,.12);color:var(--teal);  border:1px solid rgba(45,212,191,.2);}
+.sl-green {background:rgba(74,222,128,.12);color:var(--green); border:1px solid rgba(74,222,128,.2);}
+.sl-yellow{background:rgba(251,191,36,.12);color:var(--yellow);border:1px solid rgba(251,191,36,.2);}
+.sl-orange{background:rgba(251,146,60,.12);color:var(--orange);border:1px solid rgba(251,146,60,.2);}
+.sl-pink  {background:rgba(244,114,182,.12);color:var(--pink); border:1px solid rgba(244,114,182,.2);}
+.sl-purple{background:rgba(167,139,250,.12);color:var(--purple);border:1px solid rgba(167,139,250,.2);}
+.sl-red   {background:rgba(248,113,113,.12);color:var(--red);  border:1px solid rgba(248,113,113,.2);}
+
+.sec h2{font-family:'Prompt',sans-serif;font-weight:700;font-size:19px;color:var(--text);}
+.sec p{color:var(--muted);font-size:14px;margin-top:2px;}
+
+/* LINE EXPLAINER */
+.line-block{margin-bottom:10px;}
+.line-row {
+  display:grid;
+  grid-template-columns:44px 1fr;
+  gap:0;
+  border:1px solid var(--border);
+  border-radius:10px;
+  overflow:hidden;
+  margin-bottom:1px;
+  transition:border-color .2s;
+}
+.line-row:hover{border-color:rgba(91,156,246,.35);}
+.line-num {
+  background:#080c12;
+  color:var(--muted);
+  font-family:'JetBrains Mono',monospace;
+  font-size:12px;
+  display:grid;place-items:center;
+  border-right:1px solid var(--border);
+  user-select:none;
+  flex-shrink:0;
+}
+.line-code-col{background:var(--code-bg);}
+.line-code {
+  padding:10px 16px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:13px;
+  color:#abb2bf;
+  white-space:pre;
+  overflow-x:auto;
+}
+/* multi-line grouped block */
+.group-block {
+  border:1px solid var(--border);
+  border-radius:10px;
+  overflow:hidden;
+  margin-bottom:10px;
+  transition:border-color .2s;
+}
+.group-block:hover{border-color:rgba(91,156,246,.35);}
+.group-lines {background:var(--code-bg);}
+.group-line {
+  display:grid;grid-template-columns:44px 1fr;gap:0;
+  border-bottom:1px solid rgba(30,42,61,.6);
+}
+.group-line:last-child{border-bottom:none;}
+.group-line .ln{
+  background:#080c12;color:var(--muted);
+  font-family:'JetBrains Mono',monospace;font-size:12px;
+  display:grid;place-items:center;
+  border-right:1px solid var(--border);min-width:44px;
+  user-select:none;
+}
+.group-line .lc{
+  padding:7px 16px;
+  font-family:'JetBrains Mono',monospace;font-size:13px;
+  color:#abb2bf;white-space:pre;overflow-x:auto;
+}
+.explain {
+  background:var(--card);
+  padding:13px 18px;
+  border-top:1px solid var(--border);
+}
+.explain-title{
+  font-weight:700;font-size:13px;color:var(--text);
+  margin-bottom:4px;
+}
+.explain-body{color:var(--dim);font-size:14px;line-height:1.7;}
+
+/* highlight spans in code */
+.kw {color:#c678dd;}
+.fn {color:#61afef;}
+.st {color:#98c379;}
+.cm {color:#4a5568;font-style:italic;}
+.nm {color:#d19a66;}
+.vr {color:#e5c07b;}
+.op {color:#56b6c2;}
+
+/* INFO BOX */
+.ib{border-left:3px solid var(--blue);background:rgba(91,156,246,.06);border-radius:0 8px 8px 0;padding:12px 16px;margin:12px 0;font-size:14px;}
+.ib.green{border-color:var(--green);background:rgba(74,222,128,.06);}
+.ib.yellow{border-color:var(--yellow);background:rgba(251,191,36,.06);}
+.ib.teal{border-color:var(--teal);background:rgba(45,212,191,.06);}
+.ib.orange{border-color:var(--orange);background:rgba(251,146,60,.06);}
+.ib.purple{border-color:var(--purple);background:rgba(167,139,250,.06);}
+.ib-t{font-weight:700;font-size:11px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px;color:var(--blue);}
+.ib.green .ib-t{color:var(--green);}
+.ib.yellow .ib-t{color:var(--yellow);}
+.ib.teal .ib-t{color:var(--teal);}
+.ib.orange .ib-t{color:var(--orange);}
+.ib.purple .ib-t{color:var(--purple);}
+
+code{background:rgba(91,156,246,.12);color:var(--blue);font-family:'JetBrains Mono',monospace;font-size:12px;padding:1px 6px;border-radius:4px;}
+
+hr{border:none;border-top:1px solid var(--border);margin:36px 0;}
+
+footer{padding:36px 24px;border-top:1px solid var(--border);text-align:center;color:var(--muted);font-size:13px;margin-top:60px;}
+footer strong{color:var(--teal);}
+
+.tag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:11px;padding:1px 7px;border-radius:4px;font-weight:600;}
+.t-blue{background:rgba(91,156,246,.15);color:var(--blue);}
+.t-green{background:rgba(74,222,128,.15);color:var(--green);}
+.t-yellow{background:rgba(251,191,36,.15);color:var(--yellow);}
+.t-orange{background:rgba(251,146,60,.15);color:var(--orange);}
+.t-purple{background:rgba(167,139,250,.15);color:var(--purple);}
+.t-teal{background:rgba(45,212,191,.15);color:var(--teal);}
+
+/* FADE IN */
+.fi{opacity:0;transform:translateY(12px);animation:fu .4s ease forwards;}
+@keyframes fu{to{opacity:1;transform:translateY(0);}}
+.fi:nth-child(1){animation-delay:.03s}
+.fi:nth-child(2){animation-delay:.06s}
+.fi:nth-child(3){animation-delay:.09s}
+.fi:nth-child(4){animation-delay:.12s}
+.fi:nth-child(5){animation-delay:.15s}
+.fi:nth-child(6){animation-delay:.18s}
+
+@media(max-width:600px){
+  .line-code,.group-line .lc{font-size:11.5px;}
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="eyebrow">WSC2024 · SESSION 1 · TASK 1.1</div>
+  <h1>อธิบายโค้ดทุกบรรทัด</h1>
+  <p>task1_1_exploration.py — อ่านแล้วเข้าใจได้เลยว่าแต่ละบรรทัดทำอะไร</p>
+  <div class="hero-file">📄 <span>task1_1_exploration.py</span> · 200 บรรทัด</div>
+</div>
+
+<div class="wrap">
+
+<div class="nav-pills">
+  <a class="nav-pill" href="#s1">IMPORT</a>
+  <a class="nav-pill" href="#s2">โหลดไฟล์</a>
+  <a class="nav-pill" href="#s3">ฟังก์ชัน</a>
+  <a class="nav-pill" href="#s4">รายงาน</a>
+  <a class="nav-pill" href="#s5">customers</a>
+  <a class="nav-pill" href="#s6">products</a>
+  <a class="nav-pill" href="#s7">sales</a>
+  <a class="nav-pill" href="#s8">บันทึกไฟล์</a>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     SECTION 1: IMPORT
+══════════════════════════════════════════════════════ -->
+<div class="sec fi" id="s1">
+  <div class="sec-label sl-blue">บรรทัด 1–3 · IMPORT</div>
+  <h2>นำเข้า Library ที่จำเป็น</h2>
+  <p>ต้องเรียก import ก่อนเสมอ มิฉะนั้นจะใช้คำสั่งของ library ไม่ได้</p>
+</div>
+
+<div class="group-block fi">
+  <div class="group-lines">
+    <div class="group-line"><div class="ln">1</div><div class="lc"><span class="kw">import</span> <span class="vr">pandas</span> <span class="kw">as</span> <span class="fn">pd</span></div></div>
+    <div class="group-line"><div class="ln">2</div><div class="lc"><span class="kw">import</span> <span class="vr">numpy</span>  <span class="kw">as</span> <span class="fn">np</span></div></div>
+    <div class="group-line"><div class="ln">3</div><div class="lc"><span class="kw">import</span> <span class="vr">os</span></div></div>
+  </div>
+  <div class="explain">
+    <div class="explain-body">
+      <b>บรรทัด 1</b> — <code>import pandas as pd</code><br>
+      นำเข้า library <strong>pandas</strong> ซึ่งเป็นเครื่องมือหลักสำหรับจัดการตารางข้อมูล (DataFrame) — อ่านไฟล์ CSV กรองข้อมูล นับค่า ฯลฯ ตั้งชื่อย่อว่า <code>pd</code> เพื่อพิมพ์สั้นลง แทนที่จะพิมพ์ <code>pandas.read_csv()</code> ก็พิมพ์แค่ <code>pd.read_csv()</code><br><br>
+      <b>บรรทัด 2</b> — <code>import numpy as np</code><br>
+      นำเข้า library <strong>numpy</strong> สำหรับคำนวณตัวเลขจำนวนมากพร้อมกัน เช่น <code>np.random.randint()</code> สุ่มตัวเลข ตั้งชื่อย่อว่า <code>np</code><br><br>
+      <b>บรรทัด 3</b> — <code>import os</code><br>
+      นำเข้า library <strong>os</strong> (Operating System) สำหรับทำงานกับไฟล์และโฟลเดอร์ เช่น สร้างโฟลเดอร์ output/ ด้วย <code>os.makedirs()</code>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     SECTION 2: LOAD CSV
+══════════════════════════════════════════════════════ -->
+<div class="sec fi" id="s2">
+  <div class="sec-label sl-teal">บรรทัด 6–8 · โหลดไฟล์</div>
+  <h2>อ่านไฟล์ CSV เข้าสู่ DataFrame</h2>
+  <p>แต่ละไฟล์จะถูกเก็บไว้ในตัวแปร — เหมือนเปิดไฟล์ Excel ขึ้นมาใน Python</p>
+</div>
+
+<div class="group-block fi">
+  <div class="group-lines">
+    <div class="group-line"><div class="ln">6</div><div class="lc"><span class="vr">customers</span> <span class="op">=</span> <span class="fn">pd.read_csv</span>(<span class="st">'data/customers.csv'</span>)</div></div>
+    <div class="group-line"><div class="ln">7</div><div class="lc"><span class="vr">products</span>  <span class="op">=</span> <span class="fn">pd.read_csv</span>(<span class="st">'data/products.csv'</span>)</div></div>
+    <div class="group-line"><div class="ln">8</div><div class="lc"><span class="vr">sales</span>     <span class="op">=</span> <span class="fn">pd.read_csv</span>(<span class="st">'data/sales_transactions.csv'</span>)</div></div>
+  </div>
+  <div class="explain">
+    <div class="explain-body">
+      <code>pd.read_csv('path')</code> — อ่านไฟล์ CSV แล้วแปลงเป็น <strong>DataFrame</strong> (ตารางที่มีแถวและคอลัมน์)<br><br>
+      ผลลัพธ์ถูกเก็บในตัวแปร 3 ตัว:<br>
+      &nbsp;&nbsp;• <code>customers</code> — ข้อมูลลูกค้า<br>
+      &nbsp;&nbsp;• <code>products</code> — ข้อมูลสินค้า<br>
+      &nbsp;&nbsp;• <code>sales</code> — ข้อมูลการขาย<br><br>
+      <code>'data/customers.csv'</code> คือ path ของไฟล์ — ต้องวางไฟล์ CSV ไว้ในโฟลเดอร์ <code>data/</code> ก่อน
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     SECTION 3: FUNCTIONS
+══════════════════════════════════════════════════════ -->
+<div class="sec fi" id="s3">
+  <div class="sec-label sl-green">บรรทัด 11–25 · ฟังก์ชัน</div>
+  <h2>ฟังก์ชันช่วยงาน 2 ตัว</h2>
+  <p>เขียนไว้ครั้งเดียว เรียกใช้ซ้ำได้หลายครั้งกับทุกไฟล์</p>
+</div>
+
+<div class="group-block fi">
+  <div class="group-lines">
+    <div class="group-line"><div class="ln">11</div><div class="lc"><span class="kw">def</span> <span class="fn">count_invalid_dates</span>(<span class="vr">series</span>):</div></div>
+    <div class="group-line"><div class="ln">12</div><div class="lc">    <span class="vr">before</span> <span class="op">=</span> <span class="vr">series</span>.<span class="fn">isnull</span>().<span class="fn">sum</span>()</div></div>
+    <div class="group-line"><div class="ln">13</div><div class="lc">    <span class="vr">after</span>  <span class="op">=</span> <span class="fn">pd.to_datetime</span>(<span class="vr">series</span>, <span class="vr">errors</span><span class="op">=</span><span class="st">'coerce'</span>).<span class="fn">isnull</span>().<span class="fn">sum</span>()</div></div>
+    <div class="group-line"><div class="ln">14</div><div class="lc">    <span class="kw">return</span> <span class="fn">int</span>(<span class="vr">after</span> <span class="op">-</span> <span class="vr">before</span>)</div></div>
+  </div>
+  <div class="explain">
+    <div class="explain-title">🗓️ count_invalid_dates(series) — นับวันที่ที่ผิดรูปแบบ</div>
+    <div class="explain-body">
+      รับ <strong>series</strong> (คอลัมน์วันที่) เข้ามา แล้วทำงาน 3 ขั้น:<br><br>
+      <b>บรรทัด 12</b> — <code>series.isnull().sum()</code><br>
+      นับ NaN ที่มีอยู่<strong>ก่อน</strong>แปลงวันที่ เก็บไว้ใน <code>before</code><br><br>
+      <b>บรรทัด 13</b> — <code>pd.to_datetime(series, errors='coerce')</code><br>
+      ลองแปลงทุกค่าในคอลัมน์ให้เป็น datetime — ถ้าค่าไหนแปลงไม่ได้ (เช่น "2023-14-99") จะกลายเป็น <code>NaT</code> (Not a Time) แทนที่จะ error แล้วนับ NaT ทั้งหมดหลังแปลง เก็บใน <code>after</code><br><br>
+      <b>บรรทัด 14</b> — <code>return int(after - before)</code><br>
+      ส่งคืนผลต่าง = จำนวนแถวที่วันที่ผิด (NaT ใหม่ที่เพิ่งเกิด ไม่ใช่ NaN เดิม)
+    </div>
+  </div>
+</div>
+
+<div class="group-block fi">
+  <div class="group-lines">
+    <div class="group-line"><div class="ln">16</div><div class="lc"><span class="kw">def</span> <span class="fn">count_extra_spaces</span>(<span class="vr">df</span>, <span class="vr">cols</span>):</div></div>
+    <div class="group-line"><div class="ln">17</div><div class="lc">    <span class="vr">total</span> <span class="op">=</span> <span class="nm">0</span></div></div>
+    <div class="group-line"><div class="ln">18</div><div class="lc">    <span class="kw">for</span> <span class="vr">col</span> <span class="kw">in</span> <span class="vr">cols</span>:</div></div>
+    <div class="group-line"><div class="ln">19</div><div class="lc">        <span class="kw">if</span> <span class="vr">col</span> <span class="kw">in</span> <span class="vr">df</span>.columns:</div></div>
+    <div class="group-line"><div class="ln">20</div><div class="lc">            <span class="vr">mask</span> <span class="op">=</span> (</div></div>
+    <div class="group-line"><div class="ln">21</div><div class="lc">                <span class="vr">df</span>[<span class="vr">col</span>].<span class="fn">dropna</span>().<span class="fn">astype</span>(<span class="fn">str</span>).<span class="vr">str</span>.<span class="fn">strip</span>()</div></div>
+    <div class="group-line"><div class="ln">22</div><div class="lc">                <span class="op">!=</span> <span class="vr">df</span>[<span class="vr">col</span>].<span class="fn">dropna</span>().<span class="fn">astype</span>(<span class="fn">str</span>)</div></div>
+    <div class="group-line"><div class="ln">23</div><div class="lc">            )</div></div>
+    <div class="group-line"><div class="ln">24</div><div class="lc">            <span class="vr">total</span> <span class="op">+=</span> <span class="fn">int</span>(<span class="vr">mask</span>.<span class="fn">sum</span>())</div></div>
+    <div class="group-line"><div class="ln">25</div><div class="lc">    <span class="kw">return</span> <span class="vr">total</span></div></div>
+  </div>
+  <div class="explain">
+    <div class="explain-title">🔧 count_extra_spaces(df, cols) — นับช่องว่างหน้า/หลังข้อความ</div>
+    <div class="explain-body">
+      รับ <strong>df</strong> (DataFrame) และ <strong>cols</strong> (list ชื่อคอลัมน์) เข้ามา<br><br>
+      <b>บรรทัด 17</b> — <code>total = 0</code> ตั้งตัวนับเริ่มต้นที่ 0<br><br>
+      <b>บรรทัด 18</b> — <code>for col in cols:</code> วนลูปทีละคอลัมน์<br><br>
+      <b>บรรทัด 19</b> — <code>if col in df.columns:</code> ตรวจว่าคอลัมน์นั้นมีอยู่จริงในตาราง ป้องกัน error<br><br>
+      <b>บรรทัด 21–22</b> — เทคนิคหลัก:<br>
+      &nbsp;&nbsp;• <code>.dropna()</code> — ข้ามแถวที่เป็น NaN<br>
+      &nbsp;&nbsp;• <code>.astype(str)</code> — แปลงทุกอย่างเป็น string<br>
+      &nbsp;&nbsp;• <code>.str.strip()</code> — ลบช่องว่างหน้า/หลัง<br>
+      &nbsp;&nbsp;• <code>!= df[col]...</code> — เปรียบเทียบก่อน/หลัง strip ถ้าต่างกัน = มีช่องว่าง<br>
+      ผลเป็น <strong>mask</strong> (True/False ต่อแถว)<br><br>
+      <b>บรรทัด 24</b> — <code>total += int(mask.sum())</code> นับแถวที่ True (มีช่องว่าง) บวกสะสมทุกคอลัมน์<br><br>
+      <b>บรรทัด 25</b> — <code>return total</code> ส่งผลรวมกลับออกไป
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     SECTION 4: REPORT SETUP
+══════════════════════════════════════════════════════ -->
+<div class="sec fi" id="s4">
+  <div class="sec-label sl-yellow">บรรทัด 28–38 · เตรียมรายงาน</div>
+  <h2>สร้างโครงสร้างสำหรับเก็บข้อความ</h2>
+  <p>ใช้ list เก็บทุกบรรทัดของรายงาน แล้ว join เป็นไฟล์ .txt ตอนท้าย</p>
+</div>
+
+<div class="group-block fi">
+  <div class="group-lines">
+    <div class="group-line"><div class="ln">28</div><div class="lc"><span class="vr">lines</span> <span class="op">=</span> []</div></div>
+    <div class="group-line"><div class="ln">30</div><div class="lc"><span class="kw">def</span> <span class="fn">section</span>(<span class="vr">title</span>):</div></div>
+    <div class="group-line"><div class="ln">31</div><div class="lc">    <span class="vr">lines</span>.<span class="fn">append</span>(<span class="st">""</span>)</div></div>
+    <div class="group-line"><div class="ln">32</div><div class="lc">    <span class="vr">lines</span>.<span class="fn">append</span>(<span class="st">"="</span> <span class="op">*</span> <span class="nm">60</span>)</div></div>
+    <div class="group-line"><div class="ln">33</div><div class="lc">    <span class="vr">lines</span>.<span class="fn">append</span>(<span class="vr">title</span>)</div></div>
+    <div class="group-line"><div class="ln">34</div><div class="lc">    <span class="vr">lines</span>.<span class="fn">append</span>(<span class="st">"="</span> <span class="op">*</span> <span class="nm">60</span>)</div></div>
+    <div class="group-line"><div class="ln">36</div><div class="lc"><span class="kw">def</span> <span class="fn">sub</span>(<span class="vr">title</span>):</div></div>
+    <div class="group-line"><div class="ln">37</div><div class="lc">    <span class="vr">lines</span>.<span class="fn">append</span>(<span class="st">""</span>)</div></div>
+    <div class="group-line"><div class="ln">38</div><div class="lc">    <span class="vr">lines</span>.<span class="fn">append</span>(<span class="fn">f</span><span class="st">"--- {title} ---"</span>)</div></div>
+  </div>
+  <div class="explain">
+    <div class="explain-body">
+      <b>บรรทัด 28</b> — <code>lines = []</code><br>
+      สร้าง list ว่างสำหรับเก็บทุกบรรทัดของรายงาน แทนที่จะใช้ <code>print()</code> ซึ่งแสดงผลทางหน้าจอเท่านั้น เราจะ append ลง list แล้วเขียนลงไฟล์ภายหลัง<br><br>
+      <b>บรรทัด 30–34</b> — ฟังก์ชัน <code>section(title)</code><br>
+      เพิ่มหัวข้อใหญ่พร้อมเส้น === เข้า list เรียก 1 ครั้งแทนที่จะ append 4 ครั้งเอง<br><br>
+      <b>บรรทัด 36–38</b> — ฟังก์ชัน <code>sub(title)</code><br>
+      เพิ่มหัวข้อย่อย <code>--- ชื่อ ---</code> เข้า list เรียกใช้บ่อยมากในโค้ด<br><br>
+      <div class="ib yellow"><div class="ib-t">💡 ทำไมใช้ list แทน print?</div>
+      <code>print()</code> แสดงผลทางหน้าจอเท่านั้น — เขียนลงไฟล์ไม่ได้ แต่ถ้าเก็บใน <code>list</code> แล้ว <code>'\n'.join(lines)</code> จะรวมทุกอย่างเป็น string ยาว ๆ แล้วเขียนลงไฟล์ได้ด้วย <code>f.write()</code></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     SECTION 5: CUSTOMERS
+══════════════════════════════════════════════════════ -->
+<div class="sec fi" id="s5">
+  <div class="sec-label sl-orange">บรรทัด 43–97 · CUSTOMERS</div>
+  <h2>วิเคราะห์ไฟล์ customers.csv</h2>
+  <p>5 หัวข้อย่อย — head, dtypes, missing, anomalies, formatting</p>
+</div>
+
+<div class="group-block fi">
+  <div class="group-lines">
+    <div class="group-line"><div class="ln">47</div><div class="lc"><span class="vr">lines</span>.<span class="fn">append</span>(<span class="vr">customers</span>.<span class="fn">head</span>().<span class="fn">to_string</span>())</div></div>
+  </div>
+  <div class="explain">
+    <div class="explain-title">👀 แสดง 5 แถวแรก</div>
+    <div class="explain-body">
+      <code>customers.head()</code> — ดึง 5 แถวแรกของ DataFrame<br>
+      <code>.to_string()</code> — แปลง DataFrame เป็น string หนึ่งก้อน (ไม่ใช้ to_string จะ append ทั้งตาราง Object ลง list ซึ่งผิด)
+    </div>
+  </div>
+</div>
+
+<div class="group-block fi">
+  <div class="group-lines">
+    <div class="group-line"><div class="ln">51</div><div class="lc"><span class="kw">for</span> <span class="vr">col</span>, <span class="vr">dtype</span> <span class="kw">in</span> <span class="vr">customers</span>.<span class="fn">dtypes</span>.<span class="fn">items</span>():</div></div>
+    <div class="group-line"><div class="ln">52</div><div class="lc">    <span class="vr">lines</span>.<span class="fn">append</span>(<span class="fn">f</span><span class="st">"  {col}: {dtype}"</span>)</div></div>
+  </div>
+  <div class="explain">
+    <div class="explain-title">🔍 Data Types ทุกคอลัมน์</div>
+    <div class="explain-body">
+      <code>customers.dtypes</code> — Series ที่มี index=ชื่อคอลัมน์ value=ประเภทข้อมูล<br>
+      <code>.items()</code> — แตกเป็น tuple <code>(ชื่อคอลัมน์, dtype)</code> ทีละคู่<br>
+      <code>for col, dtype in ...</code> — วนลูป unpack tuple ออกเป็น 2 ตัวแปร<br>
+      f-string <code>f"  {col}: {dtype}"</code> — สร้างข้อความ เช่น <code>"  age: float64"</code>
+    </div>
+  </div>
+</div>
+
+<div class="group-block fi">
+  <div class="group-lines">
+    <div class="group-line"><div class="ln">56</div><div class="lc"><span class="kw">for</span> <span class="vr">col</span>, <span class="vr">n</span> <span class="kw">in</span> <span class="vr">customers</span>.<span class="fn">isnull</span>().<span class="fn">sum</span>().<span class="fn">items</span>():</div></div>
+    <div class="group-line"><div class="ln">57</div><div class="lc">    <span class="vr">lines</span>.<span class="fn">append</span>(<span class="fn">f</span><span class="st">"  {col}: {n} missing"</span>)</div></div>
+  </div>
+  <div class="explain">
+    <div class="explain-title">❓ นับค่าหายไป</div>
+    <div class="explain-body">
+      <code>customers.isnull()</code> — แปลง DataFrame เป็น True/False (True = NaN)<br>
+      <code>.sum()</code> — นับ True ต่อคอลัมน์ ได้ Series ของจำนวน NaN<br>
+      <code>.items()</code> — วนออกเป็น (ชื่อคอลัมน์, จำนวน) ทีละคู่<br>
+      ได้ผลเช่น <code>"  age: 68 missing"</code>
+    </div>
+  </div>
+</div>
+
+<div class="group-block fi">
+  <div class="group-lines">
+    <div class="group-line"><div class="ln">63</div><div class="lc"><span class="vr">lines</span>.<span class="fn">append</span>(<span class="fn">f</span><span class="st">"  Invalid Dates (join_date): {<span class="fn">count_invalid_dates</span>(<span class="vr">customers</span>[<span class="st">'join_date'</span>])} rows"</span>)</div></div>
+    <div class="group-line"><div class="ln">64</div><div class="lc"><span class="vr">lines</span>.<span class="fn">append</span>(<span class="fn">f</span><span class="st">"  Invalid Dates (last_purchase_date): {<span class="fn">count_invalid_dates</span>(<span class="vr">customers</span>[<span class="st">'last_purchase_date'</span>])} rows"</span>)</div></div>
+  </div>
+  <div class="explain">
+    <div class="explain-title">📅 Invalid Dates</div>
+    <div class="explain-body">
+      เรียกฟังก์ชัน <code>count_invalid_dates()</code> ที่ประกาศไว้บรรทัด 11–14<br>
+      ส่ง column ของวันที่เข้าไป ได้จำนวนแถวที่วันที่ผิดรูปแบบกลับมา<br>
+      ใส่ในวงปีกกา <code>{}</code> ใน f-string เพื่อแทรกค่าลงข้อความ
+    </div>
+  </div>
+</div>
+
+<div class="group-block fi">
+  <div class="group-lines">
+    <div class="group-line"><div class="ln">67</div><div class="lc"><span class="vr">lines</span>.<span class="fn">append</span>(<span class="fn">f</span><span class="st">"  Negative Values (age): {<span class="fn">int</span>((<span class="vr">customers</span>[<span class="st">'age'</span>] <span class="op">&lt;</span> <span class="nm">0</span>).<span class="fn">sum</span>())} rows"</span>)</div></div>
+    <div class="group-line"><div class="ln">68</div><div class="lc"><span class="vr">lines</span>.<span class="fn">append</span>(<span class="fn">f</span><span class="st">"  Negative Values (total_spending): {<span class="fn">int</span>((<span class="vr">customers</span>[<span class="st">'total_spending'</span>] <span class="op">&lt;</span> <span class="nm">0</span>).<span class="fn">sum</span>())} rows"</span>)</div></div>
+  </div>
+  <div class="explain">
+    <div class="explain-title">➖ Negative Values</div>
+    <div class="explain-body">
+      <code>customers['age'] &lt; 0</code> — เปรียบเทียบแต่ละแถว ได้ True/False Series<br>
+      <code>.sum()</code> — นับ True (True = ค่าติดลบ)<br>
+      <code>int(...)</code> — แปลงเป็น integer ธรรมดา (ป้องกัน numpy int ที่บางครั้งแสดงผลแปลก)
+    </div>
+  </div>
+</div>
+
+<div class="group-block fi">
+  <div class="group-lines">
+    <div class="group-line"><div class="ln">74</div><div class="lc"><span class="vr">expected_gender</span> <span class="op">=</span> {<span class="st">'M'</span>, <span class="st">'F'</span>}</div></div>
+    <div class="group-line"><div class="ln">75</div><div class="lc"><span class="vr">bad_gender</span> <span class="op">=</span> <span class="fn">int</span>(<span class="vr">customers</span>[<span class="st">'gender'</span>].<span class="fn">notna</span>().<span class="fn">sum</span>()) <span class="op">-</span> <span class="fn">int</span>(<span class="vr">customers</span>[<span class="vr">customers</span>[<span class="st">'gender'</span>].<span class="fn">notna</span>()][<span class="st">'gender'</span>].<span class="fn">isin</span>(<span class="vr">expected_gender</span>).<span class="fn">sum</span>())</div></div>
+    <div class="group-line"><div class="ln">76</div><div class="lc"><span class="vr">lines</span>.<span class="fn">append</span>(<span class="fn">f</span><span class="st">"  Unexpected gender values: {<span class="vr">bad_gender</span>} rows"</span>)</div></div>
+    <div class="group-line"><div class="ln">77</div><div class="lc"><span class="vr">lines</span>.<span class="fn">append</span>(<span class="fn">f</span><span class="st">"    Found: {<span class="vr">customers</span>[<span class="st">'gender'</span>].<span class="fn">dropna</span>().<span class="fn">unique</span>().<span class="fn">tolist</span>()}"</span>)</div></div>
+  </div>
+  <div class="explain">
+    <div class="explain-title">🚨 Unexpected Values — gender</div>
+    <div class="explain-body">
+      <b>บรรทัด 74</b> — <code>expected_gender = {'M', 'F'}</code> กำหนด set ค่าที่ถูกต้อง (set ค้นหาเร็วกว่า list)<br><br>
+      <b>บรรทัด 75</b> — คำนวณด้วยการ <strong>ลบ</strong>:<br>
+      &nbsp;&nbsp;• <code>customers['gender'].notna().sum()</code> = จำนวนแถวที่ไม่ใช่ NaN ทั้งหมด<br>
+      &nbsp;&nbsp;• <code>.isin(expected_gender).sum()</code> = จำนวนแถวที่ค่าอยู่ใน {'M','F'}<br>
+      &nbsp;&nbsp;• ผลต่าง = แถวที่มีค่าแต่ไม่ใช่ M หรือ F = ค่าที่ผิดปกติ<br><br>
+      <b>บรรทัด 77</b> — <code>.dropna().unique().tolist()</code><br>
+      &nbsp;&nbsp;• <code>.dropna()</code> ข้าม NaN<br>
+      &nbsp;&nbsp;• <code>.unique()</code> ดึงค่าที่ไม่ซ้ำ<br>
+      &nbsp;&nbsp;• <code>.tolist()</code> แปลงเป็น list Python ธรรมดา เพื่อแสดงผลใน f-string
+    </div>
+  </div>
+</div>
+
+<div class="group-block fi">
+  <div class="group-lines">
+    <div class="group-line"><div class="ln">79</div><div class="lc"><span class="vr">expected_mem</span> <span class="op">=</span> {<span class="st">'Basic'</span>, <span class="st">'Silver'</span>, <span class="st">'Gold'</span>}</div></div>
+    <div class="group-line"><div class="ln">80</div><div class="lc"><span class="vr">bad_mem</span> <span class="op">=</span> <span class="fn">int</span>((~<span class="vr">customers</span>[<span class="st">'membership_status'</span>].<span class="fn">isin</span>(<span class="vr">expected_mem</span>)).<span class="fn">sum</span>())</div></div>
+  </div>
+  <div class="explain">
+    <div class="explain-title">🚨 Unexpected Values — membership_status</div>
+    <div class="explain-body">
+      <code>customers['membership_status'].isin(expected_mem)</code> — True ถ้าค่าอยู่ใน set<br>
+      <code>~</code> (tilde) — NOT operator พลิก True ↔ False<br>
+      ดังนั้น <code>~.isin(...)</code> = True ถ้าค่า<strong>ไม่อยู่</strong>ใน set (ค่าผิดปกติ)<br>
+      <code>.sum()</code> นับ True = จำนวนแถวที่ผิด<br><br>
+      <div class="ib"><div class="ib-t">📌 ต่างจาก gender</div>บรรทัด gender ใช้วิธี "ลบ" ส่วน membership ใช้ <code>~</code> ทั้งสองวิธีให้ผลเหมือนกัน แต่ <code>~</code> เขียนสั้นกว่า</div>
+    </div>
+  </div>
+</div>
+
+<div class="group-block fi">
+  <div class="group-lines">
+    <div class="group-line"><div class="ln">89</div><div class="lc"><span class="vr">expected_pref</span> <span class="op">=</span> {<span class="st">'Pastries'</span>, <span class="st">'Bread'</span>, <span class="st">'Tarte'</span>, <span class="st">'Macaron'</span>}</div></div>
+    <div class="group-line"><div class="ln">90</div><div class="lc"><span class="vr">bad_pref</span> <span class="op">=</span> <span class="fn">int</span>(<span class="vr">customers</span>[<span class="st">'preferred_category'</span>].<span class="fn">notna</span>().<span class="fn">sum</span>()) <span class="op">-</span> <span class="fn">int</span>(</div></div>
+    <div class="group-line"><div class="ln">91</div><div class="lc">    <span class="vr">customers</span>[<span class="vr">customers</span>[<span class="st">'preferred_category'</span>].<span class="fn">notna</span>()][<span class="st">'preferred_category'</span>].<span class="vr">str</span>.<span class="fn">strip</span>().<span class="fn">isin</span>(<span class="vr">expected_pref</span>).<span class="fn">sum</span>()</div></div>
+    <div class="group-line"><div class="ln">92</div><div class="lc">)</div></div>
+  </div>
+  <div class="explain">
+    <div class="explain-title">🚨 Unexpected Values — preferred_category (พร้อม .str.strip())</div>
+    <div class="explain-body">
+      บรรทัด 91 มี <code>.str.strip()</code> พิเศษก่อน <code>.isin()</code> เพราะ preferred_category มีปัญหาช่องว่างหน้าหลัง — ถ้าไม่ strip ก่อน <code>" Pastries"</code> (มีช่องว่างนำ) จะถูกนับว่าผิด ทั้งที่จริงแค่มีช่องว่างเกิน<br><br>
+      <code>customers[customers['preferred_category'].notna()]</code> — Filter เฉพาะแถวที่ไม่ใช่ NaN ก่อน แล้วค่อยตรวจ
+    </div>
+  </div>
+</div>
+
+<div class="group-block fi">
+  <div class="group-lines">
+    <div class="group-line"><div class="ln">96</div><div class="lc"><span class="vr">fmt</span> <span class="op">=</span> <span class="fn">count_extra_spaces</span>(<span class="vr">customers</span>, [<span class="st">'first_name'</span>,<span class="st">'last_name'</span>,<span class="st">'gender'</span>,<span class="st">'membership_status'</span>,<span class="st">'preferred_category'</span>])</div></div>
+    <div class="group-line"><div class="ln">97</div><div class="lc"><span class="vr">lines</span>.<span class="fn">append</span>(<span class="fn">f</span><span class="st">"  Formatting Issues (extra spaces): {<span class="vr">fmt</span>} rows"</span>)</div></div>
+  </div>
+  <div class="explain">
+    <div class="explain-title">🔧 Formatting Issues</div>
+    <div class="explain-body">
+      เรียกฟังก์ชัน <code>count_extra_spaces()</code> บรรทัด 16–25 โดยส่ง DataFrame <code>customers</code> และ list คอลัมน์ข้อความที่ต้องตรวจ แล้วรับจำนวนแถวที่มีช่องว่างผิดปกติกลับมา
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     SECTION 6: PRODUCTS
+══════════════════════════════════════════════════════ -->
+<div class="sec fi" id="s6">
+  <div class="sec-label sl-pink">บรรทัด 102–147 · PRODUCTS</div>
+  <h2>วิเคราะห์ไฟล์ products.csv</h2>
+  <p>มีการสร้างคอลัมน์ชั่วคราว แล้วลบทิ้ง — เพราะ price และ cost เป็น string</p>
+</div>
+
+<div class="group-block fi">
+  <div class="group-lines">
+    <div class="group-line"><div class="ln">119</div><div class="lc"><span class="vr">products</span>[<span class="st">'_date_parsed'</span>] <span class="op">=</span> <span class="fn">pd.to_datetime</span>(<span class="vr">products</span>[<span class="st">'introduced_date'</span>], <span class="vr">errors</span><span class="op">=</span><span class="st">'coerce'</span>)</div></div>
+    <div class="group-line"><div class="ln">120</div><div class="lc"><span class="vr">future</span> <span class="op">=</span> <span class="fn">int</span>((<span class="vr">products</span>[<span class="st">'_date_parsed'</span>] <span class="op">&gt;</span> <span class="fn">pd.Timestamp.today</span>()).<span class="fn">sum</span>())</div></div>
+    <div class="group-line"><div class="ln">121</div><div class="lc"><span class="vr">lines</span>.<span class="fn">append</span>(<span class="fn">f</span><span class="st">"  Future Dates (introduced_date): {<span class="vr">future</span>} rows"</span>)</div></div>
+    <div class="group-line"><div class="ln">122</div><div class="lc"><span class="vr">products</span>.<span class="fn">drop</span>(<span class="vr">columns</span><span class="op">=</span>[<span class="st">'_date_parsed'</span>], <span class="vr">inplace</span><span class="op">=</span><span class="kw">True</span>)</div></div>
+  </div>
+  <div class="explain">
+    <div class="explain-title">📅 ตรวจวันที่ในอนาคต</div>
+    <div class="explain-body">
+      <b>บรรทัด 119</b> — สร้างคอลัมน์ชั่วคราว <code>_date_parsed</code> เก็บวันที่ที่แปลงแล้ว (ขึ้นต้น _ เพื่อบอกว่าชั่วคราว)<br><br>
+      <b>บรรทัด 120</b> — <code>pd.Timestamp.today()</code> คือวันที่ปัจจุบัน เปรียบเทียบ <code>&gt;</code> จะได้ True ถ้าวันที่อยู่ในอนาคต (เช่น 2033)<br><br>
+      <b>บรรทัด 122</b> — <code>.drop(columns=[...], inplace=True)</code> ลบคอลัมน์ชั่วคราวออก เพราะไม่ต้องการให้ติดไปในไฟล์ผลลัพธ์
+    </div>
+  </div>
+</div>
+
+<div class="group-block fi">
+  <div class="group-lines">
+    <div class="group-line"><div class="ln">124</div><div class="lc"><span class="vr">products</span>[<span class="st">'_price_num'</span>] <span class="op">=</span> <span class="fn">pd.to_numeric</span>(<span class="vr">products</span>[<span class="st">'price'</span>], <span class="vr">errors</span><span class="op">=</span><span class="st">'coerce'</span>)</div></div>
+    <div class="group-line"><div class="ln">125</div><div class="lc"><span class="vr">products</span>[<span class="st">'_cost_num'</span>]  <span class="op">=</span> <span class="fn">pd.to_numeric</span>(<span class="vr">products</span>[<span class="st">'cost'</span>],  <span class="vr">errors</span><span class="op">=</span><span class="st">'coerce'</span>)</div></div>
+    <div class="group-line"><div class="ln">126</div><div class="lc"><span class="vr">lines</span>.<span class="fn">append</span>(<span class="fn">f</span><span class="st">"  Negative Values (price): {<span class="fn">int</span>((<span class="vr">products</span>[<span class="st">'_price_num'</span>] <span class="op">&lt;</span> <span class="nm">0</span>).<span class="fn">sum</span>())} rows"</span>)</div></div>
+    <div class="group-line"><div class="ln">127</div><div class="lc"><span class="vr">lines</span>.<span class="fn">append</span>(<span class="fn">f</span><span class="st">"  Negative Values (cost):  {<span class="fn">int</span>((<span class="vr">products</span>[<span class="st">'_cost_num'</span>]  <span class="op">&lt;</span> <span class="nm">0</span>).<span class="fn">sum</span>())} rows"</span>)</div></div>
+    <div class="group-line"><div class="ln">128</div><div class="lc"><span class="vr">products</span>.<span class="fn">drop</span>(<span class="vr">columns</span><span class="op">=</span>[<span class="st">'_price_num'</span>,<span class="st">'_cost_num'</span>], <span class="vr">inplace</span><span class="op">=</span><span class="kw">True</span>)</div></div>
+  </div>
+  <div class="explain">
+    <div class="explain-title">➖ Negative Values — price และ cost (ที่เป็น string)</div>
+    <div class="explain-body">
+      คอลัมน์ <code>price</code> และ <code>cost</code> ใน products.csv มีประเภทเป็น string (มี "$" นำหน้า) จึงหาค่าติดลบตรง ๆ ไม่ได้ ต้องแปลงก่อน<br><br>
+      <b>บรรทัด 124–125</b> — <code>pd.to_numeric(..., errors='coerce')</code> แปลง string เป็นตัวเลข ค่าที่แปลงไม่ได้ (เช่น "N/A") กลายเป็น NaN สร้างเก็บในคอลัมน์ชั่วคราว<br><br>
+      <b>บรรทัด 128</b> — ลบคอลัมน์ชั่วคราวทิ้งหลังใช้งานเสร็จ
+    </div>
+  </div>
+</div>
+
+<div class="group-block fi">
+  <div class="group-lines">
+    <div class="group-line"><div class="ln">139</div><div class="lc"><span class="vr">expected_active</span> <span class="op">=</span> {<span class="st">'True'</span>, <span class="st">'False'</span>}</div></div>
+    <div class="group-line"><div class="ln">140</div><div class="lc"><span class="vr">bad_active</span> <span class="op">=</span> <span class="fn">int</span>(<span class="vr">products</span>[<span class="st">'active'</span>].<span class="fn">notna</span>().<span class="fn">sum</span>()) <span class="op">-</span> <span class="fn">int</span>(</div></div>
+    <div class="group-line"><div class="ln">141</div><div class="lc">    <span class="vr">products</span>[<span class="vr">products</span>[<span class="st">'active'</span>].<span class="fn">notna</span>()][<span class="st">'active'</span>].<span class="fn">astype</span>(<span class="fn">str</span>).<span class="fn">isin</span>(<span class="vr">expected_active</span>).<span class="fn">sum</span>()</div></div>
+    <div class="group-line"><div class="ln">142</div><div class="lc">)</div></div>
+  </div>
+  <div class="explain">
+    <div class="explain-title">🚨 Unexpected Values — active</div>
+    <div class="explain-body">
+      คอลัมน์ <code>active</code> มีค่าหลากหลาย เช่น "True", "Yes", "1", "FALSE", "0" — ควรมีแค่ "True" หรือ "False"<br><br>
+      <code>.astype(str)</code> สำคัญมาก เพราะบางแถวอาจเป็น boolean จริง ๆ ต้องแปลงเป็น string ก่อนเปรียบเทียบกับ {'True','False'} ซึ่งเป็น string
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     SECTION 7: SALES
+══════════════════════════════════════════════════════ -->
+<div class="sec fi" id="s7">
+  <div class="sec-label sl-purple">บรรทัด 152–188 · SALES</div>
+  <h2>วิเคราะห์ไฟล์ sales_transactions.csv</h2>
+  <p>เพิ่มการตรวจ Invalid IDs เทียบกับไฟล์อ้างอิง</p>
+</div>
+
+<div class="group-block fi">
+  <div class="group-lines">
+    <div class="group-line"><div class="ln">172</div><div class="lc"><span class="vr">valid_pids</span> <span class="op">=</span> <span class="fn">set</span>(<span class="vr">products</span>[<span class="st">'product_id'</span>].<span class="fn">dropna</span>().<span class="fn">astype</span>(<span class="fn">int</span>))</div></div>
+    <div class="group-line"><div class="ln">173</div><div class="lc"><span class="vr">valid_cids</span> <span class="op">=</span> <span class="fn">set</span>(<span class="vr">customers</span>[<span class="st">'customer_id'</span>])</div></div>
+    <div class="group-line"><div class="ln">174</div><div class="lc"><span class="vr">lines</span>.<span class="fn">append</span>(<span class="fn">f</span><span class="st">"  Invalid product_id:  {<span class="fn">int</span>((~<span class="vr">sales</span>[<span class="st">'product_id'</span>].<span class="fn">isin</span>(<span class="vr">valid_pids</span>)).<span class="fn">sum</span>())} rows"</span>)</div></div>
+    <div class="group-line"><div class="ln">175</div><div class="lc"><span class="vr">lines</span>.<span class="fn">append</span>(<span class="fn">f</span><span class="st">"  Invalid customer_id: {<span class="fn">int</span>((~<span class="vr">sales</span>[<span class="st">'customer_id'</span>].<span class="fn">isin</span>(<span class="vr">valid_cids</span>)).<span class="fn">sum</span>())} rows"</span>)</div></div>
+  </div>
+  <div class="explain">
+    <div class="explain-title">🔗 Invalid IDs — ตรวจว่า ID มีอยู่จริงในไฟล์อ้างอิง</div>
+    <div class="explain-body">
+      <b>บรรทัด 172</b> — <code>set(products['product_id'].dropna().astype(int))</code><br>
+      &nbsp;&nbsp;• <code>.dropna()</code> ข้ามแถวที่ product_id เป็น NaN<br>
+      &nbsp;&nbsp;• <code>.astype(int)</code> แปลงเป็น integer (product_id ใน products เป็น float64 เพราะมี NaN)<br>
+      &nbsp;&nbsp;• <code>set(...)</code> แปลงเป็น set เพื่อค้นหาได้เร็วมาก (O(1))<br><br>
+      <b>บรรทัด 174</b> — <code>~sales['product_id'].isin(valid_pids)</code><br>
+      &nbsp;&nbsp;• <code>.isin(valid_pids)</code> True ถ้า ID มีอยู่ในไฟล์ products<br>
+      &nbsp;&nbsp;• <code>~</code> พลิก → True ถ้า ID <strong>ไม่มี</strong>ในไฟล์ products = ID ผิด<br>
+      &nbsp;&nbsp;• <code>.sum()</code> นับ = จำนวน ID ผิด
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     SECTION 8: SAVE FILE
+══════════════════════════════════════════════════════ -->
+<div class="sec fi" id="s8">
+  <div class="sec-label sl-teal">บรรทัด 191–200 · บันทึกไฟล์</div>
+  <h2>รวม list แล้วเขียนลงไฟล์ .txt</h2>
+  <p>ขั้นตอนสุดท้าย — แปลง list เป็น string แล้ว export</p>
+</div>
+
+<div class="group-block fi">
+  <div class="group-lines">
+    <div class="group-line"><div class="ln">191</div><div class="lc"><span class="vr">lines</span>.<span class="fn">append</span>(<span class="st">""</span>)</div></div>
+    <div class="group-line"><div class="ln">192</div><div class="lc"><span class="vr">lines</span>.<span class="fn">append</span>(<span class="st">"="</span> <span class="op">*</span> <span class="nm">60</span>)</div></div>
+    <div class="group-line"><div class="ln">193</div><div class="lc"><span class="vr">lines</span>.<span class="fn">append</span>(<span class="st">"END OF REPORT"</span>)</div></div>
+    <div class="group-line"><div class="ln">194</div><div class="lc"><span class="vr">lines</span>.<span class="fn">append</span>(<span class="st">"="</span> <span class="op">*</span> <span class="nm">60</span>)</div></div>
+    <div class="group-line"><div class="ln">196</div><div class="lc"><span class="vr">os</span>.<span class="fn">makedirs</span>(<span class="st">'output'</span>, <span class="vr">exist_ok</span><span class="op">=</span><span class="kw">True</span>)</div></div>
+    <div class="group-line"><div class="ln">197</div><div class="lc"><span class="kw">with</span> <span class="fn">open</span>(<span class="st">'output/Session1_DataExploration.txt'</span>, <span class="st">'w'</span>, <span class="vr">encoding</span><span class="op">=</span><span class="st">'utf-8'</span>) <span class="kw">as</span> <span class="vr">f</span>:</div></div>
+    <div class="group-line"><div class="ln">198</div><div class="lc">    <span class="vr">f</span>.<span class="fn">write</span>(<span class="st">'\n'</span>.<span class="fn">join</span>(<span class="vr">lines</span>))</div></div>
+    <div class="group-line"><div class="ln">200</div><div class="lc"><span class="fn">print</span>(<span class="st">"✓ บันทึกไฟล์ Session1_DataExploration.txt สำเร็จ"</span>)</div></div>
+  </div>
+  <div class="explain">
+    <div class="explain-title">💾 บันทึกไฟล์</div>
+    <div class="explain-body">
+      <b>บรรทัด 196</b> — <code>os.makedirs('output', exist_ok=True)</code><br>
+      สร้างโฟลเดอร์ <code>output/</code> ถ้ายังไม่มี — <code>exist_ok=True</code> ไม่ให้ error ถ้าโฟลเดอร์มีอยู่แล้ว<br><br>
+      <b>บรรทัด 197</b> — <code>with open('...', 'w', encoding='utf-8') as f:</code><br>
+      &nbsp;&nbsp;• <code>'w'</code> = write mode (เขียนใหม่ทับถ้าไฟล์มีอยู่แล้ว)<br>
+      &nbsp;&nbsp;• <code>encoding='utf-8'</code> รองรับตัวอักษรพิเศษ เช่น é, ü, ไทย<br>
+      &nbsp;&nbsp;• <code>with ... as f:</code> เปิดไฟล์และตั้งชื่อว่า <code>f</code> พอออกจากบล็อก with จะปิดไฟล์อัตโนมัติ<br><br>
+      <b>บรรทัด 198</b> — <code>'\n'.join(lines)</code><br>
+      รวม list ทุกก้อนเป็น string เดียว โดยใส่ขึ้นบรรทัดใหม่ <code>\n</code> ระหว่างแต่ละก้อน แล้วเขียนลงไฟล์ด้วย <code>f.write()</code><br><br>
+      <b>บรรทัด 200</b> — <code>print()</code> แสดงบนหน้าจอยืนยันว่าสำเร็จ (ไม่ได้เขียนลงไฟล์)
+    </div>
+  </div>
+</div>
+
+<div class="ib teal fi">
+  <div class="ib-t">🎯 สรุปหลักการทั้งหมด</div>
+  โค้ดนี้ทำงาน 4 ขั้น: <strong>Import</strong> library → <strong>โหลด</strong> CSV → <strong>วิเคราะห์</strong>และ append ข้อความลง list → <strong>รวม</strong> list แล้วเขียนลงไฟล์ .txt ฟังก์ชัน <code>count_invalid_dates()</code> และ <code>count_extra_spaces()</code> เป็นตัวช่วยที่เรียกซ้ำได้หลายไฟล์ โดยไม่ต้องเขียนโค้ดซ้ำ
+</div>
+
+</div><!-- end wrap -->
+
+<footer>
+  <strong>WSC2024</strong> · task1_1_exploration.py Line-by-Line Explanation<br>
+  Belle Croissant Lyonnais · IT Software Solution for Business
+</footer>
+
+<script>
+// highlight active nav pill on scroll
+const sections = document.querySelectorAll('.sec[id]');
+const pills    = document.querySelectorAll('.nav-pill');
+window.addEventListener('scroll', () => {
+  let cur = '';
+  sections.forEach(s => { if (window.scrollY >= s.offsetTop - 100) cur = s.id; });
+  pills.forEach(p => {
+    p.classList.toggle('active', p.getAttribute('href') === '#' + cur);
+  });
+});
+</script>
+</body>
+</html>

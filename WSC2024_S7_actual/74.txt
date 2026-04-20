@@ -1,0 +1,43 @@
+TierLevel = 
+VAR CustomerID = 'LoyaltyProgramHistory'[CustomerId]
+RETURN
+CALCULATE(
+    COUNT('LoyaltyProgramHistory'[Action]),
+    FILTER(
+        'LoyaltyProgramHistory',
+        'LoyaltyProgramHistory'[CustomerId] = CustomerID && 
+        'LoyaltyProgramHistory'[Action] = "Tier Upgrade"
+    )
+) + 1
+
+-------------------------------------------------------------------
+Detailed Tier = 
+SWITCH(
+    TRUE(),
+    'LoyaltyProgramHistory'[TierLevel] = 1, "Basic 1",
+    'LoyaltyProgramHistory'[TierLevel] = 2, "Basic 2",
+    'LoyaltyProgramHistory'[TierLevel] = 3, "Basic 3",
+    'LoyaltyProgramHistory'[TierLevel] = 4, "Basic 4",
+    'LoyaltyProgramHistory'[TierLevel] = 5, "Silver 1",
+    'LoyaltyProgramHistory'[TierLevel] = 6, "Silver 2",
+    'LoyaltyProgramHistory'[TierLevel] = 7, "Silver 3",
+    'LoyaltyProgramHistory'[TierLevel] = 8, "Silver 4",
+    'LoyaltyProgramHistory'[TierLevel] = 9, "Gold 1",
+    'LoyaltyProgramHistory'[TierLevel] = 10, "Gold 2",
+    'LoyaltyProgramHistory'[TierLevel] = 11, "Gold 3",
+    'LoyaltyProgramHistory'[TierLevel] = 12, "Gold 4",
+    'LoyaltyProgramHistory'[TierLevel] = 13, "Platinum 1",
+    'LoyaltyProgramHistory'[TierLevel] = 14, "Platinum 2",
+    'LoyaltyProgramHistory'[TierLevel] = 15, "Platinum 3",
+    'LoyaltyProgramHistory'[TierLevel] >= 16, "Platinum 4",
+    "Basic 1" 
+)
+-----------------------------------------------------------------------
+Tier = 
+SWITCH(
+    TRUE(),
+    'LoyaltyProgramHistory'[TierLevel] <=4 , "Basic",
+    'LoyaltyProgramHistory'[TierLevel] <=8, "Silver",
+    'LoyaltyProgramHistory'[TierLevel] <=12, "Gold",
+    "Platinum" 
+)

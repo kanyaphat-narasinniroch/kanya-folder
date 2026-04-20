@@ -1,0 +1,8 @@
+# ตรวจภาษาไทย (\u0E00-\u0E7F = ช่วง Unicode ภาษาไทย)
+thai_first = customers['first_name'].dropna().astype(str) \
+             .str.contains(r'[\u0E00-\u0E7F]', regex=True).sum()
+thai_last  = customers['last_name'].dropna().astype(str) \
+             .str.contains(r'[\u0E00-\u0E7F]', regex=True).sum()
+
+print(f"first_name มีภาษาไทย: {thai_first} rows")  # 0
+print(f"last_name  มีภาษาไทย: {thai_last} rows")   # 0

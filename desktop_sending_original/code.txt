@@ -1,0 +1,9 @@
+phones = customers['phone_number']
+missing    = phones.isnull().sum()
+formatting = phones.dropna().astype(str).str.contains(r'[() \-]', regex=True).sum()
+garbage    = phones.dropna().astype(str).str.contains(r'[a-zA-Z!@#$%^&*|{}\[\]<>~]', regex=True).sum()
+
+print(f"NaN:         {missing}")    # 40
+print(f"Formatting:  {formatting}") # 50  (มี space/dash/วงเล็บ)
+print(f"Garbage:     {garbage}")    # 42  (ตัวอักษร/อักขระแปลก)
+print(f"รวมต้องแก้:  {missing+formatting+garbage}")  

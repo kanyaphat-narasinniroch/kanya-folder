@@ -1,0 +1,23 @@
+Days Since Last Upgrade = 
+VAR CurrentCustomer = 'loyalty_program_history'[CustomerId]
+VAR CurrentDate = 'loyalty_program_history'[Timestamp]
+
+-- ค้นหาวันที่ที่มีการอัปเกรดครั้งก่อนหน้าของลูกค้าคนเดียวกัน
+VAR PreviousUpgradeDate = 
+    CALCULATE(
+        MAX('loyalty_program_history'[Timestamp]),
+        FILTER(
+            'loyalty_program_history',
+            'loyalty_program_history'[CustomerId] = CurrentCustomer &&
+            'loyalty_program_history'[Action] = "Tier Upgrade" &&
+            'loyalty_program_history'[Timestamp] < CurrentDate
+        )
+    )
+
+RETURN
+-- คำนวณส่วนต่างเป็นจำนวนวัน (เฉพาะแถวที่เป็นการอัปเกรด)
+IF(
+    'loyalty_program_history'[Action] = "Tier Upgrade" && NOT(ISBLANK(PreviousUpgradeDate)),
+    DATEDIFF(PreviousUpgradeDate, CurrentDate, DAY),
+    BLANK()
+)

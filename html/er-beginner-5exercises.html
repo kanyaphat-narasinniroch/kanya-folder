@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>โจทย์ ER-Diagram สำหรับมือใหม่</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&family=Itim&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #fffdf6;
+  --ink: #2d2416;
+  --soft: #6b5e44;
+  --line: #e8dfc8;
+  --line2: #f0e9d8;
+
+  --c1: #ff7043; /* ร้านขายหนังสือ */
+  --c2: #43a047; /* สัตว์เลี้ยง */
+  --c3: #1e88e5; /* ห้องสมุด */
+  --c4: #8e24aa; /* ร้านอาหาร */
+  --c5: #f4a62a; /* โรงเรียน */
+
+  --card-shadow: 0 4px 24px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.05);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Sarabun', sans-serif;
+  font-size: 15px;
+  line-height: 1.75;
+  min-height: 100vh;
+}
+
+/* dotted background */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(circle, #d4c9a8 1px, transparent 1px);
+  background-size: 28px 28px;
+  opacity: 0.35;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.wrap {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0 20px 80px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── HEADER ── */
+.header {
+  text-align: center;
+  padding: 56px 0 48px;
+}
+.header-tag {
+  display: inline-block;
+  background: #fff3cd;
+  border: 1.5px solid #f4a62a;
+  border-radius: 100px;
+  padding: 5px 18px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #a06800;
+  margin-bottom: 18px;
+  font-family: 'Itim', cursive;
+}
+.header h1 {
+  font-family: 'Itim', cursive;
+  font-size: clamp(28px, 5vw, 44px);
+  color: var(--ink);
+  line-height: 1.2;
+  margin-bottom: 12px;
+}
+.header h1 span { color: #ff7043; }
+.header p {
+  font-size: 16px;
+  color: var(--soft);
+  max-width: 480px;
+  margin: 0 auto 28px;
+}
+
+/* Level pills */
+.level-row {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+.lv { padding: 5px 16px; border-radius: 100px; font-size: 13px; font-weight: 700; border: 1.5px solid; }
+.lv-easy { background: #e8f5e9; color: #2e7d32; border-color: #a5d6a7; }
+
+/* ── ENTITY count bar ── */
+.info-row {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  padding: 16px 24px;
+  background: #fff;
+  border: 1.5px solid var(--line);
+  border-radius: 16px;
+  margin-bottom: 48px;
+  flex-wrap: wrap;
+  box-shadow: var(--card-shadow);
+}
+.info-item { text-align: center; }
+.info-num { font-family: 'Itim', cursive; font-size: 28px; color: #ff7043; }
+.info-label { font-size: 12px; color: var(--soft); }
+
+/* ── QUESTION CARD ── */
+.q-card {
+  background: #fff;
+  border-radius: 20px;
+  overflow: hidden;
+  margin-bottom: 32px;
+  box-shadow: var(--card-shadow);
+  border: 1.5px solid var(--line);
+  animation: rise 0.5s ease both;
+  transition: box-shadow 0.25s, transform 0.25s;
+}
+.q-card:hover {
+  box-shadow: 0 8px 40px rgba(0,0,0,0.12);
+  transform: translateY(-2px);
+}
+.q-card:nth-child(1) { animation-delay: 0.05s; }
+.q-card:nth-child(2) { animation-delay: 0.10s; }
+.q-card:nth-child(3) { animation-delay: 0.15s; }
+.q-card:nth-child(4) { animation-delay: 0.20s; }
+.q-card:nth-child(5) { animation-delay: 0.25s; }
+
+/* Color strip top */
+.q-card:nth-child(1) { border-top: 4px solid var(--c1); }
+.q-card:nth-child(2) { border-top: 4px solid var(--c2); }
+.q-card:nth-child(3) { border-top: 4px solid var(--c3); }
+.q-card:nth-child(4) { border-top: 4px solid var(--c4); }
+.q-card:nth-child(5) { border-top: 4px solid var(--c5); }
+
+/* Card header */
+.q-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 22px 24px 18px;
+  flex-wrap: wrap;
+}
+.q-emoji {
+  font-size: 38px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.q-meta { flex: 1; }
+.q-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #aaa;
+  margin-bottom: 4px;
+}
+.q-title {
+  font-family: 'Itim', cursive;
+  font-size: 20px;
+  color: var(--ink);
+  font-weight: 400;
+}
+.q-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 12px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 700;
+  background: #f1f8e9;
+  color: #33691e;
+  border: 1px solid #aed581;
+}
+
+/* Story box */
+.q-story {
+  margin: 0 24px 20px;
+  background: #fafaf5;
+  border: 1px solid var(--line2);
+  border-radius: 12px;
+  padding: 16px 18px;
+  font-size: 14.5px;
+  line-height: 1.8;
+  color: #4a3f2e;
+}
+.q-story-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #bbb;
+  margin-bottom: 8px;
+}
+.q-story strong { color: var(--ink); }
+
+/* Tasks */
+.q-tasks {
+  margin: 0 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.q-task {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 10px 14px;
+  background: #fdf9f0;
+  border: 1px solid var(--line2);
+  border-radius: 10px;
+  font-size: 14px;
+  color: #4a3f2e;
+  line-height: 1.6;
+}
+.task-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: #ccc;
+  flex-shrink: 0;
+  padding-top: 2px;
+  min-width: 24px;
+}
+.task-pts {
+  margin-left: auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: #ccc;
+  flex-shrink: 0;
+  padding-top: 3px;
+}
+
+/* Entity chips */
+.entity-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0 24px 20px;
+}
+.entity-chip {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  padding: 5px 13px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12.5px;
+  font-weight: 600;
+  background: #fff;
+  color: var(--ink);
+}
+.entity-icon { font-size: 14px; }
+
+/* Hint box */
+.q-hint {
+  margin: 0 24px 22px;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 10px 14px;
+  background: #fffde7;
+  border: 1px solid #ffe082;
+  border-radius: 10px;
+  font-size: 13px;
+  color: #795548;
+  line-height: 1.6;
+}
+.hint-icon { flex-shrink: 0; font-size: 16px; }
+
+/* Draw area */
+.draw-area {
+  margin: 0 24px 24px;
+  border: 1.5px dashed #d4c9a8;
+  border-radius: 12px;
+  background-image:
+    linear-gradient(rgba(0,0,0,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.025) 1px, transparent 1px);
+  background-size: 24px 24px;
+  min-height: 220px;
+  position: relative;
+}
+.draw-label {
+  position: absolute;
+  bottom: 10px;
+  right: 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #ccc;
+}
+
+/* Relationship tags */
+.rel-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0 24px 22px;
+}
+.rel-chip {
+  border: 1.5px dashed #ccc;
+  border-radius: 8px;
+  padding: 5px 13px;
+  font-size: 12.5px;
+  font-style: italic;
+  color: var(--soft);
+  background: #fafaf5;
+}
+
+/* Card footer */
+.q-footer {
+  padding: 14px 24px;
+  border-top: 1px solid var(--line2);
+  background: #fafaf5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.q-footer-skills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.skill-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  padding: 2px 9px;
+  border-radius: 4px;
+  background: var(--line2);
+  color: var(--soft);
+}
+.q-footer-pts {
+  font-family: 'Itim', cursive;
+  font-size: 16px;
+  color: var(--soft);
+}
+
+/* ── TIPS FOOTER ── */
+.tips-box {
+  background: #fff;
+  border: 1.5px solid var(--line);
+  border-radius: 20px;
+  padding: 28px;
+  box-shadow: var(--card-shadow);
+  margin-top: 16px;
+}
+.tips-title {
+  font-family: 'Itim', cursive;
+  font-size: 20px;
+  color: var(--ink);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.tips-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+.tip {
+  padding: 14px 16px;
+  background: #fafaf5;
+  border: 1px solid var(--line2);
+  border-radius: 12px;
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: var(--soft);
+}
+.tip strong { color: var(--ink); display: block; margin-bottom: 4px; }
+
+/* ── SYMBOL REMINDER ── */
+.symbol-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+  justify-content: center;
+}
+.sym-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--soft);
+}
+
+@keyframes rise {
+  from { opacity:0; transform: translateY(18px); }
+  to   { opacity:1; transform: translateY(0); }
+}
+
+@media (max-width: 560px) {
+  .q-tasks { gap: 6px; }
+  .tips-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ── HEADER ── -->
+<div class="header">
+  <div class="header-tag">🌱 ระดับ มือใหม่ · Beginner</div>
+  <h1>โจทย์ <span>ER-Diagram</span><br>สำหรับมือใหม่ 5 ข้อ</h1>
+  <p>โจทย์ใกล้ตัว เข้าใจง่าย เหมาะสำหรับฝึกวาด ER Diagram ครั้งแรก</p>
+  <div class="level-row">
+    <span class="lv lv-easy">★ ง่าย</span>
+    <span class="lv lv-easy">Entity 2–3 ตัว</span>
+    <span class="lv lv-easy">Relationship 2–3 เส้น</span>
+  </div>
+</div>
+
+<!-- ── INFO ROW ── -->
+<div class="info-row">
+  <div class="info-item"><div class="info-num">5</div><div class="info-label">โจทย์</div></div>
+  <div class="info-item"><div class="info-num">2–3</div><div class="info-label">Entity ต่อข้อ</div></div>
+  <div class="info-item"><div class="info-num">★</div><div class="info-label">ระดับง่าย</div></div>
+  <div class="info-item"><div class="info-num">15'</div><div class="info-label">ต่อข้อ (โดยประมาณ)</div></div>
+</div>
+
+<!-- Symbol reminder -->
+<div class="symbol-row">
+  <div class="sym-item"><svg width="44" height="26"><rect x="2" y="3" width="40" height="20" rx="3" fill="none" stroke="#555" stroke-width="2"/></svg>Entity</div>
+  <div class="sym-item"><svg width="44" height="26"><ellipse cx="22" cy="13" rx="20" ry="11" fill="none" stroke="#555" stroke-width="2"/></svg>Attribute</div>
+  <div class="sym-item"><svg width="44" height="26"><polygon points="22,3 42,13 22,23 2,13" fill="none" stroke="#555" stroke-width="2"/></svg>Relationship</div>
+  <div class="sym-item"><svg width="44" height="18"><line x1="0" y1="7" x2="44" y2="7" stroke="#2a9d3c" stroke-width="2.5"/><line x1="0" y1="12" x2="44" y2="12" stroke="#2a9d3c" stroke-width="2.5"/></svg>Total</div>
+  <div class="sym-item"><svg width="44" height="18"><line x1="0" y1="9" x2="44" y2="9" stroke="#e87c30" stroke-width="2.5"/></svg>Partial</div>
+</div>
+
+<!-- ══════════════════════════════════════ -->
+<!-- QUESTION 1 -->
+<!-- ══════════════════════════════════════ -->
+<div class="q-card">
+  <div class="q-head">
+    <div class="q-emoji">📚</div>
+    <div class="q-meta">
+      <div class="q-num">โจทย์ที่ 01</div>
+      <div class="q-title">ร้านขายหนังสือ</div>
+    </div>
+    <div class="q-badge">⭐ ง่ายมาก</div>
+  </div>
+
+  <div class="q-story">
+    <div class="q-story-label">สถานการณ์</div>
+    ร้านขายหนังสือแห่งหนึ่งต้องการเก็บข้อมูล<strong>หนังสือ</strong>และ<strong>ผู้แต่ง</strong>
+    หนังสือแต่ละเล่มมีชื่อเรื่อง ราคา และปีพิมพ์
+    ผู้แต่งแต่ละคนมีชื่อ นามสกุล และชื่อปากกา
+    <br><br>
+    📌 <strong>กฎ:</strong> หนังสือ 1 เล่ม มีผู้แต่งได้ 1 คน และผู้แต่ง 1 คน เขียนหนังสือได้หลายเล่ม
+  </div>
+
+  <div class="entity-row">
+    <div class="entity-chip"><span class="entity-icon">📖</span> หนังสือ (Book)</div>
+    <div class="entity-chip"><span class="entity-icon">🧑‍💼</span> ผู้แต่ง (Author)</div>
+  </div>
+
+  <div class="q-tasks">
+    <div class="q-task"><span class="task-num">(1)</span><span>วาด Entity ทั้ง 2 ตัว พร้อมระบุ Attribute อย่างน้อย 3 อย่าง และขีดเส้นใต้ Primary Key</span><span class="task-pts">4 คะแนน</span></div>
+    <div class="q-task"><span class="task-num">(2)</span><span>วาด Relationship เชื่อมระหว่างหนังสือและผู้แต่ง พร้อมระบุชื่อความสัมพันธ์</span><span class="task-pts">3 คะแนน</span></div>
+    <div class="q-task"><span class="task-num">(3)</span><span>ระบุ Cardinality (1:N) และ Participation ของทั้ง 2 ฝั่ง</span><span class="task-pts">3 คะแนน</span></div>
+  </div>
+
+  <div class="q-hint">
+    <span class="hint-icon">💡</span>
+    <span><strong>คำใบ้:</strong> ผู้แต่งมีหนังสือหลายเล่ม = ฝั่งผู้แต่งเป็น "1" ฝั่งหนังสือเป็น "N" — ถามว่า "หนังสือทุกเล่มต้องมีผู้แต่งไหม?" ถ้าใช่ = เส้นคู่ (Total)</span>
+  </div>
+
+  <div class="draw-area">
+    <div class="draw-label">วาด ER Diagram ที่นี่</div>
+  </div>
+
+  <div class="q-footer">
+    <div class="q-footer-skills">
+      <span class="skill-tag">1:N Relationship</span>
+      <span class="skill-tag">Key Attribute</span>
+      <span class="skill-tag">Participation</span>
+    </div>
+    <div class="q-footer-pts">รวม 10 คะแนน</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ -->
+<!-- QUESTION 2 -->
+<!-- ══════════════════════════════════════ -->
+<div class="q-card">
+  <div class="q-head">
+    <div class="q-emoji">🐾</div>
+    <div class="q-meta">
+      <div class="q-num">โจทย์ที่ 02</div>
+      <div class="q-title">คลินิกสัตว์เลี้ยง</div>
+    </div>
+    <div class="q-badge">⭐ ง่าย</div>
+  </div>
+
+  <div class="q-story">
+    <div class="q-story-label">สถานการณ์</div>
+    คลินิกรักษาสัตว์ต้องการเก็บข้อมูล<strong>เจ้าของ</strong>และ<strong>สัตว์เลี้ยง</strong>
+    เจ้าของมีชื่อ เบอร์โทร และที่อยู่
+    สัตว์เลี้ยงมีชื่อ ประเภทสัตว์ (หมา/แมว/กระต่าย) และอายุ
+    <br><br>
+    📌 <strong>กฎ:</strong> เจ้าของ 1 คน มีสัตว์เลี้ยงได้หลายตัว แต่สัตว์เลี้ยง 1 ตัว มีเจ้าของ 1 คน
+    สัตว์เลี้ยง<strong>ทุกตัว</strong>ต้องมีเจ้าของ แต่เจ้าของบางคนอาจยังไม่มีสัตว์เลี้ยงในระบบก็ได้
+  </div>
+
+  <div class="entity-row">
+    <div class="entity-chip"><span class="entity-icon">👤</span> เจ้าของ (Owner)</div>
+    <div class="entity-chip"><span class="entity-icon">🐶</span> สัตว์เลี้ยง (Pet)</div>
+  </div>
+
+  <div class="q-tasks">
+    <div class="q-task"><span class="task-num">(1)</span><span>วาด Entity 2 ตัว พร้อม Attribute ครบ ขีดเส้นใต้ Primary Key ทั้งสองตัว</span><span class="task-pts">4 คะแนน</span></div>
+    <div class="q-task"><span class="task-num">(2)</span><span>วาด Relationship เชื่อม พร้อมระบุ Cardinality (1:N)</span><span class="task-pts">3 คะแนน</span></div>
+    <div class="q-task"><span class="task-num">(3)</span><span>ระบุ Participation — สัตว์เลี้ยงฝั่งใช้เส้นคู่หรือเส้นเดี่ยว? เจ้าของฝั่งล่ะ?</span><span class="task-pts">3 คะแนน</span></div>
+  </div>
+
+  <div class="q-hint">
+    <span class="hint-icon">💡</span>
+    <span><strong>คำใบ้:</strong> "สัตว์เลี้ยงทุกตัวต้องมีเจ้าของ" = สัตว์เลี้ยงเป็น Total (เส้นคู่) / "เจ้าของบางคนอาจไม่มีสัตว์" = เจ้าของเป็น Partial (เส้นเดี่ยว)</span>
+  </div>
+
+  <div class="draw-area">
+    <div class="draw-label">วาด ER Diagram ที่นี่</div>
+  </div>
+
+  <div class="q-footer">
+    <div class="q-footer-skills">
+      <span class="skill-tag">1:N Relationship</span>
+      <span class="skill-tag">Total Participation</span>
+      <span class="skill-tag">Partial Participation</span>
+    </div>
+    <div class="q-footer-pts">รวม 10 คะแนน</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ -->
+<!-- QUESTION 3 -->
+<!-- ══════════════════════════════════════ -->
+<div class="q-card">
+  <div class="q-head">
+    <div class="q-emoji">🎮</div>
+    <div class="q-meta">
+      <div class="q-num">โจทย์ที่ 03</div>
+      <div class="q-title">ร้านเกม</div>
+    </div>
+    <div class="q-badge">⭐⭐ ปานกลาง</div>
+  </div>
+
+  <div class="q-story">
+    <div class="q-story-label">สถานการณ์</div>
+    ร้านขายเกมต้องการระบบเก็บข้อมูล<strong>ลูกค้า</strong> <strong>เกม</strong> และ<strong>การซื้อ</strong>
+    ลูกค้ามีชื่อ อีเมล และเบอร์โทร
+    เกมมีชื่อ แนว (Action/RPG/Sport) และราคา
+    <br><br>
+    📌 <strong>กฎ:</strong> ลูกค้า 1 คน ซื้อเกมได้หลายเกม และเกม 1 เกม ถูกซื้อโดยลูกค้าหลายคนได้ (M:N)
+    บันทึกวันที่ซื้อและราคาที่จ่ายจริงด้วย
+  </div>
+
+  <div class="entity-row">
+    <div class="entity-chip"><span class="entity-icon">👤</span> ลูกค้า (Customer)</div>
+    <div class="entity-chip"><span class="entity-icon">🕹️</span> เกม (Game)</div>
+    <div class="rel-chip">◇ ซื้อ (พร้อม Attribute วันที่ซื้อ, ราคาที่จ่าย)</div>
+  </div>
+
+  <div class="q-tasks">
+    <div class="q-task"><span class="task-num">(1)</span><span>วาด Entity ทั้ง 2 ตัวพร้อม Attribute และ Primary Key</span><span class="task-pts">4 คะแนน</span></div>
+    <div class="q-task"><span class="task-num">(2)</span><span>วาด Relationship แบบ M:N พร้อม Relationship Attribute (วันที่ซื้อ, ราคาที่จ่าย) เชื่อมออกจาก Diamond</span><span class="task-pts">4 คะแนน</span></div>
+    <div class="q-task"><span class="task-num">(3)</span><span>ระบุ Participation ทั้งสองฝั่ง</span><span class="task-pts">2 คะแนน</span></div>
+  </div>
+
+  <div class="q-hint">
+    <span class="hint-icon">💡</span>
+    <span><strong>คำใบ้:</strong> M:N = ลูกค้าหลายคน ← เกมหลายเกม / Relationship Attribute คือข้อมูลที่เกิดขึ้น <em>ตอนซื้อ</em> ให้วาดวงรีต่อออกจาก Diamond (เพชร) ไม่ใช่จาก Entity</span>
+  </div>
+
+  <div class="draw-area">
+    <div class="draw-label">วาด ER Diagram ที่นี่</div>
+  </div>
+
+  <div class="q-footer">
+    <div class="q-footer-skills">
+      <span class="skill-tag">M:N Relationship</span>
+      <span class="skill-tag">Relationship Attribute</span>
+    </div>
+    <div class="q-footer-pts">รวม 10 คะแนน</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ -->
+<!-- QUESTION 4 -->
+<!-- ══════════════════════════════════════ -->
+<div class="q-card">
+  <div class="q-head">
+    <div class="q-emoji">🍜</div>
+    <div class="q-meta">
+      <div class="q-num">โจทย์ที่ 04</div>
+      <div class="q-title">ร้านอาหาร</div>
+    </div>
+    <div class="q-badge">⭐⭐ ปานกลาง</div>
+  </div>
+
+  <div class="q-story">
+    <div class="q-story-label">สถานการณ์</div>
+    ร้านอาหารต้องการระบบเก็บข้อมูล<strong>เมนูอาหาร</strong> <strong>โต๊ะ</strong> และ<strong>ออเดอร์</strong>
+    เมนูมีชื่อเมนู ราคา และหมวดหมู่ (เช่น ก๋วยเตี๋ยว ข้าว เครื่องดื่ม)
+    โต๊ะมีหมายเลขโต๊ะและจำนวนที่นั่ง
+    <br><br>
+    📌 <strong>กฎ:</strong> โต๊ะ 1 โต๊ะ สั่งอาหารได้หลายออเดอร์ ออเดอร์ 1 ชุด สั่งเมนูได้หลายรายการ
+    ในออเดอร์บันทึกจำนวนที่สั่งของแต่ละเมนูด้วย
+  </div>
+
+  <div class="entity-row">
+    <div class="entity-chip"><span class="entity-icon">🍽️</span> เมนู (Menu)</div>
+    <div class="entity-chip"><span class="entity-icon">🪑</span> โต๊ะ (Table)</div>
+    <div class="entity-chip"><span class="entity-icon">📋</span> ออเดอร์ (Order)</div>
+  </div>
+
+  <div class="q-tasks">
+    <div class="q-task"><span class="task-num">(1)</span><span>วาด Entity ทั้ง 3 ตัวพร้อม Attribute และ Primary Key</span><span class="task-pts">4 คะแนน</span></div>
+    <div class="q-task"><span class="task-num">(2)</span><span>วาด Relationship ระหว่าง โต๊ะ–ออเดอร์ (1:N) และ ออเดอร์–เมนู (M:N พร้อม Attribute จำนวน)</span><span class="task-pts">4 คะแนน</span></div>
+    <div class="q-task"><span class="task-num">(3)</span><span>ระบุ Participation ทุกเส้น พร้อมอธิบายสั้นๆ ว่าทำไมถึงเลือกแบบนั้น</span><span class="task-pts">2 คะแนน</span></div>
+  </div>
+
+  <div class="q-hint">
+    <span class="hint-icon">💡</span>
+    <span><strong>คำใบ้:</strong> มี 3 Entity = มี 2 Relationship / ออเดอร์เชื่อมทั้งโต๊ะและเมนู — ออเดอร์อยู่ตรงกลาง! ลองวาง Entity เป็น "สามเหลี่ยม" ดู</span>
+  </div>
+
+  <div class="draw-area" style="min-height:260px;">
+    <div class="draw-label">วาด ER Diagram ที่นี่</div>
+  </div>
+
+  <div class="q-footer">
+    <div class="q-footer-skills">
+      <span class="skill-tag">3 Entities</span>
+      <span class="skill-tag">1:N + M:N</span>
+      <span class="skill-tag">Relationship Attribute</span>
+    </div>
+    <div class="q-footer-pts">รวม 10 คะแนน</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ -->
+<!-- QUESTION 5 -->
+<!-- ══════════════════════════════════════ -->
+<div class="q-card">
+  <div class="q-head">
+    <div class="q-emoji">🏫</div>
+    <div class="q-meta">
+      <div class="q-num">โจทย์ที่ 05</div>
+      <div class="q-title">ระบบนักเรียน-ครู</div>
+    </div>
+    <div class="q-badge">⭐⭐ ปานกลาง</div>
+  </div>
+
+  <div class="q-story">
+    <div class="q-story-label">สถานการณ์</div>
+    โรงเรียนต้องการระบบเก็บข้อมูล<strong>นักเรียน</strong> <strong>ครู</strong> และ<strong>วิชา</strong>
+    นักเรียนมีรหัส ชื่อ ชั้นปี
+    ครูมีรหัส ชื่อ วิชาเอก
+    วิชามีรหัสวิชา ชื่อวิชา จำนวนหน่วยกิต
+    <br><br>
+    📌 <strong>กฎ:</strong> ครู 1 คน สอนวิชาได้หลายวิชา (1:N) / นักเรียน 1 คน เรียนวิชาได้หลายวิชา และวิชา 1 วิชา มีนักเรียนหลายคน (M:N) บันทึกเกรดที่ได้ด้วย
+  </div>
+
+  <div class="entity-row">
+    <div class="entity-chip"><span class="entity-icon">🧑‍🎓</span> นักเรียน (Student)</div>
+    <div class="entity-chip"><span class="entity-icon">👩‍🏫</span> ครู (Teacher)</div>
+    <div class="entity-chip"><span class="entity-icon">📐</span> วิชา (Subject)</div>
+  </div>
+
+  <div class="q-tasks">
+    <div class="q-task"><span class="task-num">(1)</span><span>วาด Entity ทั้ง 3 ตัวพร้อม Attribute และ Primary Key ครบถ้วน</span><span class="task-pts">4 คะแนน</span></div>
+    <div class="q-task"><span class="task-num">(2)</span><span>วาด Relationship ครู–วิชา (1:N) และ นักเรียน–วิชา (M:N) พร้อม Relationship Attribute เกรด</span><span class="task-pts">4 คะแนน</span></div>
+    <div class="q-task"><span class="task-num">(3)</span><span>ระบุ Participation ทุกเส้น พร้อม Cardinality ให้ครบทั้ง 2 Relationship</span><span class="task-pts">2 คะแนน</span></div>
+  </div>
+
+  <div class="q-hint">
+    <span class="hint-icon">💡</span>
+    <span><strong>คำใบ้:</strong> Diagram นี้มี 2 Relationship — วาด "ครู → วิชา" ก่อน แล้วค่อยเพิ่ม "นักเรียน → วิชา" เข้าไป วิชาเชื่อมกับทั้งครูและนักเรียน วางวิชาตรงกลางจะสวยที่สุด</span>
+  </div>
+
+  <div class="draw-area" style="min-height:260px;">
+    <div class="draw-label">วาด ER Diagram ที่นี่</div>
+  </div>
+
+  <div class="q-footer">
+    <div class="q-footer-skills">
+      <span class="skill-tag">3 Entities</span>
+      <span class="skill-tag">1:N + M:N</span>
+      <span class="skill-tag">Relationship Attribute</span>
+      <span class="skill-tag">Participation</span>
+    </div>
+    <div class="q-footer-pts">รวม 10 คะแนน</div>
+  </div>
+</div>
+
+<!-- ── TIPS BOX ── -->
+<div class="tips-box">
+  <div class="tips-title">🌟 เคล็ดลับสำหรับมือใหม่</div>
+  <div class="tips-grid">
+    <div class="tip"><strong>📦 ขั้นตอนที่ 1 — หา Entity</strong>มองหา "คำนาม" ในโจทย์ เช่น นักเรียน สินค้า ร้านค้า = Entity</div>
+    <div class="tip"><strong>🔗 ขั้นตอนที่ 2 — หา Relationship</strong>มองหา "กริยา" เชื่อม Entity เช่น ซื้อ, สอน, สังกัด = Relationship</div>
+    <div class="tip"><strong>🔢 Cardinality ง่ายๆ</strong>ถาม "A 1 ตัว → B กี่ตัว?" ถ้า 1 ตัว = 1 ถ้าหลายตัว = N</div>
+    <div class="tip"><strong>〰️ Participation ง่ายๆ</strong>"ทุก..." หรือ "ต้องมี..." = เส้นคู่ (Total) / "บางส่วน..." หรือ "อาจจะ..." = เส้นเดี่ยว (Partial)</div>
+    <div class="tip"><strong>💎 M:N ต้องระวัง!</strong>ถ้า Cardinality เป็น M:N ต้องวาด Relationship Attribute บน Diamond ไม่ใช่บน Entity</div>
+    <div class="tip"><strong>🔑 Primary Key</strong>ทุก Strong Entity ต้องมี PK อย่างน้อย 1 ตัว เขียนชื่อใต้เส้น (underline) ไว้</div>
+  </div>
+</div>
+
+</div>
+</body>
+</html>

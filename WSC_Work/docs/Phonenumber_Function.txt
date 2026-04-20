@@ -1,0 +1,34 @@
+# ...existing code...
+def _clean_phone(num):
+    s = str(num).strip()
+
+    # กรณีค่าว่าง, '0', หรือ 'nan' ให้ถือว่าไม่มีเบอร์ -> คืน '0'
+    if s == '' or s == '0' or s.lower() == 'nan':
+        return '0'
+
+    # วนเช็คอักขระทีละตัว: อนุญาต '+' ได้เฉพาะตำแหน่งแรกเท่านั้น, ที่เหลือต้องเป็นตัวเลข
+    for i, ch in enumerate(s):
+        if ch == '+':
+            if i != 0:
+                return '0'
+            continue
+        if not ch.isdigit():
+            return '0'
+
+    # ===== ผ่าน validation แล้ว =====
+    if s.startswith('+'):
+        digits = ''.join(ch for ch in s[1:] if ch.isdigit())
+        if not digits:
+            return '0'
+        # ตัดให้ไม่เกิน 11 และถ้าน้อยกว่า 11 ให้เติม '0' ด้านหน้าให้ครบ 11 หลัก
+        digits = digits[:11].zfill(11)
+        return '+' + digits
+    else:
+        digits = ''.join(ch for ch in s if ch.isdigit())
+        if not digits:
+            return '0'
+        digits = digits[:11].zfill(11)
+        return digits
+
+customers_df['phone_number'] = customers_df['phone_number'].apply(_clean_phone)
+# ...existing code...

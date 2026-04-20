@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WSC2024 | Task 1.1 — Data Exploration</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&family=JetBrains+Mono:wght@400;600&family=Prompt:wght@300;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --bg2: #13161e;
+    --bg3: #1a1e2a;
+    --card: #1e2330;
+    --border: #2a3045;
+    --blue: #4f8ef7;
+    --teal: #2dd4bf;
+    --green: #34d399;
+    --yellow: #fbbf24;
+    --pink: #f472b6;
+    --red: #f87171;
+    --orange: #fb923c;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --code-bg: #0a0c10;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Sarabun', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    font-size: 16px;
+  }
+
+  /* ===== HERO ===== */
+  .hero {
+    background: linear-gradient(135deg, #0d0f14 0%, #111827 50%, #0d1117 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 60px 24px 50px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(79,142,247,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-badge {
+    display: inline-block;
+    background: rgba(79,142,247,0.15);
+    border: 1px solid rgba(79,142,247,0.3);
+    color: var(--blue);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    padding: 4px 14px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+    letter-spacing: 0.08em;
+  }
+  .hero h1 {
+    font-family: 'Prompt', sans-serif;
+    font-weight: 900;
+    font-size: clamp(28px, 5vw, 52px);
+    line-height: 1.15;
+    background: linear-gradient(135deg, #e2e8f0 30%, #4f8ef7 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 16px;
+  }
+  .hero p {
+    color: var(--muted);
+    font-size: 18px;
+    max-width: 560px;
+    margin: 0 auto 32px;
+  }
+  .hero-steps {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 12px;
+  }
+  .hero-step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 8px 18px;
+    border-radius: 8px;
+    font-size: 14px;
+    color: var(--muted);
+  }
+  .hero-step span.num {
+    background: var(--blue);
+    color: white;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  /* ===== LAYOUT ===== */
+  .container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+
+  /* ===== SECTION HEADER ===== */
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 56px 0 24px;
+  }
+  .section-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    background: var(--blue);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 5px;
+    flex-shrink: 0;
+    letter-spacing: 0.06em;
+  }
+  .section-num.green { background: var(--green); color: #0d0f14; }
+  .section-num.teal  { background: var(--teal);  color: #0d0f14; }
+  .section-num.yellow{ background: var(--yellow); color: #0d0f14; }
+  .section-num.pink  { background: var(--pink);  color: #0d0f14; }
+  .section-header h2 {
+    font-family: 'Prompt', sans-serif;
+    font-weight: 700;
+    font-size: 22px;
+    color: var(--text);
+  }
+  .section-header p {
+    color: var(--muted);
+    font-size: 14px;
+    margin-top: 2px;
+  }
+
+  /* ===== CARD ===== */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+  .card-header {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255,255,255,0.02);
+  }
+  .card-icon { font-size: 18px; }
+  .card-title {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--text);
+  }
+  .card-body { padding: 20px; }
+
+  /* ===== CODE BLOCK ===== */
+  .code-wrap {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 14px 0;
+  }
+  .code-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    border-bottom: 1px solid #1e2330;
+    background: #111318;
+  }
+  .code-bar-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .code-dots {
+    display: flex;
+    gap: 6px;
+  }
+  .code-dots span {
+    width: 11px; height: 11px;
+    border-radius: 50%;
+  }
+  .dot-r { background: #ff5f57; }
+  .dot-y { background: #febc2e; }
+  .dot-g { background: #28c840; }
+  .code-filename {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .copy-btn {
+    background: var(--border);
+    border: none;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 4px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.04em;
+  }
+  .copy-btn:hover { background: var(--blue); color: white; }
+  .copy-btn.copied { background: var(--green); color: #0d0f14; }
+  pre {
+    padding: 20px;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13.5px;
+    line-height: 1.75;
+    color: #abb2bf;
+    tab-size: 4;
+  }
+  /* Syntax colors */
+  .kw  { color: #c678dd; }   /* keyword */
+  .fn  { color: #61afef; }   /* function */
+  .str { color: #98c379; }   /* string */
+  .cm  { color: #5c6370; font-style: italic; } /* comment */
+  .num { color: #d19a66; }   /* number */
+  .var { color: #e5c07b; }   /* variable */
+  .op  { color: #56b6c2; }   /* operator */
+  .th-text { color: #e2e8f0; } /* thai text in code (as string) */
+
+  /* ===== INFO BOXES ===== */
+  .info-box {
+    border-left: 3px solid var(--blue);
+    background: rgba(79,142,247,0.06);
+    border-radius: 0 8px 8px 0;
+    padding: 14px 18px;
+    margin: 14px 0;
+    font-size: 15px;
+  }
+  .info-box.green  { border-color: var(--green);  background: rgba(52,211,153,0.06); }
+  .info-box.yellow { border-color: var(--yellow); background: rgba(251,191,36,0.06); }
+  .info-box.red    { border-color: var(--red);    background: rgba(248,113,113,0.06); }
+  .info-box.teal   { border-color: var(--teal);   background: rgba(45,212,191,0.06); }
+  .info-box-title {
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    color: var(--blue);
+  }
+  .info-box.green  .info-box-title { color: var(--green); }
+  .info-box.yellow .info-box-title { color: var(--yellow); }
+  .info-box.red    .info-box-title { color: var(--red); }
+  .info-box.teal   .info-box-title { color: var(--teal); }
+
+  /* ===== TABLE ===== */
+  .tbl-wrap { overflow-x: auto; margin: 14px 0; border-radius: 10px; border: 1px solid var(--border); }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th {
+    background: #111318;
+    padding: 12px 16px;
+    text-align: left;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 10px 16px;
+    border-bottom: 1px solid rgba(42,48,69,0.5);
+    vertical-align: top;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(79,142,247,0.04); }
+  .tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin: 1px 2px;
+    font-weight: 600;
+  }
+  .tag-blue   { background: rgba(79,142,247,0.15); color: var(--blue); }
+  .tag-green  { background: rgba(52,211,153,0.15); color: var(--green); }
+  .tag-yellow { background: rgba(251,191,36,0.15); color: var(--yellow); }
+  .tag-red    { background: rgba(248,113,113,0.15); color: var(--red); }
+  .tag-teal   { background: rgba(45,212,191,0.15); color: var(--teal); }
+
+  /* ===== STEP INDICATOR ===== */
+  .steps-flow {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 14px 0;
+  }
+  .step-item {
+    display: flex;
+    gap: 16px;
+    position: relative;
+  }
+  .step-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 36px;
+    flex-shrink: 0;
+  }
+  .step-circle {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--blue);
+    display: grid;
+    place-items: center;
+    font-weight: 700;
+    font-size: 14px;
+    color: white;
+    flex-shrink: 0;
+    z-index: 1;
+  }
+  .step-circle.green  { background: var(--green);  color: #0d0f14; }
+  .step-circle.teal   { background: var(--teal);   color: #0d0f14; }
+  .step-circle.yellow { background: var(--yellow); color: #0d0f14; }
+  .step-circle.pink   { background: var(--pink);   color: #0d0f14; }
+  .step-line {
+    width: 2px;
+    flex: 1;
+    background: var(--border);
+    margin: 4px 0;
+    min-height: 20px;
+  }
+  .step-item:last-child .step-line { display: none; }
+  .step-content {
+    padding: 4px 0 28px;
+    flex: 1;
+  }
+  .step-title {
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .step-desc {
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* ===== OUTPUT PREVIEW ===== */
+  .output-preview {
+    background: #070a0e;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 14px 0;
+  }
+  .output-header {
+    background: #0d1117;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .output-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+  .output-body {
+    padding: 16px 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.8;
+    color: #8b949e;
+    white-space: pre;
+    overflow-x: auto;
+  }
+  .out-h  { color: #58a6ff; }
+  .out-ok { color: #3fb950; }
+  .out-w  { color: #e3b341; }
+  .out-v  { color: #ff7b72; }
+  .out-n  { color: #d2a8ff; }
+
+  /* ===== PILL GRID ===== */
+  .pill-grid { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+  .pill {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .pill-icon { font-size: 16px; }
+
+  /* ===== DIVIDER ===== */
+  hr { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
+
+  /* ===== FOOTER ===== */
+  footer {
+    margin-top: 80px;
+    padding: 40px 24px;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+  }
+  footer strong { color: var(--blue); }
+
+  /* ===== HIGHLIGHT INLINE ===== */
+  code {
+    background: rgba(79,142,247,0.12);
+    color: var(--blue);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    padding: 2px 7px;
+    border-radius: 4px;
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media(max-width: 640px) {
+    .hero h1 { font-size: 28px; }
+    pre { font-size: 12px; }
+    .output-body { font-size: 11px; }
+  }
+
+  /* ===== ANIMATIONS ===== */
+  .fade-in {
+    opacity: 0;
+    transform: translateY(16px);
+    animation: fadeUp 0.5s ease forwards;
+  }
+  @keyframes fadeUp {
+    to { opacity:1; transform:translateY(0); }
+  }
+  .fade-in:nth-child(1){animation-delay:0.05s}
+  .fade-in:nth-child(2){animation-delay:0.1s}
+  .fade-in:nth-child(3){animation-delay:0.15s}
+  .fade-in:nth-child(4){animation-delay:0.2s}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">WSC2024 · Session 1 · Task 1.1</div>
+  <h1>Data Loading &amp;<br>Exploration</h1>
+  <p>เรียนรู้การโหลดไฟล์ CSV วิเคราะห์โครงสร้างข้อมูล และตรวจหาความผิดปกติ ด้วย Python + pandas</p>
+  <div class="hero-steps">
+    <div class="hero-step"><span class="num">1</span>ติดตั้งโปรแกรม</div>
+    <div class="hero-step"><span class="num">2</span>โหลดไฟล์ CSV</div>
+    <div class="hero-step"><span class="num">3</span>สำรวจข้อมูล</div>
+    <div class="hero-step"><span class="num">4</span>ตรวจหา Anomalies</div>
+    <div class="hero-step"><span class="num">5</span>บันทึกผลลัพธ์</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- ===== SECTION 0: โปรแกรมที่ใช้ ===== -->
+  <div class="section-header fade-in">
+    <div class="section-num">STEP 00</div>
+    <div>
+      <h2>โปรแกรมที่ต้องใช้</h2>
+      <p>เตรียมเครื่องมือก่อนเริ่มเขียนโค้ด</p>
+    </div>
+  </div>
+
+  <div class="card fade-in">
+    <div class="card-header">
+      <span class="card-icon">🛠️</span>
+      <span class="card-title">เครื่องมือหลักที่ใช้ใน Task 1.1</span>
+    </div>
+    <div class="card-body">
+      <div class="tbl-wrap">
+        <table>
+          <tr>
+            <th>โปรแกรม</th>
+            <th>ใช้ทำอะไร</th>
+            <th>ดาวน์โหลด</th>
+          </tr>
+          <tr>
+            <td><strong>Python 3.10+</strong></td>
+            <td>ภาษาโปรแกรมหลักที่ใช้วิเคราะห์ข้อมูล</td>
+            <td><span class="tag tag-blue">python.org</span></td>
+          </tr>
+          <tr>
+            <td><strong>pandas</strong></td>
+            <td>Library สำหรับอ่านไฟล์ CSV จัดการตาราง DataFrame</td>
+            <td><span class="tag tag-green">pip install pandas</span></td>
+          </tr>
+          <tr>
+            <td><strong>numpy</strong></td>
+            <td>ใช้คำนวณตัวเลข เช่น ตรวจค่าติดลบ</td>
+            <td><span class="tag tag-green">pip install numpy</span></td>
+          </tr>
+          <tr>
+            <td><strong>VS Code</strong></td>
+            <td>Text Editor สำหรับเขียนโค้ด Python</td>
+            <td><span class="tag tag-teal">code.visualstudio.com</span></td>
+          </tr>
+          <tr>
+            <td><strong>Jupyter Notebook</strong></td>
+            <td>ทางเลือก — รันโค้ดทีละบล็อก เห็นผลทันที</td>
+            <td><span class="tag tag-yellow">pip install notebook</span></td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="info-box yellow">
+        <div class="info-box-title">💡 แนะนำสำหรับการแข่งขัน WSC</div>
+        ใช้ <strong>VS Code + Python Extension</strong> หรือ <strong>Jupyter Notebook</strong> จะสะดวกที่สุด เพราะรันโค้ดได้ง่าย และเห็นผลได้เร็ว
+      </div>
+
+      <p style="margin-bottom:10px;font-weight:700;">ติดตั้ง library ด้วยคำสั่งนี้ใน Terminal/Command Prompt:</p>
+      <div class="code-wrap">
+        <div class="code-bar">
+          <div class="code-bar-left">
+            <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+            <span class="code-filename">terminal</span>
+          </div>
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="fn">pip</span> install <span class="str">pandas numpy</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 1: โครงสร้างโฟลเดอร์ ===== -->
+  <div class="section-header fade-in">
+    <div class="section-num green">STEP 01</div>
+    <div>
+      <h2>จัดโฟลเดอร์และวางไฟล์</h2>
+      <p>วางไฟล์ CSV ให้ถูกที่ก่อนเขียนโค้ด</p>
+    </div>
+  </div>
+
+  <div class="card fade-in">
+    <div class="card-header">
+      <span class="card-icon">📁</span>
+      <span class="card-title">โครงสร้างโฟลเดอร์ที่แนะนำ</span>
+    </div>
+    <div class="card-body">
+      <div class="code-wrap">
+        <div class="code-bar">
+          <div class="code-bar-left">
+            <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+            <span class="code-filename">folder structure</span>
+          </div>
+        </div>
+        <pre><span class="var">WSC2024_Session1/</span>
+├── <span class="str">data/</span>
+│   ├── <span class="fn">customers.csv</span>
+│   ├── <span class="fn">products.csv</span>
+│   └── <span class="fn">sales_transactions.csv</span>
+├── <span class="str">output/</span>
+│   └── <span class="cm">(ไฟล์ผลลัพธ์จะถูกบันทึกที่นี่)</span>
+└── <span class="fn">task1_1_exploration.py</span>   <span class="cm"># ไฟล์โค้ดของเรา</span></pre>
+      </div>
+      <div class="info-box green">
+        <div class="info-box-title">✅ สำคัญ</div>
+        วางไฟล์ <code>customers.csv</code>, <code>products.csv</code>, <code>sales_transactions.csv</code> ไว้ในโฟลเดอร์ <code>data/</code> ก่อนรันโค้ด
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 2: โหลดไฟล์ ===== -->
+  <div class="section-header fade-in">
+    <div class="section-num teal">STEP 02</div>
+    <div>
+      <h2>โหลดไฟล์ CSV เข้า Python</h2>
+      <p>ใช้คำสั่ง pd.read_csv() เพื่ออ่านข้อมูล</p>
+    </div>
+  </div>
+
+  <div class="card fade-in">
+    <div class="card-header">
+      <span class="card-icon">📥</span>
+      <span class="card-title">Import Library และโหลดไฟล์ทั้ง 3 ไฟล์</span>
+    </div>
+    <div class="card-body">
+
+      <div class="steps-flow">
+        <div class="step-item">
+          <div class="step-left">
+            <div class="step-circle">1</div>
+            <div class="step-line"></div>
+          </div>
+          <div class="step-content">
+            <div class="step-title">Import library ที่จำเป็น</div>
+            <div class="step-desc">เรียกใช้ pandas และ numpy ก่อนเสมอ</div>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-left">
+            <div class="step-circle">2</div>
+            <div class="step-line"></div>
+          </div>
+          <div class="step-content">
+            <div class="step-title">กำหนด path ของไฟล์</div>
+            <div class="step-desc">บอก Python ว่าไฟล์ CSV อยู่ที่ไหน</div>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-left">
+            <div class="step-circle green">3</div>
+          </div>
+          <div class="step-content">
+            <div class="step-title">ใช้ pd.read_csv() อ่านข้อมูล</div>
+            <div class="step-desc">ข้อมูลจะถูกเก็บไว้ใน DataFrame</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="code-wrap">
+        <div class="code-bar">
+          <div class="code-bar-left">
+            <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+            <span class="code-filename">task1_1_exploration.py</span>
+          </div>
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="cm"># ── Step 1: Import library ──────────────────────────────</span>
+<span class="kw">import</span> <span class="var">pandas</span> <span class="kw">as</span> <span class="fn">pd</span>
+<span class="kw">import</span> <span class="var">numpy</span>  <span class="kw">as</span> <span class="fn">np</span>
+
+<span class="cm"># ── Step 2: กำหนด path ไฟล์ ──────────────────────────────</span>
+<span class="var">PATH_CUSTOMERS</span> <span class="op">=</span> <span class="str">'data/customers.csv'</span>
+<span class="var">PATH_PRODUCTS</span>  <span class="op">=</span> <span class="str">'data/products.csv'</span>
+<span class="var">PATH_SALES</span>     <span class="op">=</span> <span class="str">'data/sales_transactions.csv'</span>
+
+<span class="cm"># ── Step 3: โหลดไฟล์ CSV ──────────────────────────────────</span>
+<span class="var">customers</span> <span class="op">=</span> <span class="fn">pd.read_csv</span>(<span class="var">PATH_CUSTOMERS</span>)
+<span class="var">products</span>  <span class="op">=</span> <span class="fn">pd.read_csv</span>(<span class="var">PATH_PRODUCTS</span>)
+<span class="var">sales</span>     <span class="op">=</span> <span class="fn">pd.read_csv</span>(<span class="var">PATH_SALES</span>)
+
+<span class="fn">print</span>(<span class="str">"โหลดข้อมูลสำเร็จ ✓"</span>)</pre>
+      </div>
+
+      <div class="info-box">
+        <div class="info-box-title">📌 pd.read_csv() คืออะไร</div>
+        คำสั่งสำหรับอ่านไฟล์ .csv และแปลงเป็น <strong>DataFrame</strong> ซึ่งเหมือนตาราง Excel ใน Python — มีแถว (rows) และคอลัมน์ (columns) พร้อมคำนวณได้
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 3: 5 แถวแรก ===== -->
+  <div class="section-header fade-in">
+    <div class="section-num yellow">STEP 03</div>
+    <div>
+      <h2>แสดง 5 แถวแรก (.head())</h2>
+      <p>ดูโครงสร้างและตัวอย่างข้อมูลเบื้องต้น</p>
+    </div>
+  </div>
+
+  <div class="card fade-in">
+    <div class="card-header">
+      <span class="card-icon">👀</span>
+      <span class="card-title">คำสั่ง .head() — แสดง 5 แถวแรก</span>
+    </div>
+    <div class="card-body">
+      <div class="code-wrap">
+        <div class="code-bar">
+          <div class="code-bar-left">
+            <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+            <span class="code-filename">task1_1_exploration.py</span>
+          </div>
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="cm"># แสดง 5 แถวแรกของแต่ละไฟล์</span>
+<span class="fn">print</span>(<span class="str">"=== customers.csv — 5 แถวแรก ==="</span>)
+<span class="fn">print</span>(<span class="var">customers</span>.<span class="fn">head</span>())
+
+<span class="fn">print</span>(<span class="str">"\n=== products.csv — 5 แถวแรก ==="</span>)
+<span class="fn">print</span>(<span class="var">products</span>.<span class="fn">head</span>())
+
+<span class="fn">print</span>(<span class="str">"\n=== sales_transactions.csv — 5 แถวแรก ==="</span>)
+<span class="fn">print</span>(<span class="var">sales</span>.<span class="fn">head</span>())</pre>
+      </div>
+
+      <div class="output-preview">
+        <div class="output-header">
+          <div class="output-dot"></div>
+          ผลลัพธ์ที่ได้ (Output)
+        </div>
+        <div class="output-body"><span class="out-h">=== customers.csv — 5 แถวแรก ===</span>
+   customer_id first_name  last_name   age gender  ...  churned
+<span class="out-n">0</span>         101        Léa       King  35.0      M  ...    False
+<span class="out-n">1</span>         102      Chloé      Smith  28.0      F  ...    False
+<span class="out-n">2</span>         103     Harper   Robinson  42.0      M  ...    False
+<span class="out-n">3</span>         104      Ethan  Rodriguez  31.0      F  ...    False
+<span class="out-n">4</span>         105        Ava      Allen  55.0      M  ...     True
+
+<span class="out-h">=== products.csv — 5 แถวแรก ===</span>
+   product_id         product_name category  price   cost
+<span class="out-n">0</span>         1.0    Tarte Tropézienne    Tarte   4.50   2.10
+<span class="out-n">1</span>         2.0     tarte bourdaloue    Tarte   3.80   1.90
+<span class="out-n">2</span>         3.0        tarte flambée    Tarte   5.20    NaN
+<span class="out-n">3</span>         4.0       Tarte Normande    Tarte   4.10   2.00
+<span class="out-n">4</span>         5.0  Tarte au Citron ...    Tarte   4.75   2.30</div>
+      </div>
+
+      <div class="info-box teal">
+        <div class="info-box-title">🔑 คำสั่งที่ใช้บ่อยคู่กัน</div>
+        <div class="pill-grid">
+          <div class="pill"><span class="pill-icon">🔝</span><code>.head()</code> — 5 แถวแรก (default)</div>
+          <div class="pill"><span class="pill-icon">🔢</span><code>.head(10)</code> — กำหนดจำนวนแถวเอง</div>
+          <div class="pill"><span class="pill-icon">⬇️</span><code>.tail()</code> — 5 แถวสุดท้าย</div>
+          <div class="pill"><span class="pill-icon">📐</span><code>.shape</code> — จำนวนแถว × คอลัมน์</div>
+          <div class="pill"><span class="pill-icon">📋</span><code>.columns</code> — ชื่อคอลัมน์ทั้งหมด</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 4: dtypes ===== -->
+  <div class="section-header fade-in">
+    <div class="section-num pink">STEP 04</div>
+    <div>
+      <h2>ตรวจประเภทข้อมูล (.dtypes)</h2>
+      <p>ดูว่าแต่ละคอลัมน์เก็บข้อมูลประเภทอะไร</p>
+    </div>
+  </div>
+
+  <div class="card fade-in">
+    <div class="card-header">
+      <span class="card-icon">🔍</span>
+      <span class="card-title">คำสั่ง .dtypes — ดูประเภทข้อมูล</span>
+    </div>
+    <div class="card-body">
+      <div class="code-wrap">
+        <div class="code-bar">
+          <div class="code-bar-left">
+            <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+            <span class="code-filename">task1_1_exploration.py</span>
+          </div>
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="cm"># ดูประเภทข้อมูล (Data Types) ของแต่ละคอลัมน์</span>
+<span class="fn">print</span>(<span class="str">"=== customers.csv — Data Types ==="</span>)
+<span class="fn">print</span>(<span class="var">customers</span>.dtypes)
+
+<span class="fn">print</span>(<span class="str">"\n=== products.csv — Data Types ==="</span>)
+<span class="fn">print</span>(<span class="var">products</span>.dtypes)
+
+<span class="fn">print</span>(<span class="str">"\n=== sales_transactions.csv — Data Types ==="</span>)
+<span class="fn">print</span>(<span class="var">sales</span>.dtypes)</pre>
+      </div>
+
+      <div class="tbl-wrap">
+        <table>
+          <tr>
+            <th>ประเภท dtype</th>
+            <th>ความหมาย</th>
+            <th>ตัวอย่าง</th>
+          </tr>
+          <tr>
+            <td><span class="tag tag-blue">int64</span></td>
+            <td>จำนวนเต็ม ไม่มีทศนิยม</td>
+            <td>customer_id, quantity</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-teal">float64</span></td>
+            <td>ทศนิยม หรือตัวเลขที่มีค่า NaN</td>
+            <td>age, price, total_spending</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-green">object / str</span></td>
+            <td>ข้อความ (คอลัมน์ที่ไม่ใช่ตัวเลข)</td>
+            <td>first_name, gender, date</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-yellow">bool</span></td>
+            <td>ค่า True / False</td>
+            <td>churned, active</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-red">datetime64</span></td>
+            <td>วันที่-เวลา (หลัง convert แล้ว)</td>
+            <td>date, join_date</td>
+          </tr>
+        </table>
+      </div>
+      <div class="info-box red">
+        <div class="info-box-title">⚠️ สิ่งที่ต้องระวัง</div>
+        ถ้าคอลัมน์ <code>price</code> หรือ <code>cost</code> แสดงเป็น <strong>object</strong> แทน float64 — แปลว่ามีตัวอักษรปนอยู่ (เช่น "N/A", "$4.50") ต้องทำความสะอาดก่อนในข้อ 1.2
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 5: ANOMALIES ===== -->
+  <div class="section-header fade-in">
+    <div class="section-num">STEP 05</div>
+    <div>
+      <h2>ตรวจหาความผิดปกติ (Anomalies)</h2>
+      <p>ครอบคลุม 5 ประเภทตามโจทย์</p>
+    </div>
+  </div>
+
+  <!-- 5.1 Missing Values -->
+  <div class="card fade-in">
+    <div class="card-header">
+      <span class="card-icon">❓</span>
+      <span class="card-title">Missing Values — ค่าที่หายไป</span>
+    </div>
+    <div class="card-body">
+      <p style="color:var(--muted);margin-bottom:12px;">ใช้ <code>.isnull().sum()</code> นับจำนวนค่าที่หายไปในแต่ละคอลัมน์</p>
+      <div class="code-wrap">
+        <div class="code-bar">
+          <div class="code-bar-left">
+            <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+            <span class="code-filename">task1_1_exploration.py</span>
+          </div>
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="cm"># นับค่าที่หายไปในแต่ละคอลัมน์</span>
+<span class="fn">print</span>(<span class="str">"=== Missing Values: customers.csv ==="</span>)
+<span class="fn">print</span>(<span class="var">customers</span>.<span class="fn">isnull</span>().<span class="fn">sum</span>())
+
+<span class="fn">print</span>(<span class="str">"\n=== Missing Values: products.csv ==="</span>)
+<span class="fn">print</span>(<span class="var">products</span>.<span class="fn">isnull</span>().<span class="fn">sum</span>())
+
+<span class="fn">print</span>(<span class="str">"\n=== Missing Values: sales_transactions.csv ==="</span>)
+<span class="fn">print</span>(<span class="var">sales</span>.<span class="fn">isnull</span>().<span class="fn">sum</span>())</pre>
+      </div>
+      <div class="output-preview">
+        <div class="output-header"><div class="output-dot"></div>ผลลัพธ์จากข้อมูลจริง</div>
+        <div class="output-body"><span class="out-h">=== Missing Values: customers.csv ===</span>
+age                   <span class="out-v">68</span>
+gender                <span class="out-v">69</span>
+phone_number          <span class="out-v">40</span>
+join_date             <span class="out-v">97</span>
+last_purchase_date   <span class="out-v">113</span>
+preferred_category   <span class="out-v">128</span>
+
+<span class="out-h">=== Missing Values: sales_transactions.csv ===</span>
+store_id             <span class="out-v">4768</span>
+promotion_id         <span class="out-v">7986</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5.2 Invalid Dates -->
+  <div class="card fade-in">
+    <div class="card-header">
+      <span class="card-icon">📅</span>
+      <span class="card-title">Invalid Dates — วันที่ไม่ถูกต้อง</span>
+    </div>
+    <div class="card-body">
+      <p style="color:var(--muted);margin-bottom:12px;">ลองแปลงวันที่ด้วย <code>pd.to_datetime()</code> แล้วนับแถวที่แปลงไม่ได้ (เป็น NaT)</p>
+      <div class="code-wrap">
+        <div class="code-bar">
+          <div class="code-bar-left">
+            <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+            <span class="code-filename">task1_1_exploration.py</span>
+          </div>
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="cm"># ตรวจสอบวันที่ที่ไม่ถูกต้อง</span>
+<span class="cm"># errors='coerce' → แปลงค่าที่ผิดรูปแบบเป็น NaT (Not a Time)</span>
+
+<span class="var">before</span> <span class="op">=</span> <span class="var">customers</span>[<span class="str">'join_date'</span>].<span class="fn">isnull</span>().<span class="fn">sum</span>()
+<span class="var">parsed</span> <span class="op">=</span> <span class="fn">pd.to_datetime</span>(<span class="var">customers</span>[<span class="str">'join_date'</span>], <span class="var">errors</span><span class="op">=</span><span class="str">'coerce'</span>)
+<span class="var">after</span>  <span class="op">=</span> <span class="var">parsed</span>.<span class="fn">isnull</span>().<span class="fn">sum</span>()
+<span class="var">invalid_dates</span> <span class="op">=</span> <span class="var">after</span> <span class="op">-</span> <span class="var">before</span>  <span class="cm"># แถวใหม่ที่กลายเป็น NaT หลังแปลง</span>
+
+<span class="fn">print</span>(<span class="str">f"Invalid Dates (join_date): {<span class="var">invalid_dates</span>} rows"</span>)</pre>
+      </div>
+      <div class="output-preview">
+        <div class="output-header"><div class="output-dot"></div>ผลลัพธ์จากข้อมูลจริง</div>
+        <div class="output-body">Invalid Dates (join_date): <span class="out-v">3</span> rows</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5.3 Negative Values -->
+  <div class="card fade-in">
+    <div class="card-header">
+      <span class="card-icon">➖</span>
+      <span class="card-title">Negative Values — ค่าติดลบที่ไม่ควรมี</span>
+    </div>
+    <div class="card-body">
+      <p style="color:var(--muted);margin-bottom:12px;">ใช้เงื่อนไข <code>df['col'] &lt; 0</code> แล้วนับด้วย <code>.sum()</code></p>
+      <div class="code-wrap">
+        <div class="code-bar">
+          <div class="code-bar-left">
+            <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+            <span class="code-filename">task1_1_exploration.py</span>
+          </div>
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="cm"># ตรวจสอบค่าติดลบใน sales_transactions</span>
+<span class="var">neg_qty</span>   <span class="op">=</span> (<span class="var">sales</span>[<span class="str">'quantity'</span>]         <span class="op">&lt;</span> <span class="num">0</span>).<span class="fn">sum</span>()
+<span class="var">neg_price</span> <span class="op">=</span> (<span class="var">sales</span>[<span class="str">'price'</span>]            <span class="op">&lt;</span> <span class="num">0</span>).<span class="fn">sum</span>()
+<span class="var">neg_disc</span>  <span class="op">=</span> (<span class="var">sales</span>[<span class="str">'discount_amount'</span>]  <span class="op">&lt;</span> <span class="num">0</span>).<span class="fn">sum</span>()
+
+<span class="fn">print</span>(<span class="str">f"Negative quantity:        {<span class="var">neg_qty</span>} rows"</span>)
+<span class="fn">print</span>(<span class="str">f"Negative price:           {<span class="var">neg_price</span>} rows"</span>)
+<span class="fn">print</span>(<span class="str">f"Negative discount_amount: {<span class="var">neg_disc</span>} rows"</span>)</pre>
+      </div>
+      <div class="output-preview">
+        <div class="output-header"><div class="output-dot"></div>ผลลัพธ์จากข้อมูลจริง</div>
+        <div class="output-body">Negative quantity:        <span class="out-ok">0</span> rows
+Negative price:           <span class="out-ok">0</span> rows
+Negative discount_amount: <span class="out-ok">0</span> rows</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5.4 Invalid IDs -->
+  <div class="card fade-in">
+    <div class="card-header">
+      <span class="card-icon">🔗</span>
+      <span class="card-title">Invalid IDs — รหัสที่ไม่มีอยู่ในไฟล์อ้างอิง</span>
+    </div>
+    <div class="card-body">
+      <p style="color:var(--muted);margin-bottom:12px;">เช็คว่า product_id และ customer_id ใน sales มีอยู่จริงในไฟล์ products/customers ด้วย <code>.isin()</code></p>
+      <div class="code-wrap">
+        <div class="code-bar">
+          <div class="code-bar-left">
+            <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+            <span class="code-filename">task1_1_exploration.py</span>
+          </div>
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="cm"># รวบรวม ID ที่ถูกต้องจากไฟล์อ้างอิง</span>
+<span class="var">valid_product_ids</span>  <span class="op">=</span> <span class="fn">set</span>(<span class="var">products</span>[<span class="str">'product_id'</span>].<span class="fn">dropna</span>().<span class="fn">astype</span>(<span class="fn">int</span>))
+<span class="var">valid_customer_ids</span> <span class="op">=</span> <span class="fn">set</span>(<span class="var">customers</span>[<span class="str">'customer_id'</span>])
+
+<span class="cm"># นับ ID ใน sales ที่ไม่มีในไฟล์อ้างอิง</span>
+<span class="var">invalid_pid</span> <span class="op">=</span> (~<span class="var">sales</span>[<span class="str">'product_id'</span>].<span class="fn">isin</span>(<span class="var">valid_product_ids</span>)).<span class="fn">sum</span>()
+<span class="var">invalid_cid</span> <span class="op">=</span> (~<span class="var">sales</span>[<span class="str">'customer_id'</span>].<span class="fn">isin</span>(<span class="var">valid_customer_ids</span>)).<span class="fn">sum</span>()
+
+<span class="fn">print</span>(<span class="str">f"Invalid product_id  (not in products.csv):  {<span class="var">invalid_pid</span>} rows"</span>)
+<span class="fn">print</span>(<span class="str">f"Invalid customer_id (not in customers.csv): {<span class="var">invalid_cid</span>} rows"</span>)</pre>
+      </div>
+      <div class="output-preview">
+        <div class="output-header"><div class="output-dot"></div>ผลลัพธ์จากข้อมูลจริง</div>
+        <div class="output-body">Invalid product_id  (not in products.csv):  <span class="out-v">3</span> rows
+Invalid customer_id (not in customers.csv): <span class="out-ok">0</span> rows</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5.5 Unexpected Values -->
+  <div class="card fade-in">
+    <div class="card-header">
+      <span class="card-icon">🚨</span>
+      <span class="card-title">Unexpected Values — ค่าที่ไม่ตรงตาม Data Dictionary</span>
+    </div>
+    <div class="card-body">
+      <p style="color:var(--muted);margin-bottom:12px;">ตรวจสอบว่าค่าในคอลัมน์ประเภทหมวดหมู่ตรงกับที่กำหนดใน Data Dictionary ด้วย <code>.isin()</code></p>
+      <div class="code-wrap">
+        <div class="code-bar">
+          <div class="code-bar-left">
+            <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+            <span class="code-filename">task1_1_exploration.py</span>
+          </div>
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="cm"># ── gender ควรมีแค่ 'M' หรือ 'F' ────────────────────────</span>
+<span class="var">expected_gender</span> <span class="op">=</span> {<span class="str">'M'</span>, <span class="str">'F'</span>}
+<span class="var">bad_gender</span> <span class="op">=</span> <span class="var">customers</span>[
+    <span class="var">customers</span>[<span class="str">'gender'</span>].<span class="fn">notna</span>() <span class="op">&amp;</span>
+    ~<span class="var">customers</span>[<span class="str">'gender'</span>].<span class="fn">isin</span>(<span class="var">expected_gender</span>)
+]
+<span class="fn">print</span>(<span class="str">f"Unexpected gender: {<span class="fn">len</span>(<span class="var">bad_gender</span>)} rows → {<span class="var">customers</span>[<span class="str">'gender'</span>].<span class="fn">unique</span>().<span class="fn">tolist</span>()}"</span>)
+
+<span class="cm"># ── membership_status ควรเป็น Basic/Silver/Gold ──────────</span>
+<span class="var">expected_mem</span> <span class="op">=</span> {<span class="str">'Basic'</span>, <span class="str">'Silver'</span>, <span class="str">'Gold'</span>}
+<span class="var">bad_mem</span> <span class="op">=</span> (~<span class="var">customers</span>[<span class="str">'membership_status'</span>].<span class="fn">isin</span>(<span class="var">expected_mem</span>)).<span class="fn">sum</span>()
+<span class="fn">print</span>(<span class="str">f"Unexpected membership_status: {<span class="var">bad_mem</span>} rows"</span>)
+
+<span class="cm"># ── category ควรเป็น Pastries/Bread/Tarte ────────────────</span>
+<span class="var">expected_cat</span> <span class="op">=</span> {<span class="str">'Pastries'</span>, <span class="str">'Bread'</span>, <span class="str">'Tarte'</span>}
+<span class="var">bad_cat</span> <span class="op">=</span> <span class="var">products</span>[
+    <span class="var">products</span>[<span class="str">'category'</span>].<span class="fn">notna</span>() <span class="op">&amp;</span>
+    ~<span class="var">products</span>[<span class="str">'category'</span>].<span class="fn">str</span>.<span class="fn">strip</span>().<span class="fn">isin</span>(<span class="var">expected_cat</span>)
+]
+<span class="fn">print</span>(<span class="str">f"Unexpected category: {<span class="fn">len</span>(<span class="var">bad_cat</span>)} rows → {<span class="var">products</span>[<span class="str">'category'</span>].<span class="fn">dropna</span>().<span class="fn">unique</span>().<span class="fn">tolist</span>()}"</span>)
+
+<span class="cm"># ── churned ควรเป็น True/False เท่านั้น ─────────────────</span>
+<span class="var">expected_churn</span> <span class="op">=</span> {<span class="str">'True'</span>, <span class="str">'False'</span>}
+<span class="var">bad_churn</span> <span class="op">=</span> (~<span class="var">customers</span>[<span class="str">'churned'</span>].<span class="fn">isin</span>(<span class="var">expected_churn</span>)).<span class="fn">sum</span>()
+<span class="fn">print</span>(<span class="str">f"Unexpected churned: {<span class="var">bad_churn</span>} rows → {<span class="var">customers</span>[<span class="str">'churned'</span>].<span class="fn">unique</span>().<span class="fn">tolist</span>()}"</span>)</pre>
+      </div>
+      <div class="output-preview">
+        <div class="output-header"><div class="output-dot"></div>ผลลัพธ์จากข้อมูลจริง</div>
+        <div class="output-body">Unexpected gender: <span class="out-v">3</span> rows → ['M','F','U','Other','Unknown']
+Unexpected membership_status: <span class="out-v">108</span> rows  <span class="out-w"># มี BASIC, basic, GOLD, gold ฯลฯ</span>
+Unexpected category: <span class="out-v">10</span> rows → ['Tarte','Bread','Pastry','Viennoiserie']
+Unexpected churned: <span class="out-v">52</span> rows → ['False','True','Yes','1','0','N','Y','No']</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5.6 Formatting Issues -->
+  <div class="card fade-in">
+    <div class="card-header">
+      <span class="card-icon">🔧</span>
+      <span class="card-title">Formatting Issues — ช่องว่างหน้า/หลังข้อความ</span>
+    </div>
+    <div class="card-body">
+      <p style="color:var(--muted);margin-bottom:12px;">เปรียบเทียบข้อความก่อนและหลัง <code>.strip()</code> ถ้าต่างกัน แปลว่ามี extra spaces</p>
+      <div class="code-wrap">
+        <div class="code-bar">
+          <div class="code-bar-left">
+            <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+            <span class="code-filename">task1_1_exploration.py</span>
+          </div>
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="cm"># ฟังก์ชันตรวจช่องว่างหน้า/หลัง</span>
+<span class="kw">def</span> <span class="fn">count_extra_spaces</span>(<span class="var">df</span>, <span class="var">cols</span>):
+    <span class="var">total</span> <span class="op">=</span> <span class="num">0</span>
+    <span class="kw">for</span> <span class="var">col</span> <span class="kw">in</span> <span class="var">cols</span>:
+        <span class="kw">if</span> <span class="var">col</span> <span class="kw">in</span> <span class="var">df</span>.columns:
+            <span class="var">mask</span> <span class="op">=</span> (
+                <span class="var">df</span>[<span class="var">col</span>].<span class="fn">dropna</span>().<span class="fn">astype</span>(<span class="fn">str</span>).<span class="var">str</span>.<span class="fn">strip</span>()
+                <span class="op">!=</span>
+                <span class="var">df</span>[<span class="var">col</span>].<span class="fn">dropna</span>().<span class="fn">astype</span>(<span class="fn">str</span>)
+            )
+            <span class="var">total</span> <span class="op">+=</span> <span class="var">mask</span>.<span class="fn">sum</span>()
+    <span class="kw">return</span> <span class="var">total</span>
+
+<span class="cm"># ตรวจแต่ละไฟล์</span>
+<span class="var">fmt_customers</span> <span class="op">=</span> <span class="fn">count_extra_spaces</span>(
+    <span class="var">customers</span>, [<span class="str">'first_name'</span>,<span class="str">'last_name'</span>,<span class="str">'gender'</span>,<span class="str">'membership_status'</span>,<span class="str">'preferred_category'</span>]
+)
+<span class="var">fmt_products</span> <span class="op">=</span> <span class="fn">count_extra_spaces</span>(
+    <span class="var">products</span>, [<span class="str">'product_name'</span>,<span class="str">'category'</span>,<span class="str">'ingredients'</span>]
+)
+<span class="var">fmt_sales</span> <span class="op">=</span> <span class="fn">count_extra_spaces</span>(
+    <span class="var">sales</span>, [<span class="str">'payment_method'</span>,<span class="str">'channel'</span>]
+)
+
+<span class="fn">print</span>(<span class="str">f"Formatting Issues (customers): {<span class="var">fmt_customers</span>} rows"</span>)
+<span class="fn">print</span>(<span class="str">f"Formatting Issues (products):  {<span class="var">fmt_products</span>} rows"</span>)
+<span class="fn">print</span>(<span class="str">f"Formatting Issues (sales):     {<span class="var">fmt_sales</span>} rows"</span>)</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 6: บันทึกไฟล์ ===== -->
+  <div class="section-header fade-in">
+    <div class="section-num green">STEP 06</div>
+    <div>
+      <h2>บันทึกผลลัพธ์เป็นไฟล์ .txt</h2>
+      <p>รวมทุกอย่างและ export เป็น Session1_DataExploration.txt</p>
+    </div>
+  </div>
+
+  <div class="card fade-in">
+    <div class="card-header">
+      <span class="card-icon">💾</span>
+      <span class="card-title">บันทึกผลทั้งหมดลงไฟล์</span>
+    </div>
+    <div class="card-body">
+      <div class="code-wrap">
+        <div class="code-bar">
+          <div class="code-bar-left">
+            <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+            <span class="code-filename">task1_1_exploration.py</span>
+          </div>
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="cm"># รวบรวมผลทั้งหมดเป็น list ของข้อความ</span>
+<span class="var">lines</span> <span class="op">=</span> []
+<span class="var">lines</span>.<span class="fn">append</span>(<span class="str">"=" * 60</span>)
+<span class="var">lines</span>.<span class="fn">append</span>(<span class="str">"DATA EXPLORATION REPORT — Belle Croissant Lyonnais"</span>)
+<span class="var">lines</span>.<span class="fn">append</span>(<span class="str">"=" * 60</span>)
+
+<span class="cm"># เพิ่มข้อมูลแต่ละไฟล์เข้า lines ...</span>
+<span class="cm"># (นำโค้ดจาก STEP 03–05 มาใส่แทน print() ด้วย lines.append())</span>
+
+<span class="cm"># บันทึกลงไฟล์</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="str">'output/Session1_DataExploration.txt'</span>, <span class="str">'w'</span>, <span class="var">encoding</span><span class="op">=</span><span class="str">'utf-8'</span>) <span class="kw">as</span> <span class="var">f</span>:
+    <span class="var">f</span>.<span class="fn">write</span>(<span class="str">'\n'</span>.<span class="fn">join</span>(<span class="var">lines</span>))
+
+<span class="fn">print</span>(<span class="str">"✓ บันทึกไฟล์ Session1_DataExploration.txt สำเร็จ"</span>)</pre>
+      </div>
+      <div class="info-box green">
+        <div class="info-box-title">✅ เคล็ดลับ</div>
+        ใส่ <code>encoding='utf-8'</code> เสมอเมื่อมีข้อความภาษาไทยหรืออักขระพิเศษในไฟล์
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SUMMARY ===== -->
+  <div class="section-header fade-in">
+    <div class="section-num teal">SUMMARY</div>
+    <div>
+      <h2>สรุปคำสั่งทั้งหมดของ Task 1.1</h2>
+      <p>quick reference สำหรับการแข่งขัน</p>
+    </div>
+  </div>
+
+  <div class="card fade-in">
+    <div class="card-body">
+      <div class="tbl-wrap">
+        <table>
+          <tr>
+            <th>งานที่ทำ</th>
+            <th>คำสั่ง Python</th>
+            <th>หมายเหตุ</th>
+          </tr>
+          <tr>
+            <td>โหลดไฟล์ CSV</td>
+            <td><code>pd.read_csv('file.csv')</code></td>
+            <td>คืนค่าเป็น DataFrame</td>
+          </tr>
+          <tr>
+            <td>5 แถวแรก</td>
+            <td><code>df.head()</code></td>
+            <td>default = 5 แถว</td>
+          </tr>
+          <tr>
+            <td>ประเภทข้อมูล</td>
+            <td><code>df.dtypes</code></td>
+            <td>int64, float64, object, bool</td>
+          </tr>
+          <tr>
+            <td>นับค่าหายไป</td>
+            <td><code>df.isnull().sum()</code></td>
+            <td>นับ NaN ต่อคอลัมน์</td>
+          </tr>
+          <tr>
+            <td>ตรวจวันที่ผิด</td>
+            <td><code>pd.to_datetime(col, errors='coerce')</code></td>
+            <td>ค่าผิดกลายเป็น NaT</td>
+          </tr>
+          <tr>
+            <td>ค่าติดลบ</td>
+            <td><code>(df['col'] &lt; 0).sum()</code></td>
+            <td>นับแถวที่น้อยกว่า 0</td>
+          </tr>
+          <tr>
+            <td>Invalid IDs</td>
+            <td><code>(~df['id'].isin(valid_set)).sum()</code></td>
+            <td>~ คือ NOT</td>
+          </tr>
+          <tr>
+            <td>Unexpected values</td>
+            <td><code>(~df['col'].isin({'A','B'})).sum()</code></td>
+            <td>เช็คค่าที่ไม่อยู่ใน set</td>
+          </tr>
+          <tr>
+            <td>Extra spaces</td>
+            <td><code>col.str.strip() != col</code></td>
+            <td>เปรียบเทียบก่อน/หลัง strip</td>
+          </tr>
+          <tr>
+            <td>บันทึกไฟล์ .txt</td>
+            <td><code>open('file.txt','w',encoding='utf-8')</code></td>
+            <td>ใช้ with statement</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <strong>WSC2024</strong> · Task 1.1 Data Loading &amp; Exploration Tutorial<br>
+  Belle Croissant Lyonnais · IT Software Solution for Business
+</footer>
+
+<script>
+function copyCode(btn) {
+  const pre = btn.closest('.code-wrap').querySelector('pre');
+  const text = pre.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'copied!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = 'copy';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+</script>
+</body>
+</html>

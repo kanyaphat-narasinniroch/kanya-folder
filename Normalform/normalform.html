@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Database Normalization | Normal Form</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&family=Prompt:wght@700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --bg2: #0f1525;
+    --bg3: #141c30;
+    --accent: #00d4ff;
+    --accent2: #7c3aed;
+    --accent3: #10b981;
+    --accent4: #f59e0b;
+    --accent5: #ef4444;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --border: rgba(0,212,255,0.15);
+    --card: rgba(15,21,37,0.8);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Sarabun', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* Animated background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 20% 20%, rgba(0,212,255,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 80% at 80% 80%, rgba(124,58,237,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 40% at 50% 50%, rgba(16,185,129,0.03) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Grid overlay */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* HEADER */
+  header {
+    position: relative;
+    z-index: 10;
+    padding: 80px 20px 60px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, rgba(0,212,255,0.04) 0%, transparent 100%);
+  }
+
+  .badge {
+    display: inline-block;
+    background: rgba(0,212,255,0.1);
+    border: 1px solid rgba(0,212,255,0.3);
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    padding: 6px 16px;
+    border-radius: 100px;
+    margin-bottom: 24px;
+    animation: fadeUp 0.6s ease forwards;
+  }
+
+  h1 {
+    font-family: 'Prompt', sans-serif;
+    font-weight: 900;
+    font-size: clamp(2.4rem, 7vw, 5rem);
+    line-height: 1.1;
+    margin-bottom: 8px;
+    animation: fadeUp 0.7s ease forwards;
+  }
+
+  h1 span.cyan { color: var(--accent); }
+  h1 span.purple { color: #a78bfa; }
+
+  .subtitle {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    margin-top: 16px;
+    animation: fadeUp 0.8s ease forwards;
+  }
+
+  /* NAV TABS */
+  .nav-tabs {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,14,26,0.92);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 20px;
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    overflow-x: auto;
+  }
+
+  .nav-tab {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 16px 20px;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+  }
+
+  .nav-tab:hover { color: var(--text); }
+  .nav-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* MAIN CONTENT */
+  main {
+    position: relative;
+    z-index: 5;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 60px 20px 100px;
+  }
+
+  /* SECTIONS */
+  .section {
+    display: none;
+    animation: fadeIn 0.4s ease;
+  }
+  .section.active { display: block; }
+
+  /* SECTION HEADING */
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 36px;
+  }
+
+  .nf-badge {
+    font-family: 'Prompt', sans-serif;
+    font-weight: 900;
+    font-size: 1.4rem;
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .section-title {
+    font-family: 'Prompt', sans-serif;
+    font-weight: 700;
+    font-size: 1.8rem;
+  }
+
+  .section-title small {
+    display: block;
+    font-family: 'Sarabun', sans-serif;
+    font-weight: 400;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  /* CARDS */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 24px;
+    backdrop-filter: blur(10px);
+    transition: border-color 0.2s, transform 0.2s;
+  }
+
+  .card:hover {
+    border-color: rgba(0,212,255,0.3);
+    transform: translateY(-2px);
+  }
+
+  .card-title {
+    font-family: 'Prompt', sans-serif;
+    font-weight: 700;
+    font-size: 1.05rem;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .icon {
+    font-size: 1.2rem;
+  }
+
+  /* RULE BOX */
+  .rule-box {
+    background: rgba(0,212,255,0.05);
+    border: 1px solid rgba(0,212,255,0.25);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 12px 12px 0;
+    padding: 18px 22px;
+    margin-bottom: 24px;
+    font-size: 1rem;
+  }
+
+  .rule-box.green {
+    background: rgba(16,185,129,0.05);
+    border-color: rgba(16,185,129,0.25);
+    border-left-color: var(--accent3);
+  }
+
+  .rule-box.purple {
+    background: rgba(124,58,237,0.07);
+    border-color: rgba(124,58,237,0.3);
+    border-left-color: var(--accent2);
+  }
+
+  .rule-box.amber {
+    background: rgba(245,158,11,0.05);
+    border-color: rgba(245,158,11,0.25);
+    border-left-color: var(--accent4);
+  }
+
+  .rule-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+
+  .rule-label.green { color: var(--accent3); }
+  .rule-label.purple { color: #a78bfa; }
+  .rule-label.amber { color: var(--accent4); }
+
+  /* TABLES */
+  .table-wrapper {
+    overflow-x: auto;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    margin: 16px 0;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+
+  th {
+    background: rgba(0,212,255,0.08);
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    font-weight: 600;
+  }
+
+  td {
+    padding: 11px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    color: var(--text);
+  }
+
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(0,212,255,0.03); }
+
+  td.pk { color: var(--accent4); font-weight: 600; }
+  td.fk { color: var(--accent3); }
+  td.problem { color: var(--accent5); text-decoration: underline wavy var(--accent5); }
+  td.ok { color: var(--accent3); }
+
+  .table-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    letter-spacing: 0.05em;
+  }
+
+  /* BAD/GOOD labels */
+  .label-bad, .label-good {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    padding: 4px 12px;
+    border-radius: 100px;
+    margin-bottom: 10px;
+  }
+
+  .label-bad {
+    background: rgba(239,68,68,0.12);
+    color: var(--accent5);
+    border: 1px solid rgba(239,68,68,0.25);
+  }
+
+  .label-good {
+    background: rgba(16,185,129,0.12);
+    color: var(--accent3);
+    border: 1px solid rgba(16,185,129,0.25);
+  }
+
+  /* FD arrows */
+  .fd-box {
+    background: rgba(15,21,37,0.9);
+    border: 1px solid rgba(124,58,237,0.3);
+    border-radius: 12px;
+    padding: 18px 22px;
+    margin: 16px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.88rem;
+  }
+
+  .fd-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+    color: var(--text-muted);
+  }
+
+  .fd-item .attr { color: var(--text); font-weight: 600; }
+  .fd-item .arrow { color: var(--accent2); font-size: 1.1rem; }
+  .fd-item .problem-fd { color: var(--accent5); }
+  .fd-item .ok-fd { color: var(--accent3); }
+
+  /* CODE */
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    background: rgba(0,212,255,0.08);
+    color: var(--accent);
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 0.85em;
+  }
+
+  /* GRID 2 col */
+  .grid2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin: 20px 0;
+  }
+
+  @media (max-width: 640px) {
+    .grid2 { grid-template-columns: 1fr; }
+  }
+
+  /* SUMMARY TABLE */
+  .summary-nf {
+    display: grid;
+    gap: 16px;
+  }
+
+  .nf-row {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    transition: all 0.25s;
+    cursor: default;
+  }
+
+  .nf-row:hover {
+    transform: translateX(6px);
+    border-color: rgba(0,212,255,0.3);
+  }
+
+  .nf-num {
+    font-family: 'Prompt', sans-serif;
+    font-weight: 900;
+    font-size: 1.6rem;
+    width: 56px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .nf-row-content h3 {
+    font-family: 'Prompt', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 4px;
+  }
+
+  .nf-row-content p {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  /* ANOMALY CARDS */
+  .anomaly-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin: 20px 0;
+  }
+
+  @media (max-width: 640px) {
+    .anomaly-grid { grid-template-columns: 1fr; }
+  }
+
+  .anomaly-card {
+    background: var(--card);
+    border: 1px solid rgba(239,68,68,0.2);
+    border-radius: 14px;
+    padding: 20px;
+    text-align: center;
+  }
+
+  .anomaly-icon {
+    font-size: 2rem;
+    margin-bottom: 10px;
+  }
+
+  .anomaly-name {
+    font-family: 'Prompt', sans-serif;
+    font-weight: 700;
+    color: var(--accent5);
+    margin-bottom: 8px;
+  }
+
+  .anomaly-desc {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  /* EXERCISE */
+  .exercise-box {
+    background: linear-gradient(135deg, rgba(124,58,237,0.08), rgba(0,212,255,0.05));
+    border: 1px solid rgba(124,58,237,0.25);
+    border-radius: 16px;
+    padding: 28px;
+  }
+
+  .ex-title {
+    font-family: 'Prompt', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #a78bfa;
+    margin-bottom: 16px;
+  }
+
+  .ex-schema {
+    background: rgba(10,14,26,0.8);
+    border: 1px solid rgba(124,58,237,0.2);
+    border-radius: 10px;
+    padding: 16px 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+    line-height: 1.8;
+  }
+
+  .ex-schema .table-name { color: var(--accent); font-weight: 700; }
+  .ex-schema .pk-attr { color: var(--accent4); }
+
+  .hint-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .hint-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+  }
+
+  .hint-list li::before {
+    content: '→';
+    color: var(--accent2);
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* COLORS PER NF */
+  .c1 { color: #00d4ff; }
+  .c2 { color: #10b981; }
+  .c3 { color: #f59e0b; }
+  .c4 { color: #a78bfa; }
+
+  .bg1 { background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.25); }
+  .bg2 { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25); }
+  .bg3 { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.25); }
+  .bg4 { background: rgba(167,139,250,0.1); border: 1px solid rgba(167,139,250,0.25); }
+
+  /* INTRO CONCEPT */
+  .concept-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px;
+    margin: 20px 0;
+  }
+
+  .concept-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+  }
+
+  .concept-item .ci-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+
+  .concept-item .ci-title {
+    font-family: 'Prompt', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    margin-bottom: 6px;
+  }
+
+  .concept-item .ci-desc {
+    font-size: 0.83rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  hr.section-divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 32px 0;
+  }
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(0,212,255,0.08);
+    border: 1px solid rgba(0,212,255,0.2);
+    border-radius: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    padding: 3px 10px;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+    margin: 3px;
+  }
+
+  .transitive-visual {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 16px;
+    background: rgba(10,14,26,0.8);
+    border-radius: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    margin: 12px 0;
+  }
+
+  .tv-box {
+    background: rgba(0,212,255,0.1);
+    border: 1px solid rgba(0,212,255,0.3);
+    border-radius: 8px;
+    padding: 8px 16px;
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .tv-arrow {
+    color: var(--accent5);
+    font-size: 1.2rem;
+    font-weight: 700;
+  }
+
+  .tv-box.key { background: rgba(0,212,255,0.15); border-color: var(--accent); color: var(--accent); }
+  .tv-box.mid { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.3); color: var(--accent4); }
+  .tv-box.end { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.3); color: var(--accent5); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="badge">📚 DATABASE COURSE · E-TECH</div>
+  <h1><span class="cyan">Normal</span> <span class="purple">Form</span></h1>
+  <h1 style="font-size:clamp(1.2rem,3vw,1.8rem); font-family:'Sarabun',sans-serif; font-weight:400; color:var(--text-muted);">การทำ Normalization ฐานข้อมูล</h1>
+  <p class="subtitle">1NF · 2NF · 3NF · BCNF</p>
+</header>
+
+<!-- NAV -->
+<nav class="nav-tabs">
+  <button class="nav-tab active" onclick="showSection('intro')">บทนำ</button>
+  <button class="nav-tab" onclick="showSection('1nf')">1NF</button>
+  <button class="nav-tab" onclick="showSection('2nf')">2NF</button>
+  <button class="nav-tab" onclick="showSection('3nf')">3NF</button>
+  <button class="nav-tab" onclick="showSection('bcnf')">BCNF</button>
+  <button class="nav-tab" onclick="showSection('summary')">สรุป</button>
+  <button class="nav-tab" onclick="showSection('exercise')">แบบฝึกหัด</button>
+</nav>
+
+<main>
+
+<!-- ===== INTRO ===== -->
+<div id="intro" class="section active">
+  <div class="section-header">
+    <div class="nf-badge bg1 c1">🗄️</div>
+    <div class="section-title">
+      Normalization คืออะไร?
+      <small>แนวคิดและหลักการพื้นฐาน</small>
+    </div>
+  </div>
+
+  <div class="rule-box">
+    <div class="rule-label">DEFINITION</div>
+    Normalization คือกระบวนการออกแบบโครงสร้างตาราง (Table) ในฐานข้อมูลให้มีประสิทธิภาพ
+    โดยลดความซ้ำซ้อนของข้อมูล และป้องกันปัญหาที่อาจเกิดขึ้นในการจัดการข้อมูล
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">🎯</span> เป้าหมายของ Normalization</div>
+    <div class="concept-grid">
+      <div class="concept-item">
+        <div class="ci-label">GOAL 01</div>
+        <div class="ci-title">ลด Data Redundancy</div>
+        <div class="ci-desc">ลดข้อมูลที่ซ้ำซ้อนในฐานข้อมูล ประหยัดพื้นที่จัดเก็บ</div>
+      </div>
+      <div class="concept-item">
+        <div class="ci-label">GOAL 02</div>
+        <div class="ci-title">ป้องกัน Anomaly</div>
+        <div class="ci-desc">ป้องกันข้อผิดพลาดเมื่อเพิ่ม แก้ไข หรือลบข้อมูล</div>
+      </div>
+      <div class="concept-item">
+        <div class="ci-label">GOAL 03</div>
+        <div class="ci-title">Data Integrity</div>
+        <div class="ci-desc">ทำให้ข้อมูลมีความสมบูรณ์และน่าเชื่อถือ</div>
+      </div>
+      <div class="concept-item">
+        <div class="ci-label">GOAL 04</div>
+        <div class="ci-title">ง่ายต่อการดูแล</div>
+        <div class="ci-desc">โครงสร้างที่ดีทำให้แก้ไขและขยายระบบได้ง่ายขึ้น</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">⚠️</span> ปัญหา Anomaly ที่เกิดจากตารางไม่ดี</div>
+    <div class="anomaly-grid">
+      <div class="anomaly-card">
+        <div class="anomaly-icon">➕</div>
+        <div class="anomaly-name">Insert Anomaly</div>
+        <div class="anomaly-desc">เพิ่มข้อมูลไม่ได้ ถ้าข้อมูลที่เชื่อมกันยังไม่มีในระบบ เช่น เพิ่มวิชาใหม่ไม่ได้ ถ้าไม่มีนักศึกษาลงทะเบียน</div>
+      </div>
+      <div class="anomaly-card">
+        <div class="anomaly-icon">✏️</div>
+        <div class="anomaly-name">Update Anomaly</div>
+        <div class="anomaly-desc">แก้ไขข้อมูลต้องแก้หลายแถว ถ้าลืมแก้บางแถว ข้อมูลจะไม่ตรงกัน</div>
+      </div>
+      <div class="anomaly-card">
+        <div class="anomaly-icon">🗑️</div>
+        <div class="anomaly-name">Delete Anomaly</div>
+        <div class="anomaly-desc">ลบข้อมูลหนึ่งแล้วสูญเสียข้อมูลอื่นที่ต้องการเก็บไว้ด้วย</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">🔑</span> แนวคิดสำคัญ: Functional Dependency (FD)</div>
+    <div class="rule-box green">
+      <div class="rule-label green">DEFINITION</div>
+      <strong>A → B</strong> หมายความว่า "ถ้ารู้ค่า A แล้ว จะรู้ค่า B ได้เสมอ" หรือ B ขึ้นอยู่กับ A
+    </div>
+    <div class="fd-box">
+      <div class="fd-item"><span class="attr">รหัสนักศึกษา</span><span class="arrow">→</span><span class="ok-fd">ชื่อนักศึกษา</span><span style="color:var(--text-muted);font-size:0.8rem;margin-left:8px;">(รู้รหัส → รู้ชื่อ)</span></div>
+      <div class="fd-item"><span class="attr">รหัสวิชา</span><span class="arrow">→</span><span class="ok-fd">ชื่อวิชา, หน่วยกิต</span></div>
+      <div class="fd-item"><span class="attr">รหัสไปรษณีย์</span><span class="arrow">→</span><span class="ok-fd">จังหวัด, อำเภอ</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">🗝️</span> ประเภทของ Key</div>
+    <div class="table-wrapper">
+      <table>
+        <tr><th>ประเภท Key</th><th>คำอธิบาย</th><th>ตัวอย่าง</th></tr>
+        <tr><td><code>Primary Key</code></td><td>Attribute ที่ระบุแต่ละแถวได้ไม่ซ้ำ</td><td>รหัสนักศึกษา</td></tr>
+        <tr><td><code>Candidate Key</code></td><td>ตัวเลือกที่เป็น Primary Key ได้</td><td>รหัสนักศึกษา, เลขบัตรประชาชน</td></tr>
+        <tr><td><code>Composite Key</code></td><td>Primary Key ที่ประกอบหลาย attribute</td><td>(รหัสนักศึกษา + รหัสวิชา)</td></tr>
+        <tr><td><code>Non-prime Attribute</code></td><td>Attribute ที่ไม่ใช่ส่วนของ Candidate Key</td><td>ชื่อ, เกรด, ที่อยู่</td></tr>
+        <tr><td><code>Superkey</code></td><td>ชุด attribute ที่ระบุแถวได้ไม่ซ้ำ (อาจมี attribute เกิน)</td><td>(รหัสนักศึกษา + ชื่อ)</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="card" style="background:linear-gradient(135deg,rgba(0,212,255,0.06),rgba(124,58,237,0.06));">
+    <div class="card-title"><span class="icon">📋</span> ภาพรวม Normal Form ทั้งหมด</div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px;">
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:rgba(0,212,255,0.06);border:1px solid rgba(0,212,255,0.2);border-radius:10px;">
+        <span style="font-family:'JetBrains Mono';font-weight:700;color:var(--accent);width:50px;">1NF</span>
+        <span style="color:var(--text-muted);font-size:0.9rem;">ทุก cell มีค่าเดียว (Atomic Value)</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);border-radius:10px;">
+        <span style="font-family:'JetBrains Mono';font-weight:700;color:var(--accent3);width:50px;">2NF</span>
+        <span style="color:var(--text-muted);font-size:0.9rem;">ผ่าน 1NF + ไม่มี Partial Dependency</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2);border-radius:10px;">
+        <span style="font-family:'JetBrains Mono';font-weight:700;color:var(--accent4);width:50px;">3NF</span>
+        <span style="color:var(--text-muted);font-size:0.9rem;">ผ่าน 2NF + ไม่มี Transitive Dependency</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:rgba(167,139,250,0.06);border:1px solid rgba(167,139,250,0.2);border-radius:10px;">
+        <span style="font-family:'JetBrains Mono';font-weight:700;color:#a78bfa;width:50px;">BCNF</span>
+        <span style="color:var(--text-muted);font-size:0.9rem;">ผ่าน 3NF + ทุก Determinant ต้องเป็น Superkey</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 1NF ===== -->
+<div id="1nf" class="section">
+  <div class="section-header">
+    <div class="nf-badge bg1 c1">1NF</div>
+    <div class="section-title">
+      First Normal Form
+      <small>รูปแบบบรรทัดฐานที่หนึ่ง</small>
+    </div>
+  </div>
+
+  <div class="rule-box">
+    <div class="rule-label">กฎของ 1NF</div>
+    ทุก cell ในตารางต้องมีค่าเดียว (Atomic Value) และไม่มีกลุ่มค่าซ้ำ (Repeating Groups) ในแถวเดียวกัน
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">❌</span> ตารางที่ยังไม่ผ่าน 1NF</div>
+    <div class="label-bad">✗ NOT 1NF</div>
+    <div class="table-label">ตาราง: การลงทะเบียน</div>
+    <div class="table-wrapper">
+      <table>
+        <tr><th>รหัสนักศึกษา</th><th>ชื่อ</th><th>วิชาที่ลงทะเบียน ⚠️</th><th>โทรศัพท์ ⚠️</th></tr>
+        <tr><td class="pk">ST001</td><td>สมชาย ใจดี</td><td class="problem">CS101, CS102, CS103</td><td class="problem">081-111, 089-222</td></tr>
+        <tr><td class="pk">ST002</td><td>สมหญิง รักเรียน</td><td class="problem">CS101, CS201</td><td class="problem">082-333</td></tr>
+        <tr><td class="pk">ST003</td><td>มานะ ขยัน</td><td class="problem">CS103</td><td class="problem">083-444, 085-555</td></tr>
+      </table>
+    </div>
+    <div style="margin-top:14px;padding:14px;background:rgba(239,68,68,0.06);border-radius:10px;border:1px solid rgba(239,68,68,0.2);">
+      <div style="color:var(--accent5);font-weight:600;font-size:0.88rem;margin-bottom:8px;">🚫 ปัญหาที่พบ:</div>
+      <div style="font-size:0.88rem;color:var(--text-muted);">
+        • คอลัมน์ "วิชาที่ลงทะเบียน" มีหลายค่าในช่องเดียว (CS101, CS102, CS103)<br>
+        • คอลัมน์ "โทรศัพท์" มีหลายเบอร์ในช่องเดียว<br>
+        • ไม่สามารถระบุ Primary Key ที่ชัดเจนได้
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">✅</span> หลังแปลงเป็น 1NF</div>
+    <div class="label-good">✓ 1NF</div>
+    <div class="table-label">ตาราง: การลงทะเบียน  |  <span style="color:var(--accent4);">PK = (รหัสนักศึกษา + รหัสวิชา)</span></div>
+    <div class="table-wrapper">
+      <table>
+        <tr><th>รหัสนักศึกษา (PK)</th><th>รหัสวิชา (PK)</th><th>ชื่อ</th></tr>
+        <tr><td class="pk">ST001</td><td class="pk">CS101</td><td>สมชาย ใจดี</td></tr>
+        <tr><td class="pk">ST001</td><td class="pk">CS102</td><td>สมชาย ใจดี</td></tr>
+        <tr><td class="pk">ST001</td><td class="pk">CS103</td><td>สมชาย ใจดี</td></tr>
+        <tr><td class="pk">ST002</td><td class="pk">CS101</td><td>สมหญิง รักเรียน</td></tr>
+        <tr><td class="pk">ST002</td><td class="pk">CS201</td><td>สมหญิง รักเรียน</td></tr>
+      </table>
+    </div>
+    <div style="margin-top:14px;padding:14px;background:rgba(16,185,129,0.06);border-radius:10px;border:1px solid rgba(16,185,129,0.2);">
+      <div style="color:var(--accent3);font-weight:600;font-size:0.88rem;margin-bottom:6px;">✅ สิ่งที่ดีขึ้น:</div>
+      <div style="font-size:0.88rem;color:var(--text-muted);">ทุก cell มีค่าเดียว · สามารถระบุ Primary Key ได้ · ค้นหาข้อมูลง่ายขึ้น</div>
+    </div>
+  </div>
+
+  <div class="card" style="border-color:rgba(0,212,255,0.2);">
+    <div class="card-title"><span class="icon">💡</span> จำง่ายๆ</div>
+    <div style="font-size:1.05rem;padding:16px;background:rgba(0,212,255,0.05);border-radius:10px;text-align:center;">
+      <span style="color:var(--accent);font-family:'Prompt';font-weight:700;">1NF</span> = <span style="color:var(--text);">"ห้ามยัดหลายค่าในช่องเดียวกัน"</span>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 2NF ===== -->
+<div id="2nf" class="section">
+  <div class="section-header">
+    <div class="nf-badge bg2 c2">2NF</div>
+    <div class="section-title">
+      Second Normal Form
+      <small>รูปแบบบรรทัดฐานที่สอง</small>
+    </div>
+  </div>
+
+  <div class="rule-box green">
+    <div class="rule-label green">กฎของ 2NF</div>
+    ผ่าน 1NF แล้ว + ทุก Non-prime Attribute ต้องขึ้นอยู่กับ <strong>Primary Key ทั้งหมด</strong> 
+    ไม่ใช่แค่บางส่วน (ห้ามมี Partial Dependency)
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">ℹ️</span> เมื่อไหร่ 2NF จึงมีความสำคัญ?</div>
+    <div style="padding:14px;background:rgba(245,158,11,0.06);border-radius:10px;border:1px solid rgba(245,158,11,0.2);font-size:0.9rem;color:var(--text-muted);">
+      ⚠️ <strong style="color:var(--accent4);">2NF จะมีความหมายเฉพาะเมื่อ Primary Key เป็น Composite Key</strong> (มีหลาย attribute)
+      ถ้า Primary Key เป็น attribute เดียว จะผ่าน 2NF โดยอัตโนมัติ
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">❌</span> ตารางที่ยังไม่ผ่าน 2NF</div>
+    <div class="label-bad">✗ NOT 2NF</div>
+    <div class="table-label">ตาราง: การลงทะเบียน  |  PK = (รหัสนักศึกษา + รหัสวิชา)</div>
+    <div class="table-wrapper">
+      <table>
+        <tr><th>รหัสนักศึกษา (PK)</th><th>รหัสวิชา (PK)</th><th>ชื่อนักศึกษา ⚠️</th><th>ชื่อวิชา ⚠️</th><th>เกรด ✓</th></tr>
+        <tr><td class="pk">ST001</td><td class="pk">CS101</td><td class="problem">สมชาย</td><td class="problem">Intro to CS</td><td>A</td></tr>
+        <tr><td class="pk">ST001</td><td class="pk">CS102</td><td class="problem">สมชาย</td><td class="problem">Data Structure</td><td>B</td></tr>
+        <tr><td class="pk">ST002</td><td class="pk">CS101</td><td class="problem">สมหญิง</td><td class="problem">Intro to CS</td><td>B+</td></tr>
+        <tr><td class="pk">ST002</td><td class="pk">CS201</td><td class="problem">สมหญิง</td><td class="problem">Algorithm</td><td>A-</td></tr>
+      </table>
+    </div>
+    <div style="margin-top:16px;">
+      <div style="font-weight:600;font-size:0.88rem;color:var(--accent5);margin-bottom:10px;">🔍 Partial Dependency ที่พบ:</div>
+      <div class="fd-box">
+        <div class="fd-item"><span class="attr">รหัสนักศึกษา</span><span class="arrow">→</span><span class="problem-fd">ชื่อนักศึกษา</span><span style="color:var(--accent5);font-size:0.78rem;margin-left:8px;">(ขึ้นกับ PK แค่ครึ่งเดียว!)</span></div>
+        <div class="fd-item"><span class="attr">รหัสวิชา</span><span class="arrow">→</span><span class="problem-fd">ชื่อวิชา</span><span style="color:var(--accent5);font-size:0.78rem;margin-left:8px;">(ขึ้นกับ PK แค่ครึ่งเดียว!)</span></div>
+        <div class="fd-item"><span class="attr">(รหัสนักศึกษา + รหัสวิชา)</span><span class="arrow">→</span><span class="ok-fd">เกรด</span><span style="color:var(--accent3);font-size:0.78rem;margin-left:8px;">(ขึ้นกับ PK ทั้งหมด ✓)</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">✅</span> หลังแปลงเป็น 2NF (แยกเป็น 3 ตาราง)</div>
+    <div class="label-good">✓ 2NF</div>
+    <div class="grid2">
+      <div>
+        <div class="table-label">ตาราง: นักศึกษา</div>
+        <div class="table-wrapper">
+          <table>
+            <tr><th>รหัสนักศึกษา (PK)</th><th>ชื่อนักศึกษา</th></tr>
+            <tr><td class="pk">ST001</td><td>สมชาย</td></tr>
+            <tr><td class="pk">ST002</td><td>สมหญิง</td></tr>
+          </table>
+        </div>
+      </div>
+      <div>
+        <div class="table-label">ตาราง: วิชา</div>
+        <div class="table-wrapper">
+          <table>
+            <tr><th>รหัสวิชา (PK)</th><th>ชื่อวิชา</th></tr>
+            <tr><td class="pk">CS101</td><td>Intro to CS</td></tr>
+            <tr><td class="pk">CS102</td><td>Data Structure</td></tr>
+            <tr><td class="pk">CS201</td><td>Algorithm</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="table-label" style="margin-top:16px;">ตาราง: การลงทะเบียน  |  PK = (รหัสนักศึกษา + รหัสวิชา)</div>
+    <div class="table-wrapper">
+      <table>
+        <tr><th>รหัสนักศึกษา (FK)</th><th>รหัสวิชา (FK)</th><th>เกรด</th></tr>
+        <tr><td class="fk">ST001</td><td class="fk">CS101</td><td>A</td></tr>
+        <tr><td class="fk">ST001</td><td class="fk">CS102</td><td>B</td></tr>
+        <tr><td class="fk">ST002</td><td class="fk">CS101</td><td>B+</td></tr>
+        <tr><td class="fk">ST002</td><td class="fk">CS201</td><td>A-</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="card" style="border-color:rgba(16,185,129,0.2);">
+    <div class="card-title"><span class="icon">💡</span> จำง่ายๆ</div>
+    <div style="font-size:1.05rem;padding:16px;background:rgba(16,185,129,0.05);border-radius:10px;text-align:center;">
+      <span style="color:var(--accent3);font-family:'Prompt';font-weight:700;">2NF</span> = <span style="color:var(--text);">"ทุก attribute ต้องขึ้นกับ Key <em>ทั้งก้อน</em> ไม่ใช่แค่ครึ่งเดียว"</span>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 3NF ===== -->
+<div id="3nf" class="section">
+  <div class="section-header">
+    <div class="nf-badge bg3 c3">3NF</div>
+    <div class="section-title">
+      Third Normal Form
+      <small>รูปแบบบรรทัดฐานที่สาม</small>
+    </div>
+  </div>
+
+  <div class="rule-box amber">
+    <div class="rule-label amber">กฎของ 3NF</div>
+    ผ่าน 2NF แล้ว + ไม่มี <strong>Transitive Dependency</strong><br>
+    Non-prime Attribute ต้องไม่ขึ้นอยู่กับ Non-prime Attribute ตัวอื่น (ต้องขึ้นกับ Key โดยตรงเท่านั้น)
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">🔗</span> Transitive Dependency คืออะไร?</div>
+    <p style="margin-bottom:14px;color:var(--text-muted);font-size:0.92rem;">เกิดขึ้นเมื่อ Non-prime Attribute ขึ้นอยู่กับ Non-prime Attribute อื่น ไม่ใช่ขึ้นกับ Key โดยตรง</p>
+    <div class="transitive-visual">
+      <div class="tv-box key">Primary Key</div>
+      <div class="tv-arrow">→</div>
+      <div class="tv-box mid">Non-prime A</div>
+      <div class="tv-arrow">→</div>
+      <div class="tv-box end">Non-prime B ⚠️</div>
+    </div>
+    <p style="font-size:0.85rem;color:var(--text-muted);margin-top:10px;">
+      Non-prime B ขึ้นอยู่กับ Non-prime A ซึ่งขึ้นอยู่กับ Key อีกที → นี่คือ Transitive Dependency
+    </p>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">❌</span> ตารางที่ยังไม่ผ่าน 3NF</div>
+    <div class="label-bad">✗ NOT 3NF</div>
+    <div class="table-label">ตาราง: นักศึกษา  |  PK = รหัสนักศึกษา</div>
+    <div class="table-wrapper">
+      <table>
+        <tr><th>รหัสนักศึกษา (PK)</th><th>ชื่อ</th><th>รหัสจังหวัด ⚠️</th><th>ชื่อจังหวัด ⚠️</th><th>ภาค ⚠️</th></tr>
+        <tr><td class="pk">ST001</td><td>สมชาย</td><td class="problem">10</td><td class="problem">กรุงเทพ</td><td class="problem">กลาง</td></tr>
+        <tr><td class="pk">ST002</td><td>สมหญิง</td><td class="problem">20</td><td class="problem">เชียงใหม่</td><td class="problem">เหนือ</td></tr>
+        <tr><td class="pk">ST003</td><td>สมศรี</td><td class="problem">10</td><td class="problem">กรุงเทพ</td><td class="problem">กลาง</td></tr>
+        <tr><td class="pk">ST004</td><td>มานะ</td><td class="problem">20</td><td class="problem">เชียงใหม่</td><td class="problem">เหนือ</td></tr>
+      </table>
+    </div>
+    <div style="margin-top:16px;">
+      <div style="font-weight:600;font-size:0.88rem;color:var(--accent5);margin-bottom:10px;">🔍 Transitive Dependency ที่พบ:</div>
+      <div class="transitive-visual">
+        <div class="tv-box key">รหัสนักศึกษา</div>
+        <div class="tv-arrow">→</div>
+        <div class="tv-box mid">รหัสจังหวัด</div>
+        <div class="tv-arrow">→</div>
+        <div class="tv-box end">ชื่อจังหวัด, ภาค</div>
+      </div>
+      <p style="font-size:0.85rem;color:var(--text-muted);margin-top:10px;">
+        ชื่อจังหวัดและภาคขึ้นกับ <em>รหัสจังหวัด</em> ไม่ใช่ขึ้นกับ <em>รหัสนักศึกษา</em> โดยตรง → Transitive Dependency!
+      </p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">✅</span> หลังแปลงเป็น 3NF</div>
+    <div class="label-good">✓ 3NF</div>
+    <div class="grid2">
+      <div>
+        <div class="table-label">ตาราง: นักศึกษา</div>
+        <div class="table-wrapper">
+          <table>
+            <tr><th>รหัสนักศึกษา (PK)</th><th>ชื่อ</th><th>รหัสจังหวัด (FK)</th></tr>
+            <tr><td class="pk">ST001</td><td>สมชาย</td><td class="fk">10</td></tr>
+            <tr><td class="pk">ST002</td><td>สมหญิง</td><td class="fk">20</td></tr>
+            <tr><td class="pk">ST003</td><td>สมศรี</td><td class="fk">10</td></tr>
+            <tr><td class="pk">ST004</td><td>มานะ</td><td class="fk">20</td></tr>
+          </table>
+        </div>
+      </div>
+      <div>
+        <div class="table-label">ตาราง: จังหวัด</div>
+        <div class="table-wrapper">
+          <table>
+            <tr><th>รหัสจังหวัด (PK)</th><th>ชื่อจังหวัด</th><th>ภาค</th></tr>
+            <tr><td class="pk">10</td><td>กรุงเทพ</td><td>กลาง</td></tr>
+            <tr><td class="pk">20</td><td>เชียงใหม่</td><td>เหนือ</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:14px;padding:14px;background:rgba(16,185,129,0.06);border-radius:10px;border:1px solid rgba(16,185,129,0.2);font-size:0.88rem;color:var(--text-muted);">
+      ✅ ตอนนี้ทุก attribute ขึ้นกับ Primary Key โดยตรง · เปลี่ยนชื่อจังหวัดแค่จุดเดียว · ไม่มีข้อมูลซ้ำ
+    </div>
+  </div>
+
+  <div class="card" style="border-color:rgba(245,158,11,0.2);">
+    <div class="card-title"><span class="icon">💡</span> จำง่ายๆ</div>
+    <div style="font-size:1.05rem;padding:16px;background:rgba(245,158,11,0.05);border-radius:10px;text-align:center;">
+      <span style="color:var(--accent4);font-family:'Prompt';font-weight:700;">3NF</span> = <span style="color:var(--text);">"ทุก attribute ต้องขึ้นกับ Key <em>โดยตรง</em> ไม่ผ่านตัวกลาง"</span>
+    </div>
+  </div>
+</div>
+
+<!-- ===== BCNF ===== -->
+<div id="bcnf" class="section">
+  <div class="section-header">
+    <div class="nf-badge bg4 c4">BCNF</div>
+    <div class="section-title">
+      Boyce-Codd Normal Form
+      <small>รูปแบบบรรทัดฐาน Boyce-Codd</small>
+    </div>
+  </div>
+
+  <div class="rule-box purple">
+    <div class="rule-label purple">กฎของ BCNF</div>
+    ผ่าน 3NF แล้ว + สำหรับทุก Functional Dependency <code>X → Y</code><br>
+    <strong>X ต้องเป็น Superkey เสมอ</strong><br>
+    <span style="font-size:0.88rem;color:var(--text-muted);display:block;margin-top:8px;">BCNF เป็นเวอร์ชันเข้มงวดกว่า 3NF เกิดปัญหาเมื่อมีหลาย Candidate Key ที่ซ้อนทับกัน</span>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">🔑</span> ความแตกต่างระหว่าง 3NF และ BCNF</div>
+    <div class="table-wrapper">
+      <table>
+        <tr><th>ลักษณะ</th><th>3NF</th><th>BCNF</th></tr>
+        <tr><td>Non-prime → Non-prime</td><td class="ok">✅ ห้าม</td><td class="ok">✅ ห้าม</td></tr>
+        <tr><td>Prime → Non-prime (partial)</td><td class="ok">✅ ห้าม</td><td class="ok">✅ ห้าม</td></tr>
+        <tr><td>Non-prime → Prime</td><td class="problem">⚠️ อนุญาต</td><td class="ok">✅ ห้าม</td></tr>
+        <tr><td>Prime A → Prime B</td><td class="problem">⚠️ อนุญาต</td><td class="ok">✅ ห้าม (ถ้าไม่ใช่ Superkey)</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">❌</span> ตัวอย่างที่ผ่าน 3NF แต่ไม่ผ่าน BCNF</div>
+    <div class="label-bad">✗ NOT BCNF (แม้ผ่าน 3NF)</div>
+    <div style="padding:14px;background:rgba(15,21,37,0.8);border-radius:10px;border:1px solid var(--border);margin-bottom:16px;font-size:0.88rem;color:var(--text-muted);">
+      <strong style="color:var(--text);">โจทย์:</strong> นักศึกษา 1 คน เรียนได้หลายวิชา · อาจารย์ 1 คน สอนได้เฉพาะวิชาเดียว · วิชาหนึ่งมีอาจารย์สอนได้หลายคน
+    </div>
+    <div class="table-label">ตาราง: การเรียนการสอน</div>
+    <div class="table-wrapper">
+      <table>
+        <tr><th>นักศึกษา</th><th>วิชา</th><th>อาจารย์ ⚠️</th></tr>
+        <tr><td>สมชาย</td><td>Database</td><td class="problem">ดร.ก</td></tr>
+        <tr><td>สมชาย</td><td>Database</td><td class="problem">ดร.ข</td></tr>
+        <tr><td>สมชาย</td><td>Network</td><td>ดร.ค</td></tr>
+        <tr><td>สมหญิง</td><td>Database</td><td class="problem">ดร.ก</td></tr>
+        <tr><td>มานะ</td><td>Network</td><td>ดร.ค</td></tr>
+      </table>
+    </div>
+    <div style="margin-top:16px;">
+      <div style="font-weight:600;font-size:0.88rem;color:var(--accent4);margin-bottom:10px;">🔑 Candidate Keys:</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
+        <span class="tag">(นักศึกษา + วิชา)</span>
+        <span class="tag">(นักศึกษา + อาจารย์)</span>
+      </div>
+      <div class="fd-box">
+        <div class="fd-item"><span class="attr">อาจารย์</span><span class="arrow">→</span><span class="problem-fd">วิชา</span><span style="color:var(--accent5);font-size:0.78rem;margin-left:8px;">(อาจารย์ไม่ใช่ Superkey แต่กำหนดวิชาได้ → ละเมิด BCNF!)</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">✅</span> หลังแปลงเป็น BCNF</div>
+    <div class="label-good">✓ BCNF</div>
+    <div class="grid2">
+      <div>
+        <div class="table-label">ตาราง: อาจารย์-วิชา</div>
+        <div class="table-wrapper">
+          <table>
+            <tr><th>อาจารย์ (PK)</th><th>วิชา</th></tr>
+            <tr><td class="pk">ดร.ก</td><td>Database</td></tr>
+            <tr><td class="pk">ดร.ข</td><td>Database</td></tr>
+            <tr><td class="pk">ดร.ค</td><td>Network</td></tr>
+          </table>
+        </div>
+      </div>
+      <div>
+        <div class="table-label">ตาราง: นักศึกษา-อาจารย์</div>
+        <div class="table-wrapper">
+          <table>
+            <tr><th>นักศึกษา</th><th>อาจารย์</th></tr>
+            <tr><td>สมชาย</td><td>ดร.ก</td></tr>
+            <tr><td>สมชาย</td><td>ดร.ข</td></tr>
+            <tr><td>สมชาย</td><td>ดร.ค</td></tr>
+            <tr><td>สมหญิง</td><td>ดร.ก</td></tr>
+            <tr><td>มานะ</td><td>ดร.ค</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="border-color:rgba(167,139,250,0.25);">
+    <div class="card-title"><span class="icon">💡</span> จำง่ายๆ</div>
+    <div style="font-size:1.05rem;padding:16px;background:rgba(167,139,250,0.05);border-radius:10px;text-align:center;">
+      <span style="color:#a78bfa;font-family:'Prompt';font-weight:700;">BCNF</span> = <span style="color:var(--text);">"ทุกตัวที่กำหนดค่าอื่นได้ ต้องเป็น Superkey เท่านั้น"</span>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SUMMARY ===== -->
+<div id="summary" class="section">
+  <div class="section-header">
+    <div class="nf-badge" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);font-size:1.6rem;">📊</div>
+    <div class="section-title">
+      สรุปเปรียบเทียบ
+      <small>Normal Forms ทั้งหมด</small>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:32px;">
+    <div class="card-title"><span class="icon">📋</span> ตารางสรุปเปรียบเทียบ</div>
+    <div class="table-wrapper">
+      <table>
+        <tr><th>Normal Form</th><th>ผ่านเมื่อ</th><th>ปัญหาที่แก้</th><th>เงื่อนไขหลัก</th></tr>
+        <tr>
+          <td><span style="color:var(--accent);font-family:'JetBrains Mono';font-weight:700;">1NF</span></td>
+          <td>ทุก cell มีค่าเดียว</td>
+          <td>Repeating Groups</td>
+          <td>Atomic Values</td>
+        </tr>
+        <tr>
+          <td><span style="color:var(--accent3);font-family:'JetBrains Mono';font-weight:700;">2NF</span></td>
+          <td>ผ่าน 1NF + Full Dependency</td>
+          <td>Partial Dependency</td>
+          <td>ทุก attr ขึ้นกับ PK ทั้งก้อน</td>
+        </tr>
+        <tr>
+          <td><span style="color:var(--accent4);font-family:'JetBrains Mono';font-weight:700;">3NF</span></td>
+          <td>ผ่าน 2NF + No Transitive</td>
+          <td>Transitive Dependency</td>
+          <td>ทุก attr ขึ้นกับ Key โดยตรง</td>
+        </tr>
+        <tr>
+          <td><span style="color:#a78bfa;font-family:'JetBrains Mono';font-weight:700;">BCNF</span></td>
+          <td>ผ่าน 3NF + Superkey only</td>
+          <td>Multi Candidate Key</td>
+          <td>ทุก Determinant เป็น Superkey</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="summary-nf">
+    <div class="nf-row" style="border-left:3px solid var(--accent);">
+      <div class="nf-num c1">1NF</div>
+      <div class="nf-row-content">
+        <h3>ห้ามยัดหลายค่าในช่องเดียว</h3>
+        <p>ทุกช่องในตารางต้องมีค่าเดียว (Atomic) ไม่มี repeating group เช่น "CS101, CS102" ในช่องเดียว</p>
+      </div>
+    </div>
+    <div class="nf-row" style="border-left:3px solid var(--accent3);">
+      <div class="nf-num c2">2NF</div>
+      <div class="nf-row-content">
+        <h3>ทุก attribute ต้องขึ้นกับ Key ทั้งก้อน</h3>
+        <p>ถ้า PK เป็น Composite Key ต้องไม่มี attribute ที่ขึ้นกับแค่บางส่วนของ PK (Partial Dependency)</p>
+      </div>
+    </div>
+    <div class="nf-row" style="border-left:3px solid var(--accent4);">
+      <div class="nf-num c3">3NF</div>
+      <div class="nf-row-content">
+        <h3>ทุก attribute ต้องขึ้นกับ Key โดยตรง</h3>
+        <p>ห้ามมี Non-prime Attribute ขึ้นกับ Non-prime Attribute อื่น (Transitive Dependency)</p>
+      </div>
+    </div>
+    <div class="nf-row" style="border-left:3px solid #a78bfa;">
+      <div class="nf-num c4">BCNF</div>
+      <div class="nf-row-content">
+        <h3>ทุกตัวที่กำหนดค่าอื่นได้ต้องเป็น Superkey</h3>
+        <p>เข้มงวดกว่า 3NF สำหรับกรณีที่มีหลาย Candidate Key ซ้อนทับกัน</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:28px;background:linear-gradient(135deg,rgba(0,212,255,0.05),rgba(124,58,237,0.05));">
+    <div class="card-title"><span class="icon">🧠</span> สูตรจำแบบย่อ</div>
+    <div style="display:flex;flex-direction:column;gap:10px;font-family:'JetBrains Mono';font-size:0.9rem;">
+      <div style="padding:12px 16px;background:rgba(0,212,255,0.06);border-radius:8px;"><span style="color:var(--accent);">1NF</span> → <span style="color:var(--text-muted);">ไม่มีหลายค่าในช่องเดียว</span></div>
+      <div style="padding:12px 16px;background:rgba(16,185,129,0.06);border-radius:8px;"><span style="color:var(--accent3);">2NF</span> → <span style="color:var(--text-muted);">ไม่มี Partial Dependency (Key บางส่วน)</span></div>
+      <div style="padding:12px 16px;background:rgba(245,158,11,0.06);border-radius:8px;"><span style="color:var(--accent4);">3NF</span> → <span style="color:var(--text-muted);">ไม่มี Transitive Dependency (ผ่านตัวกลาง)</span></div>
+      <div style="padding:12px 16px;background:rgba(167,139,250,0.06);border-radius:8px;"><span style="color:#a78bfa;">BCNF</span> → <span style="color:var(--text-muted);">ทุก Determinant เป็น Superkey</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== EXERCISE ===== -->
+<div id="exercise" class="section">
+  <div class="section-header">
+    <div class="nf-badge" style="background:rgba(124,58,237,0.15);border:1px solid rgba(124,58,237,0.3);font-size:1.4rem;">✏️</div>
+    <div class="section-title">
+      แบบฝึกหัด
+      <small>ฝึก Normalize ด้วยตัวเอง</small>
+    </div>
+  </div>
+
+  <!-- Exercise 1 -->
+  <div class="exercise-box" style="margin-bottom:28px;">
+    <div class="ex-title">📝 แบบฝึกหัดที่ 1 — ระบบร้านค้าออนไลน์</div>
+    <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:16px;">กำหนดตารางต่อไปนี้ ให้ทำ Normalization ให้ถึง 3NF พร้อมระบุ FD ที่พบ</p>
+    <div class="ex-schema">
+      <span class="table-name">คำสั่งซื้อ</span>(<span class="pk-attr">รหัสคำสั่งซื้อ</span>, รหัสลูกค้า, ชื่อลูกค้า, อีเมลลูกค้า,<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="pk-attr">รหัสสินค้า</span>, ชื่อสินค้า, ราคาต่อหน่วย, จำนวน, รวมเงิน,<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;วันที่สั่งซื้อ, สถานะ)
+    </div>
+    <ul class="hint-list">
+      <li>ระบุ FD ทั้งหมดที่พบในตาราง</li>
+      <li>ตรวจสอบว่า 1NF ผ่านหรือไม่ ถ้าไม่ให้แก้ไข</li>
+      <li>หา Partial Dependency และแยกตารางให้ผ่าน 2NF</li>
+      <li>หา Transitive Dependency และแยกตารางให้ผ่าน 3NF</li>
+      <li>วาด Entity-Relationship Diagram (ERD) แสดงความสัมพันธ์ระหว่างตาราง</li>
+    </ul>
+  </div>
+
+  <!-- Exercise 2 -->
+  <div class="exercise-box" style="margin-bottom:28px;">
+    <div class="ex-title">📝 แบบฝึกหัดที่ 2 — ระบบโรงพยาบาล</div>
+    <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:16px;">จากข้อมูลการรักษาพยาบาลต่อไปนี้</p>
+    <div class="ex-schema">
+      <span class="table-name">การรักษา</span>(<span class="pk-attr">รหัสการรักษา</span>, รหัสผู้ป่วย, ชื่อผู้ป่วย, วันเกิดผู้ป่วย,<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;รหัสแพทย์, ชื่อแพทย์, ความเชี่ยวชาญแพทย์,<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;รหัสห้อง, ชั้น, อาคาร, วันที่รักษา, การวินิจฉัย)
+    </div>
+    <ul class="hint-list">
+      <li>แยกตารางให้ผ่าน 3NF</li>
+      <li>ระบุ Primary Key และ Foreign Key ของทุกตาราง</li>
+      <li>อธิบายว่ามี Transitive Dependency อะไรบ้างในตารางเดิม</li>
+    </ul>
+  </div>
+
+  <!-- Exercise 3 BCNF -->
+  <div class="exercise-box">
+    <div class="ex-title">🎯 แบบฝึกหัดที่ 3 — BCNF Challenge</div>
+    <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:16px;">ตารางต่อไปนี้ผ่าน 3NF แต่อาจไม่ผ่าน BCNF ให้วิเคราะห์</p>
+    <div class="ex-schema">
+      <span class="table-name">ตารางสอน</span>(นักศึกษา, วิชา, อาจารย์)<br><br>
+      <span style="color:var(--text-muted);">เงื่อนไข:</span><br>
+      &nbsp;• นักศึกษา 1 คน ลงวิชา 1 วิชาได้กับอาจารย์หลายคน<br>
+      &nbsp;• อาจารย์ 1 คน สอนได้เฉพาะวิชาเดียว<br>
+      &nbsp;• วิชาหนึ่งมีอาจารย์ผู้สอนได้หลายคน
+    </div>
+    <ul class="hint-list">
+      <li>ระบุ Candidate Key ทั้งหมดของตาราง</li>
+      <li>ระบุ FD ทั้งหมดและตรวจสอบว่า FD ใดละเมิด BCNF</li>
+      <li>แยกตารางให้ผ่าน BCNF</li>
+      <li>ตรวจสอบว่าการแยกตาราง lossless join หรือไม่</li>
+    </ul>
+  </div>
+</div>
+
+</main>
+
+<script>
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>

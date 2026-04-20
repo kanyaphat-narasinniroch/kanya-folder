@@ -1,0 +1,126 @@
+All codes needed
+1. Dump Data INTO Main schema
+
+set identity_insert NAME on;
+
+insert into NAME (1 , 2,  3,  4,  5)
+select 1 , 2,  3,  4,  5
+from name_name
+where  a >= 0 and b >=  0;
+
+set identity_insert NAME off;
+
+################## POWER BI ###################
+
+2. Good Text or Bad Text
+SentimentScore = 
+-- นับคำดี (ถ้าเจอคำไหนให้ +1)
+(
+    IF(CONTAINSSTRING([Comment], "happy"), 1, 0) + 
+    IF(CONTAINSSTRING([Comment], "satisfied"), 1, 0) + 
+    IF(CONTAINSSTRING([Comment], "delicious"), 1, 0) +
+    IF(CONTAINSSTRING([Comment], "amazing"), 1, 0) +
+    IF(CONTAINSSTRING([Comment], "love"), 1, 0) +
+    IF(CONTAINSSTRING([Comment], "excellent"), 1, 0) +
+    IF(CONTAINSSTRING([Comment], "great"), 1, 0) +
+    IF(CONTAINSSTRING([Comment], "enjoyed"), 1, 0) +
+    IF(CONTAINSSTRING([Comment], "recommend"), 1, 0) +
+    IF(CONTAINSSTRING([Comment], "best"), 1, 0)
+) 
+- 
+-- ลบด้วยจำนวนคำแย่ (ถ้าเจอคำไหนให้ +1)
+(
+    IF(CONTAINSSTRING([Comment], "disappointed"), 1, 0) + 
+    IF(CONTAINSSTRING([Comment], "bad"), 1, 0) + 
+    IF(CONTAINSSTRING([Comment], "terrible"), 1, 0) +
+    IF(CONTAINSSTRING([Comment], "awful"), 1, 0) +
+    IF(CONTAINSSTRING([Comment], "hate"), 1, 0) +
+    IF(CONTAINSSTRING([Comment], "worst"), 1, 0) +
+    IF(CONTAINSSTRING([Comment], "horrible"), 1, 0) +
+    IF(CONTAINSSTRING([Comment], "disgusting"), 1, 0) +
+    IF(CONTAINSSTRING([Comment], "not good"), 1, 0) +
+    IF(CONTAINSSTRING([Comment], "dislike"), 1, 0)
+)
+
+แสดงผล pos,neg,neu
+
+SentimentResult = 
+IF([SentimentScore] > 0, "Positive", 
+IF([SentimentScore] < 0, "Negative", "Neutral"))
+
+------------------------------------------------------------------------------------
+
+3. Word_Count
+let
+    Source = CustomerFeedback,
+    // รวมทุกคอมเมนต์เป็นตัวเล็กก้อนเดียว
+    AllText = Text.Lower(Text.Combine(Source[Comment], " ")),
+    
+    // สร้างตารางจาก List คำทั้งหมดทีเดียวเลย (จำง่ายกว่าแยกทำ 2 รอบ)
+    Words = {"happy", "satisfied", "delicious", "amazing", "love", "excellent", "great", "enjoyed", "recommend", "best",
+             "disappointed", "bad", "terrible", "awful", "hate", "worst", "horrible", "disgusting", "not good", "dislike"},
+    
+    TableBase = Table.FromList(Words, Splitter.SplitByNothing(), {"Word"}),
+
+    // ใส่สูตรนับคำ (ใช้สูตรเดิมของคุณที่เทพอยู่แล้ว)
+    AddCount = Table.AddColumn(TableBase, "Count", each (Text.Length(AllText) - Text.Length(Text.Replace(AllText, [Word], ""))) / Text.Length([Word])),
+    
+    // แบ่งประเภท Good/Bad ด้วย List.Contains (สั้นกว่าสร้าง 2 ตารางแล้วมา Combine)
+    AddCategory = Table.AddColumn(AddCount, "Category", each if List.PositionOf(Words, [Word]) < 10 then "Good" else "Bad"),
+    
+    Final = Table.TransformColumnTypes(AddCategory,{{"Count", Int64.Type}})
+in
+    Final
+
+
+------------------------------------------------------------------------------------
+
+4. Table Point Earn, Redeem
+
+Point Earned_table = IF('LoyaltyProgramHistory'[Action] = "Points Earned", 'LoyaltyProgramHistory'[Points], 0)
+Point Redeem_table = IF('LoyaltyProgramHistory'[Action] = "Points Redeemed", ABS('LoyaltyProgramHistory'[Points]), 0)
+------------------------------------------------------------------------------------
+
+5. TIER CODE
+
+UserUpgradeCount = 
+VAR CurrentCustomer = [CustomerId]
+VAR CountUp = 
+    CALCULATE(
+        COUNT('LoyaltyProgramHistory'[Action]),
+        FILTER(
+            'LoyaltyProgramHistory',
+            'LoyaltyProgramHistory'[Action] = "Tier Upgrade" && 
+            'LoyaltyProgramHistory'[CustomerId] = CurrentCustomer
+        )
+    )
+RETURN 
+    IF(ISBLANK(CountUp), 0, CountUp) -- ถ้าเป็นค่าว่างให้เป็น 0
+
+********************************************************************************
+
+Tier_Detailed = 
+VAR Up = [UserUpgradeCount]
+RETURN
+SWITCH( TRUE(),
+    Up <= 3, "Basic " & (Up + 1),
+    Up <= 7, "Silver " & (Up - 3),
+    Up <= 11, "Gold " & (Up - 7),
+    "Platinum " & (Up - 11)
+)
+
+*********************************************************************************
+
+Tier_Simplified = 
+VAR Up = [UserUpgradeCount]
+RETURN
+SWITCH( TRUE(),
+    Up <= 3, "Basic",
+    Up <= 7, "Silver",
+    Up <= 11, "Gold",
+    "Platinum"
+)
+
+------------------------------------------------------------------------------------
+
+6.

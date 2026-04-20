@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>โจทย์ ER-Diagram | Case Study</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #11111a;
+    --card: #16161f;
+    --border: #2a2a3d;
+    --accent1: #7c3aed;
+    --accent2: #06b6d4;
+    --accent3: #f59e0b;
+    --accent4: #10b981;
+    --accent5: #ef4444;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --tag-bg: #1e1e2e;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Sans Thai', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(124,58,237,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124,58,237,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 60px 24px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 64px;
+    animation: fadeDown 0.7s ease both;
+  }
+
+  .header-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, rgba(124,58,237,0.2), rgba(6,182,212,0.2));
+    border: 1px solid rgba(124,58,237,0.4);
+    border-radius: 100px;
+    padding: 6px 20px;
+    font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent2);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  h1 {
+    font-size: clamp(32px, 5vw, 54px);
+    font-weight: 700;
+    line-height: 1.15;
+    background: linear-gradient(135deg, #fff 0%, #a78bfa 50%, #06b6d4 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 16px;
+  }
+
+  .header p {
+    color: var(--muted);
+    font-size: 16px;
+    font-weight: 400;
+  }
+
+  .stats-row {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    margin-top: 32px;
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    text-align: center;
+  }
+
+  .stat-num {
+    font-size: 28px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent1);
+  }
+
+  .stat-label {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  /* Difficulty legend */
+  .legend {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 48px;
+    flex-wrap: wrap;
+    animation: fadeUp 0.7s 0.2s ease both;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .legend-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+  }
+
+  /* Cards */
+  .cases-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  .case-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+    animation: fadeUp 0.6s ease both;
+    transition: border-color 0.3s, transform 0.3s;
+    position: relative;
+  }
+
+  .case-card:hover {
+    transform: translateY(-3px);
+  }
+
+  .case-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+
+  .case-card:nth-child(1) { animation-delay: 0.1s; }
+  .case-card:nth-child(2) { animation-delay: 0.2s; }
+  .case-card:nth-child(3) { animation-delay: 0.3s; }
+  .case-card:nth-child(4) { animation-delay: 0.4s; }
+  .case-card:nth-child(5) { animation-delay: 0.5s; }
+
+  .case-card:nth-child(1)::before { background: var(--accent1); }
+  .case-card:nth-child(2)::before { background: var(--accent2); }
+  .case-card:nth-child(3)::before { background: var(--accent3); }
+  .case-card:nth-child(4)::before { background: var(--accent4); }
+  .case-card:nth-child(5)::before { background: var(--accent5); }
+
+  .case-card:nth-child(1):hover { border-color: rgba(124,58,237,0.5); }
+  .case-card:nth-child(2):hover { border-color: rgba(6,182,212,0.5); }
+  .case-card:nth-child(3):hover { border-color: rgba(245,158,11,0.5); }
+  .case-card:nth-child(4):hover { border-color: rgba(16,185,129,0.5); }
+  .case-card:nth-child(5):hover { border-color: rgba(239,68,68,0.5); }
+
+  .card-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 28px 28px 0;
+    flex-wrap: wrap;
+  }
+
+  .case-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding-top: 4px;
+    min-width: 60px;
+  }
+
+  .case-title-area { flex: 1; }
+
+  .case-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 8px;
+    line-height: 1.3;
+  }
+
+  .case-subtitle {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .difficulty-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 14px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+    white-space: nowrap;
+  }
+
+  .diff-medium {
+    background: rgba(245,158,11,0.15);
+    border: 1px solid rgba(245,158,11,0.3);
+    color: var(--accent3);
+  }
+
+  .diff-hard {
+    background: rgba(239,68,68,0.15);
+    border: 1px solid rgba(239,68,68,0.3);
+    color: var(--accent5);
+  }
+
+  .card-body {
+    padding: 24px 28px 28px;
+  }
+
+  /* Scenario */
+  .scenario-box {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 24px;
+    font-size: 14px;
+    line-height: 1.8;
+    color: #c4c9d4;
+    position: relative;
+  }
+
+  .scenario-box::before {
+    content: '📋 สถานการณ์';
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Entities */
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 12px;
+  }
+
+  .entities-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+
+  .entity-tag {
+    background: var(--tag-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: border-color 0.2s, background 0.2s;
+  }
+
+  .entity-tag:hover {
+    background: rgba(124,58,237,0.1);
+    border-color: rgba(124,58,237,0.4);
+    cursor: default;
+  }
+
+  .entity-icon {
+    font-size: 14px;
+  }
+
+  /* Requirements */
+  .requirements {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+
+  @media (max-width: 600px) {
+    .requirements { grid-template-columns: 1fr; }
+    .card-header { flex-direction: column; }
+  }
+
+  .req-item {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #c4c9d4;
+    padding: 8px 12px;
+    background: rgba(255,255,255,0.02);
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .req-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    padding-top: 2px;
+    min-width: 22px;
+  }
+
+  /* Challenges */
+  .challenges {
+    background: linear-gradient(135deg, rgba(239,68,68,0.05), rgba(245,158,11,0.05));
+    border: 1px solid rgba(239,68,68,0.15);
+    border-radius: 12px;
+    padding: 16px 18px;
+  }
+
+  .challenges-title {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #f87171;
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .challenge-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .challenge-list li {
+    font-size: 13px;
+    color: #fca5a5;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    line-height: 1.5;
+  }
+
+  .challenge-list li::before {
+    content: '⚠';
+    font-size: 12px;
+    padding-top: 1px;
+    flex-shrink: 0;
+  }
+
+  /* Footer note */
+  .footer-note {
+    margin-top: 64px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+    animation: fadeUp 0.7s 0.8s ease both;
+    padding: 24px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: var(--card);
+  }
+
+  .footer-note strong {
+    color: var(--accent2);
+  }
+
+  /* Animations */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Progress indicator */
+  .progress-strip {
+    display: flex;
+    gap: 4px;
+    justify-content: center;
+    margin-bottom: 48px;
+    animation: fadeUp 0.7s 0.15s ease both;
+  }
+
+  .progress-dot {
+    width: 32px; height: 4px;
+    border-radius: 2px;
+    opacity: 0.3;
+    transition: opacity 0.3s;
+  }
+
+  .progress-dot.active { opacity: 1; }
+  .pd1 { background: var(--accent1); }
+  .pd2 { background: var(--accent2); }
+  .pd3 { background: var(--accent3); }
+  .pd4 { background: var(--accent4); }
+  .pd5 { background: var(--accent5); }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 20px 0;
+  }
+
+  .card-footer-tags {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding: 16px 28px;
+    border-top: 1px solid var(--border);
+    background: rgba(0,0,0,0.2);
+  }
+
+  .skill-tag {
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    padding: 3px 10px;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.04);
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-badge">Database Design · ER Diagram</div>
+    <h1>โจทย์ Case Study<br>การออกแบบ ER-Diagram</h1>
+    <p>5 ระบบงานจริง · ระดับปานกลาง–ยาก · พร้อมความต้องการและ Entities</p>
+
+    <div class="stats-row">
+      <div class="stat">
+        <div class="stat-num">5</div>
+        <div class="stat-label">ระบบงาน</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num" style="color: var(--accent3);">★★★</div>
+        <div class="stat-label">ระดับปานกลาง–ยาก</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num" style="color: var(--accent2);">30+</div>
+        <div class="stat-label">Entities รวม</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend">
+    <div class="legend-item">
+      <div class="legend-dot" style="background: var(--accent3);"></div>
+      ปานกลาง: Entities 5–7 ตัว / Relationship ซับซ้อน
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background: var(--accent5);"></div>
+      ยาก: Entities 8+ ตัว / Many-to-Many / Weak Entity / Specialization
+    </div>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-strip">
+    <div class="progress-dot pd1 active"></div>
+    <div class="progress-dot pd2 active"></div>
+    <div class="progress-dot pd3 active"></div>
+    <div class="progress-dot pd4 active"></div>
+    <div class="progress-dot pd5 active"></div>
+  </div>
+
+  <!-- Cases -->
+  <div class="cases-grid">
+
+    <!-- ========== CASE 1 ========== -->
+    <div class="case-card">
+      <div class="card-header">
+        <div class="case-number">CASE 01</div>
+        <div class="case-title-area">
+          <div class="case-title">ระบบจัดการคลินิก (Clinic Management)</div>
+          <div class="case-subtitle">ระบบนัดหมาย ตรวจโรค สั่งยา และบันทึกประวัติผู้ป่วย</div>
+        </div>
+        <div class="difficulty-badge diff-medium">★★★ ปานกลาง</div>
+      </div>
+
+      <div class="card-body">
+        <div class="scenario-box">
+          คลินิกแห่งหนึ่งต้องการระบบจัดการข้อมูลผู้ป่วย แพทย์ และการนัดหมาย ผู้ป่วยสามารถนัดพบแพทย์ได้หลายครั้ง ในแต่ละครั้งแพทย์จะทำการตรวจและสั่งยาได้หลายรายการ ยาแต่ละชนิดมาจากซัพพลายเออร์ที่แตกต่างกัน และคลินิกมีแพทย์หลายคนที่แต่ละคนมีความเชี่ยวชาญเฉพาะด้าน
+        </div>
+
+        <div class="section-label">Entities ที่ต้องออกแบบ</div>
+        <div class="entities-wrap">
+          <div class="entity-tag"><span class="entity-icon">👤</span> ผู้ป่วย (Patient)</div>
+          <div class="entity-tag"><span class="entity-icon">👨‍⚕️</span> แพทย์ (Doctor)</div>
+          <div class="entity-tag"><span class="entity-icon">📅</span> การนัดหมาย (Appointment)</div>
+          <div class="entity-tag"><span class="entity-icon">💊</span> ยา (Medicine)</div>
+          <div class="entity-tag"><span class="entity-icon">📋</span> การสั่งยา (Prescription)</div>
+          <div class="entity-tag"><span class="entity-icon">🏢</span> ซัพพลายเออร์ (Supplier)</div>
+        </div>
+
+        <div class="section-label">ความต้องการของระบบ</div>
+        <div class="requirements">
+          <div class="req-item"><span class="req-num">R1</span>ผู้ป่วย 1 คน นัดหมายแพทย์ได้หลายครั้ง</div>
+          <div class="req-item"><span class="req-num">R2</span>แพทย์ 1 คน มีความเชี่ยวชาญได้หลายด้าน</div>
+          <div class="req-item"><span class="req-num">R3</span>การนัดหมาย 1 ครั้ง มีแพทย์เพียง 1 คน</div>
+          <div class="req-item"><span class="req-num">R4</span>การสั่งยา 1 ครั้ง มียาได้หลายรายการ พร้อมระบุขนาดยาและจำนวน</div>
+          <div class="req-item"><span class="req-num">R5</span>ยา 1 ชนิด มีซัพพลายเออร์ได้หลายราย (M:N)</div>
+          <div class="req-item"><span class="req-num">R6</span>บันทึกราคาซื้อยาจากซัพพลายเออร์แต่ละรายได้</div>
+        </div>
+
+        <div class="challenges">
+          <div class="challenges-title">⚡ จุดยาก / สิ่งที่ต้องระวัง</div>
+          <ul class="challenge-list">
+            <li>Relationship M:N ระหว่าง ยา–ซัพพลายเออร์ ต้องมี Attribute บน Relationship (ราคา, วันที่ส่งมอบ)</li>
+            <li>การสั่งยาต้องเชื่อมทั้งกับ Appointment และ Prescription line (Weak Entity)</li>
+            <li>Cardinality ของแพทย์กับความเชี่ยวชาญ ต้องระบุ Multi-valued Attribute หรือแยก Entity</li>
+          </ul>
+        </div>
+      </div>
+      <div class="card-footer-tags">
+        <span class="skill-tag">M:N Relationship</span>
+        <span class="skill-tag">Weak Entity</span>
+        <span class="skill-tag">Multi-valued Attribute</span>
+        <span class="skill-tag">Relationship Attribute</span>
+      </div>
+    </div>
+
+    <!-- ========== CASE 2 ========== -->
+    <div class="case-card">
+      <div class="card-header">
+        <div class="case-number">CASE 02</div>
+        <div class="case-title-area">
+          <div class="case-title">ระบบจัดการโรงแรม (Hotel Management)</div>
+          <div class="case-subtitle">ระบบจองห้อง เช็คอิน–เช็คเอาต์ บริการเสริม และการชำระเงิน</div>
+        </div>
+        <div class="difficulty-badge diff-medium">★★★ ปานกลาง</div>
+      </div>
+
+      <div class="card-body">
+        <div class="scenario-box">
+          โรงแรมขนาดใหญ่ต้องการระบบจัดการการจองและห้องพัก ลูกค้าสามารถจองห้องพักได้หลายห้องในการจองครั้งเดียว ห้องแต่ละห้องมีประเภทและราคาที่แตกต่างกัน ลูกค้าสามารถใช้บริการเสริม เช่น อาหาร สปา รูมเซอร์วิส ซึ่งจะรวมอยู่ในบิลสุดท้าย พนักงานแต่ละคนรับผิดชอบดูแลห้องพักที่กำหนด
+        </div>
+
+        <div class="section-label">Entities ที่ต้องออกแบบ</div>
+        <div class="entities-wrap">
+          <div class="entity-tag"><span class="entity-icon">👤</span> ลูกค้า (Customer)</div>
+          <div class="entity-tag"><span class="entity-icon">📋</span> การจอง (Reservation)</div>
+          <div class="entity-tag"><span class="entity-icon">🛏️</span> ห้องพัก (Room)</div>
+          <div class="entity-tag"><span class="entity-icon">📂</span> ประเภทห้อง (Room Type)</div>
+          <div class="entity-tag"><span class="entity-icon">🧖</span> บริการเสริม (Service)</div>
+          <div class="entity-tag"><span class="entity-icon">💳</span> ใบเรียกเก็บเงิน (Bill)</div>
+          <div class="entity-tag"><span class="entity-icon">👷</span> พนักงาน (Staff)</div>
+        </div>
+
+        <div class="section-label">ความต้องการของระบบ</div>
+        <div class="requirements">
+          <div class="req-item"><span class="req-num">R1</span>การจอง 1 ครั้ง จองได้หลายห้อง (M:N) พร้อมระบุวันเช็คอิน–เช็คเอาต์</div>
+          <div class="req-item"><span class="req-num">R2</span>ห้องแต่ละห้องมีประเภท (Standard, Deluxe, Suite) ราคาต่างกัน</div>
+          <div class="req-item"><span class="req-num">R3</span>ลูกค้า 1 คน ใช้บริการเสริมได้หลายครั้ง บันทึกวันเวลาและจำนวน</div>
+          <div class="req-item"><span class="req-num">R4</span>บิล 1 ใบ รวมค่าห้องและค่าบริการเสริมทั้งหมดของการจอง</div>
+          <div class="req-item"><span class="req-num">R5</span>พนักงาน 1 คน ดูแลห้องได้หลายห้อง แต่ห้อง 1 ห้อง มีพนักงานดูแลได้หลายคน</div>
+          <div class="req-item"><span class="req-num">R6</span>บันทึกประวัติการพัก สถานะห้อง (ว่าง/ไม่ว่าง/ซ่อมบำรุง)</div>
+        </div>
+
+        <div class="challenges">
+          <div class="challenges-title">⚡ จุดยาก / สิ่งที่ต้องระวัง</div>
+          <ul class="challenge-list">
+            <li>Reservation–Room เป็น M:N ต้องมี Attribute วันเช็คอิน–เช็คเอาต์บน Relationship</li>
+            <li>Bill ต้องรวมทั้งค่าห้องและค่าบริการเสริม ต้องออกแบบโครงสร้างให้ครอบคลุม</li>
+            <li>สถานะห้องพักเป็น Derived หรือ Stored Attribute ต้องพิจารณาให้ดี</li>
+          </ul>
+        </div>
+      </div>
+      <div class="card-footer-tags">
+        <span class="skill-tag">M:N + Relationship Attribute</span>
+        <span class="skill-tag">Derived Attribute</span>
+        <span class="skill-tag">Aggregation</span>
+        <span class="skill-tag">Composite Entity</span>
+      </div>
+    </div>
+
+    <!-- ========== CASE 3 ========== -->
+    <div class="case-card">
+      <div class="card-header">
+        <div class="case-number">CASE 03</div>
+        <div class="case-title-area">
+          <div class="case-title">ระบบธนาคารออนไลน์ (Online Banking)</div>
+          <div class="case-subtitle">ระบบบัญชี โอนเงิน กู้ยืม และบัตรเครดิต</div>
+        </div>
+        <div class="difficulty-badge diff-hard">★★★★★ ยาก</div>
+      </div>
+
+      <div class="card-body">
+        <div class="scenario-box">
+          ธนาคารพาณิชย์ต้องการระบบจัดการข้อมูลลูกค้าและบัญชีแบบครบวงจร ลูกค้า 1 คน เปิดบัญชีได้หลายประเภท (ออมทรัพย์ กระแสรายวัน เงินฝากประจำ) แต่ละบัญชีมีประวัติธุรกรรมและสามารถโอนเงินระหว่างบัญชีได้ ลูกค้าสามารถขอสินเชื่อและบัตรเครดิตได้ โดยแต่ละผลิตภัณฑ์มีเงื่อนไขต่างกัน พนักงานธนาคารที่ดูแลสาขาเป็นผู้อนุมัติ
+        </div>
+
+        <div class="section-label">Entities ที่ต้องออกแบบ</div>
+        <div class="entities-wrap">
+          <div class="entity-tag"><span class="entity-icon">👤</span> ลูกค้า (Customer)</div>
+          <div class="entity-tag"><span class="entity-icon">🏦</span> บัญชี (Account)</div>
+          <div class="entity-tag"><span class="entity-icon">💸</span> ธุรกรรม (Transaction)</div>
+          <div class="entity-tag"><span class="entity-icon">🏠</span> สาขา (Branch)</div>
+          <div class="entity-tag"><span class="entity-icon">👔</span> พนักงาน (Employee)</div>
+          <div class="entity-tag"><span class="entity-icon">💰</span> สินเชื่อ (Loan)</div>
+          <div class="entity-tag"><span class="entity-icon">💳</span> บัตรเครดิต (Credit Card)</div>
+          <div class="entity-tag"><span class="entity-icon">📄</span> การชำระสินเชื่อ (Loan Payment)</div>
+        </div>
+
+        <div class="section-label">ความต้องการของระบบ</div>
+        <div class="requirements">
+          <div class="req-item"><span class="req-num">R1</span>บัญชีมี 3 ประเภท ใช้ Specialization/Generalization แยก Attribute เฉพาะ</div>
+          <div class="req-item"><span class="req-num">R2</span>ธุรกรรมโอนเงิน มีบัญชีต้นทางและปลายทาง (Self-referencing หรือ 2 Relationship)</div>
+          <div class="req-item"><span class="req-num">R3</span>ลูกค้า 1 คน ขอสินเชื่อได้หลายประเภท บันทึกวงเงิน ดอกเบี้ย กำหนดชำระ</div>
+          <div class="req-item"><span class="req-num">R4</span>บัตรเครดิต 1 ใบ เชื่อมกับบัญชี 1 บัญชี มีวงเงินและรายการใช้จ่าย</div>
+          <div class="req-item"><span class="req-num">R5</span>พนักงาน 1 คน สังกัดสาขา 1 แห่ง แต่ Manage ลูกค้าได้หลายคน</div>
+          <div class="req-item"><span class="req-num">R6</span>Loan Payment เป็น Weak Entity ขึ้นอยู่กับ Loan</div>
+        </div>
+
+        <div class="challenges">
+          <div class="challenges-title">⚡ จุดยาก / สิ่งที่ต้องระวัง</div>
+          <ul class="challenge-list">
+            <li>ต้องใช้ Specialization สำหรับประเภทบัญชี (Savings, Checking, Fixed Deposit) พร้อม Disjoint/Overlapping</li>
+            <li>Transaction โอนเงินมี Recursive Relationship บน Account (ต้นทาง–ปลายทาง)</li>
+            <li>Loan Payment เป็น Weak Entity ต้องระบุ Partial Key และ Identifying Relationship</li>
+            <li>บัตรเครดิตมีรายการใช้จ่ายที่ซับซ้อน อาจต้องแยก Statement Entity</li>
+          </ul>
+        </div>
+      </div>
+      <div class="card-footer-tags">
+        <span class="skill-tag">Specialization/Generalization</span>
+        <span class="skill-tag">Recursive Relationship</span>
+        <span class="skill-tag">Weak Entity</span>
+        <span class="skill-tag">Total/Partial Participation</span>
+      </div>
+    </div>
+
+    <!-- ========== CASE 4 ========== -->
+    <div class="case-card">
+      <div class="card-header">
+        <div class="case-number">CASE 04</div>
+        <div class="case-title-area">
+          <div class="case-title">ระบบ E-Commerce Marketplace</div>
+          <div class="case-subtitle">ระบบร้านค้าออนไลน์ สินค้า รีวิว คำสั่งซื้อ และโปรโมชัน</div>
+        </div>
+        <div class="difficulty-badge diff-hard">★★★★★ ยาก</div>
+      </div>
+
+      <div class="card-body">
+        <div class="scenario-box">
+          แพลตฟอร์ม Marketplace ที่มีผู้ขายหลายราย ผู้ใช้สามารถเป็นทั้งผู้ซื้อและผู้ขายได้ในบัญชีเดียวกัน ร้านค้าแต่ละร้านมีสินค้าหลายชนิด สินค้าบางชนิดมีตัวเลือก (สี, ขนาด) ลูกค้าสั่งซื้อได้ครั้งละหลายรายการ มีระบบรีวิวสินค้า ระบบคูปองส่วนลด และระบบติดตามการจัดส่ง
+        </div>
+
+        <div class="section-label">Entities ที่ต้องออกแบบ</div>
+        <div class="entities-wrap">
+          <div class="entity-tag"><span class="entity-icon">👤</span> ผู้ใช้ (User)</div>
+          <div class="entity-tag"><span class="entity-icon">🏪</span> ร้านค้า (Shop)</div>
+          <div class="entity-tag"><span class="entity-icon">📦</span> สินค้า (Product)</div>
+          <div class="entity-tag"><span class="entity-icon">🎨</span> ตัวเลือกสินค้า (Product Variant)</div>
+          <div class="entity-tag"><span class="entity-icon">🛒</span> คำสั่งซื้อ (Order)</div>
+          <div class="entity-tag"><span class="entity-icon">📝</span> รายการสั่งซื้อ (Order Item)</div>
+          <div class="entity-tag"><span class="entity-icon">⭐</span> รีวิว (Review)</div>
+          <div class="entity-tag"><span class="entity-icon">🎫</span> คูปอง (Coupon)</div>
+          <div class="entity-tag"><span class="entity-icon">🚚</span> การจัดส่ง (Shipment)</div>
+        </div>
+
+        <div class="section-label">ความต้องการของระบบ</div>
+        <div class="requirements">
+          <div class="req-item"><span class="req-num">R1</span>User คนเดียวเป็นได้ทั้งผู้ซื้อและเจ้าของร้านค้า (ใช้ Role หรือ Specialization)</div>
+          <div class="req-item"><span class="req-num">R2</span>สินค้า 1 ชนิด มีหลาย Variant (สี+ขนาด) แต่ละ Variant มีสต็อคและราคาต่างกัน</div>
+          <div class="req-item"><span class="req-num">R3</span>Order Item เป็น Weak Entity ระบุ Variant ที่สั่ง จำนวน และราคา ณ เวลาสั่ง</div>
+          <div class="req-item"><span class="req-num">R4</span>รีวิว 1 ชิ้น เชื่อมกับ Product และ Order Item เพื่อยืนยันว่าซื้อจริง</div>
+          <div class="req-item"><span class="req-num">R5</span>คูปอง 1 ใบ ใช้ได้กับหลาย Order แต่ Order ใช้คูปองได้สูงสุด 1 ใบ</div>
+          <div class="req-item"><span class="req-num">R6</span>Shipment ติดตามสถานะ มีประวัติการเคลื่อนที่ของพัสดุ</div>
+        </div>
+
+        <div class="challenges">
+          <div class="challenges-title">⚡ จุดยาก / สิ่งที่ต้องระวัง</div>
+          <ul class="challenge-list">
+            <li>User เป็นทั้งผู้ซื้อและผู้ขายต้องใช้ Overlapping Specialization หรือ Role Attribute</li>
+            <li>Product Variant เป็น Weak Entity ของ Product ต้องออกแบบ Composite Key</li>
+            <li>ราคาใน Order Item ต้องบันทึก ณ เวลาสั่ง (ไม่ใช่ราคาปัจจุบัน) — Historical Price</li>
+            <li>รีวิวต้องยืนยันการซื้อจริง — ต้องเชื่อม Order Item ให้ถูกต้อง ไม่ใช่แค่ Product</li>
+          </ul>
+        </div>
+      </div>
+      <div class="card-footer-tags">
+        <span class="skill-tag">Overlapping Specialization</span>
+        <span class="skill-tag">Weak Entity Chain</span>
+        <span class="skill-tag">Historical Attribute</span>
+        <span class="skill-tag">Role-based Design</span>
+      </div>
+    </div>
+
+    <!-- ========== CASE 5 ========== -->
+    <div class="case-card">
+      <div class="card-header">
+        <div class="case-number">CASE 05</div>
+        <div class="case-title-area">
+          <div class="case-title">ระบบบริหารทรัพยากรบุคคล (HR System)</div>
+          <div class="case-subtitle">ระบบพนักงาน แผนก โครงการ เงินเดือน และการประเมินผล</div>
+        </div>
+        <div class="difficulty-badge diff-hard">★★★★★ ยาก</div>
+      </div>
+
+      <div class="card-body">
+        <div class="scenario-box">
+          บริษัทขนาดใหญ่ต้องการระบบ HR ที่ครบวงจร บริษัทมีหลายแผนก แต่ละแผนกมีผู้จัดการ (ซึ่งก็เป็นพนักงาน) พนักงานสามารถทำงานในโครงการได้หลายโครงการพร้อมกัน และโครงการก็มีพนักงานหลายคน บันทึกชั่วโมงทำงานของแต่ละคนในแต่ละโครงการ พนักงานมีประวัติเงินเดือนและการประเมินผลรายปี พนักงานบางคนมีผู้ดูแล (Supervisor) ซึ่งก็เป็นพนักงานในองค์กร
+        </div>
+
+        <div class="section-label">Entities ที่ต้องออกแบบ</div>
+        <div class="entities-wrap">
+          <div class="entity-tag"><span class="entity-icon">👤</span> พนักงาน (Employee)</div>
+          <div class="entity-tag"><span class="entity-icon">🏢</span> แผนก (Department)</div>
+          <div class="entity-tag"><span class="entity-icon">🗂️</span> โครงการ (Project)</div>
+          <div class="entity-tag"><span class="entity-icon">⏱️</span> ชั่วโมงทำงาน (Works_On)</div>
+          <div class="entity-tag"><span class="entity-icon">💵</span> ประวัติเงินเดือน (Salary History)</div>
+          <div class="entity-tag"><span class="entity-icon">📊</span> การประเมินผล (Evaluation)</div>
+          <div class="entity-tag"><span class="entity-icon">👨‍👩‍👧</span> ผู้อยู่ในอุปการะ (Dependent)</div>
+        </div>
+
+        <div class="section-label">ความต้องการของระบบ</div>
+        <div class="requirements">
+          <div class="req-item"><span class="req-num">R1</span>พนักงาน 1 คน สังกัดแผนกเดียว แต่แผนก 1 แผนก มีพนักงานได้หลายคน</div>
+          <div class="req-item"><span class="req-num">R2</span>พนักงาน Supervises พนักงาน (Recursive/Self-referencing Relationship)</div>
+          <div class="req-item"><span class="req-num">R3</span>แผนก 1 แผนก มีผู้จัดการ 1 คน (เป็น Employee) บันทึกวันที่เริ่มดำรงตำแหน่ง</div>
+          <div class="req-item"><span class="req-num">R4</span>Works_On: พนักงาน M:N โครงการ มี Attribute hours_per_week</div>
+          <div class="req-item"><span class="req-num">R5</span>Dependent เป็น Weak Entity ของ Employee ระบุชื่อ ความสัมพันธ์ วันเกิด</div>
+          <div class="req-item"><span class="req-num">R6</span>Salary History บันทึกทุกครั้งที่เงินเดือนเปลี่ยน (Weak Entity ของ Employee)</div>
+          <div class="req-item"><span class="req-num">R7</span>Evaluation มีผู้ประเมินซึ่งเป็น Employee คนอื่น บันทึกคะแนนและคำแนะนำ</div>
+          <div class="req-item"><span class="req-num">R8</span>โครงการสังกัดแผนก 1 แผนก แต่แผนกมีหลายโครงการ</div>
+        </div>
+
+        <div class="challenges">
+          <div class="challenges-title">⚡ จุดยาก / สิ่งที่ต้องระวัง</div>
+          <ul class="challenge-list">
+            <li>Employee Supervises Employee คือ Unary/Recursive Relationship ต้องระบุ Role ของแต่ละด้านให้ชัด</div>
+            <li>Manages Relationship (Department–Employee) มี Attribute date_started บน Relationship ไม่ใช่บน Entity</li>
+            <li>มี Weak Entity ซ้อนกัน 2 ตัว (Dependent + Salary History) ต้องระบุ Partial Key ให้ถูก</li>
+            <li>Evaluation มี Ternary Relationship: Employee (ผู้ถูกประเมิน) + Employee (ผู้ประเมิน) + ปี</li>
+          </ul>
+        </div>
+      </div>
+      <div class="card-footer-tags">
+        <span class="skill-tag">Recursive Relationship</span>
+        <span class="skill-tag">Ternary Relationship</span>
+        <span class="skill-tag">Multiple Weak Entities</span>
+        <span class="skill-tag">Relationship Attribute</span>
+        <span class="skill-tag">Total Participation</span>
+      </div>
+    </div>
+
+  </div><!-- end cases-grid -->
+
+  <!-- Footer note -->
+  <div class="footer-note">
+    💡 <strong>คำแนะนำ:</strong> ให้วาด ER-Diagram โดยระบุ Entity, Attribute, Relationship พร้อม Cardinality (1:1, 1:N, M:N) และ Participation (Total/Partial) ให้ครบถ้วน<br>
+    สามารถใช้ <strong>Chen Notation</strong> หรือ <strong>Crow's Foot Notation</strong> ตามที่อาจารย์กำหนด
+  </div>
+
+</div>
+</body>
+</html>

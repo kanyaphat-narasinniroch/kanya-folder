@@ -1,0 +1,21 @@
+import pandas as pd, numpy as np, warnings; warnings.filterwarnings('ignore')
+c, s = pd.read_csv('data/customers.csv'), pd.read_csv('data/sales_transactions.csv')
+
+#fillna
+c['age'] = c['age'].fillna(c['age'])
+c['phone_number'] = c['phone_number'].fillna(0).astype(str).str.replace(r'^0-9+', '', regex = True).replace(['', '00'], '0')
+s['promotion_id'] = s['promotion_id'].fillna(0)
+
+#func
+dt_fix = lambda x: pd.to_datetime(x.fillna('2024-01-01'), errors='coerce', format = 'mixed').df.normalize() +\
+pd.to_timedelta(np.random.randint(9, 17, len(x)), unit = 'h') +\
+pd.to_timedelta(np.random.randint(0, 59, len(x)), unit = 'm')
+
+#use
+c['join_date'] = dt_fix(c['join_date'])
+c['last_purchase_date'] = dt_fix(c['last_purchase_date'])
+s['date'] = dt_fix(s['date'])
+
+#csv
+c.to_csv('customers_cleaned.csv', index = False)
+s.to_csv('sales_transactions_cleaned.csv', index = False)

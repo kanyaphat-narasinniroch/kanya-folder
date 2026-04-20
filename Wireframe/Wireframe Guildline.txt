@@ -1,0 +1,34 @@
+Doctor
+*Phone
+-Login
+-Dashbord ที่มีรายงานทุกอย่าง
+-Stock
+-จ่ายยา History
+-คนไข้ History
+
+Pharmacist
+*Desktop
+-คนไข้ History
+-Login
+-Place Order
+-Payment
+-Bill
+-Barcode
+-Register
+
+Customer
+*Phone
+-Login
+-Point
+-Discount
+-รักษา History
+-Bill
+
+
+Everyone
+-Profile
+-Menu
+
+
+
+

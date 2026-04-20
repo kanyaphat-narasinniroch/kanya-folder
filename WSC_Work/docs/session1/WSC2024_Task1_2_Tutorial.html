@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WSC2024 | Task 1.2 — Data Cleaning & Transformation</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&family=JetBrains+Mono:wght@400;600&family=Prompt:wght@300;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:     #0b0e13;
+    --bg2:    #10131a;
+    --card:   #161b26;
+    --border: #252d3d;
+    --blue:   #60a5fa;
+    --teal:   #2dd4bf;
+    --green:  #4ade80;
+    --yellow: #facc15;
+    --pink:   #f472b6;
+    --red:    #f87171;
+    --orange: #fb923c;
+    --purple: #a78bfa;
+    --text:   #e2e8f0;
+    --muted:  #64748b;
+    --dim:    #94a3b8;
+    --code-bg:#070a0f;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: 'Sarabun', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.75;
+    font-size: 16px;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    position: relative;
+    overflow: hidden;
+    padding: 64px 24px 56px;
+    text-align: center;
+    background: linear-gradient(160deg,#0b0e13 0%,#0f1620 60%,#0b0e13 100%);
+    border-bottom: 1px solid var(--border);
+  }
+  .hero::before {
+    content:'';
+    position:absolute;
+    inset:0;
+    background: radial-gradient(ellipse 70% 50% at 50% -10%, rgba(96,165,250,.13) 0%, transparent 70%);
+    pointer-events:none;
+  }
+  .hero-eyebrow {
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    letter-spacing:.12em;
+    color:var(--teal);
+    background:rgba(45,212,191,.1);
+    border:1px solid rgba(45,212,191,.25);
+    padding:4px 16px;
+    border-radius:20px;
+    display:inline-block;
+    margin-bottom:22px;
+  }
+  .hero h1 {
+    font-family:'Prompt',sans-serif;
+    font-weight:900;
+    font-size:clamp(30px,5.5vw,56px);
+    line-height:1.1;
+    background:linear-gradient(120deg,#e2e8f0 20%,#60a5fa 60%,#2dd4bf 100%);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    background-clip:text;
+    margin-bottom:16px;
+  }
+  .hero-sub {
+    color:var(--muted);
+    font-size:17px;
+    max-width:560px;
+    margin:0 auto 36px;
+  }
+  .pill-row {
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    justify-content:center;
+  }
+  .pill-badge {
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:7px 18px;
+    font-size:13px;
+    color:var(--dim);
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .pill-badge .dot {
+    width:8px;height:8px;border-radius:50%;flex-shrink:0;
+  }
+
+  /* ── LAYOUT ── */
+  .wrap { max-width:920px; margin:0 auto; padding:0 24px; }
+
+  /* ── SECTION LABEL ── */
+  .sec-head {
+    display:flex;
+    align-items:flex-start;
+    gap:16px;
+    margin:60px 0 22px;
+  }
+  .sec-badge {
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;
+    font-weight:700;
+    letter-spacing:.08em;
+    padding:5px 11px;
+    border-radius:6px;
+    flex-shrink:0;
+    margin-top:4px;
+  }
+  .sb-blue   { background:rgba(96,165,250,.15); color:var(--blue);   border:1px solid rgba(96,165,250,.25); }
+  .sb-teal   { background:rgba(45,212,191,.15); color:var(--teal);   border:1px solid rgba(45,212,191,.25); }
+  .sb-green  { background:rgba(74,222,128,.15); color:var(--green);  border:1px solid rgba(74,222,128,.25); }
+  .sb-yellow { background:rgba(250,204,21,.15); color:var(--yellow); border:1px solid rgba(250,204,21,.25); }
+  .sb-pink   { background:rgba(244,114,182,.15);color:var(--pink);   border:1px solid rgba(244,114,182,.25); }
+  .sb-purple { background:rgba(167,139,250,.15);color:var(--purple); border:1px solid rgba(167,139,250,.25); }
+  .sb-orange { background:rgba(251,146,60,.15); color:var(--orange); border:1px solid rgba(251,146,60,.25); }
+
+  .sec-head h2 {
+    font-family:'Prompt',sans-serif;
+    font-weight:700;
+    font-size:21px;
+    color:var(--text);
+    line-height:1.3;
+  }
+  .sec-head p { color:var(--muted); font-size:14px; margin-top:3px; }
+
+  /* ── CARD ── */
+  .card {
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:14px;
+    margin-bottom:18px;
+    overflow:hidden;
+  }
+  .card-head {
+    padding:13px 20px;
+    border-bottom:1px solid var(--border);
+    display:flex;
+    align-items:center;
+    gap:10px;
+    background:rgba(255,255,255,.015);
+  }
+  .card-head .ico { font-size:17px; }
+  .card-head .ttl { font-weight:700; font-size:15px; }
+  .card-body { padding:22px; }
+
+  /* ── CODE ── */
+  .code-wrap {
+    background:var(--code-bg);
+    border:1px solid var(--border);
+    border-radius:10px;
+    overflow:hidden;
+    margin:14px 0;
+  }
+  .code-bar {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:9px 16px;
+    border-bottom:1px solid #1a1f2e;
+    background:#0d1018;
+  }
+  .code-bar-l { display:flex; align-items:center; gap:10px; }
+  .dots { display:flex; gap:5px; }
+  .dots span { width:10px;height:10px;border-radius:50%; }
+  .dr{background:#ff5f57}.dy{background:#febc2e}.dg{background:#28c840}
+  .fname { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted); }
+  .copy-btn {
+    background:var(--border);
+    border:none;
+    color:var(--muted);
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    padding:4px 13px;
+    border-radius:5px;
+    cursor:pointer;
+    transition:all .2s;
+  }
+  .copy-btn:hover { background:var(--blue); color:#0b0e13; }
+  .copy-btn.ok    { background:var(--green); color:#0b0e13; }
+
+  pre {
+    padding:20px;
+    overflow-x:auto;
+    font-family:'JetBrains Mono',monospace;
+    font-size:13px;
+    line-height:1.8;
+    color:#abb2bf;
+  }
+  .kw  { color:#c678dd; }
+  .fn  { color:#61afef; }
+  .str { color:#98c379; }
+  .cm  { color:#4a5568; font-style:italic; }
+  .num { color:#d19a66; }
+  .var { color:#e5c07b; }
+  .op  { color:#56b6c2; }
+  .hl  { color:#e2e8f0; }
+
+  /* ── INFO BOX ── */
+  .ib {
+    border-left:3px solid var(--blue);
+    background:rgba(96,165,250,.06);
+    border-radius:0 8px 8px 0;
+    padding:13px 18px;
+    margin:12px 0;
+    font-size:14.5px;
+  }
+  .ib.green  { border-color:var(--green);  background:rgba(74,222,128,.06); }
+  .ib.yellow { border-color:var(--yellow); background:rgba(250,204,21,.06); }
+  .ib.red    { border-color:var(--red);    background:rgba(248,113,113,.06); }
+  .ib.teal   { border-color:var(--teal);   background:rgba(45,212,191,.06); }
+  .ib.orange { border-color:var(--orange); background:rgba(251,146,60,.06); }
+  .ib.purple { border-color:var(--purple); background:rgba(167,139,250,.06); }
+  .ib-title {
+    font-weight:700;
+    font-size:11px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    margin-bottom:5px;
+    color:var(--blue);
+  }
+  .ib.green  .ib-title { color:var(--green); }
+  .ib.yellow .ib-title { color:var(--yellow); }
+  .ib.red    .ib-title { color:var(--red); }
+  .ib.teal   .ib-title { color:var(--teal); }
+  .ib.orange .ib-title { color:var(--orange); }
+  .ib.purple .ib-title { color:var(--purple); }
+
+  /* ── TABLE ── */
+  .tbl { overflow-x:auto; border-radius:10px; border:1px solid var(--border); margin:12px 0; }
+  table { width:100%; border-collapse:collapse; font-size:14px; }
+  th {
+    background:#0d1018;
+    padding:11px 16px;
+    text-align:left;
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    color:var(--muted);
+    letter-spacing:.06em;
+    border-bottom:1px solid var(--border);
+  }
+  td { padding:10px 16px; border-bottom:1px solid rgba(37,45,61,.5); vertical-align:top; }
+  tr:last-child td { border-bottom:none; }
+  tr:hover td { background:rgba(96,165,250,.03); }
+
+  /* ── TAG ── */
+  .tag {
+    display:inline-block;
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    padding:2px 8px;
+    border-radius:4px;
+    font-weight:600;
+  }
+  .t-blue   { background:rgba(96,165,250,.15); color:var(--blue); }
+  .t-green  { background:rgba(74,222,128,.15); color:var(--green); }
+  .t-yellow { background:rgba(250,204,21,.15); color:var(--yellow); }
+  .t-red    { background:rgba(248,113,113,.15); color:var(--red); }
+  .t-teal   { background:rgba(45,212,191,.15); color:var(--teal); }
+  .t-orange { background:rgba(251,146,60,.15); color:var(--orange); }
+  .t-purple { background:rgba(167,139,250,.15); color:var(--purple); }
+
+  /* ── OUTPUT ── */
+  .out-wrap {
+    background:#050709;
+    border:1px solid var(--border);
+    border-radius:10px;
+    overflow:hidden;
+    margin:12px 0;
+  }
+  .out-bar {
+    background:#0d1018;
+    padding:9px 16px;
+    border-bottom:1px solid var(--border);
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    color:var(--muted);
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .out-dot { width:7px;height:7px;border-radius:50%;background:var(--green);animation:blink 2s infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+  .out-body {
+    padding:16px 20px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    line-height:1.85;
+    color:#8b949e;
+    white-space:pre;
+    overflow-x:auto;
+  }
+  .ov { color:#ff7b72; }
+  .og { color:#3fb950; }
+  .oy { color:#e3b341; }
+  .ob { color:#79c0ff; }
+  .op2 { color:#d2a8ff; }
+
+  /* ── BEFORE/AFTER ── */
+  .ba-grid {
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+    margin:12px 0;
+  }
+  @media(max-width:600px){ .ba-grid{ grid-template-columns:1fr; } }
+  .ba-box {
+    background:var(--code-bg);
+    border:1px solid var(--border);
+    border-radius:8px;
+    overflow:hidden;
+  }
+  .ba-head {
+    padding:8px 14px;
+    border-bottom:1px solid var(--border);
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.06em;
+  }
+  .ba-head.before { color:var(--red);   background:rgba(248,113,113,.06); }
+  .ba-head.after  { color:var(--green); background:rgba(74,222,128,.06); }
+  .ba-body {
+    padding:14px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    line-height:1.8;
+    color:#8b949e;
+    white-space:pre;
+  }
+
+  /* ── STEP FLOW ── */
+  .flow { display:flex; flex-direction:column; gap:0; margin:14px 0; }
+  .flow-item { display:flex; gap:14px; }
+  .flow-l { display:flex; flex-direction:column; align-items:center; width:34px; flex-shrink:0; }
+  .flow-num {
+    width:34px;height:34px;border-radius:50%;
+    display:grid;place-items:center;
+    font-weight:700;font-size:13px;color:white;
+    background:var(--blue);flex-shrink:0;z-index:1;
+  }
+  .flow-num.teal   { background:var(--teal);   color:#0b0e13; }
+  .flow-num.green  { background:var(--green);  color:#0b0e13; }
+  .flow-num.yellow { background:var(--yellow); color:#0b0e13; }
+  .flow-num.orange { background:var(--orange); color:#0b0e13; }
+  .flow-line { width:2px; flex:1; background:var(--border); margin:3px 0; min-height:16px; }
+  .flow-item:last-child .flow-line { display:none; }
+  .flow-c { padding:3px 0 24px; flex:1; }
+  .flow-t { font-weight:700; font-size:15px; color:var(--text); margin-bottom:4px; }
+  .flow-d { color:var(--muted); font-size:14px; }
+
+  code {
+    background:rgba(96,165,250,.12);
+    color:var(--blue);
+    font-family:'JetBrains Mono',monospace;
+    font-size:12.5px;
+    padding:2px 7px;
+    border-radius:4px;
+  }
+
+  hr { border:none; border-top:1px solid var(--border); margin:52px 0; }
+
+  footer {
+    margin-top:80px;
+    padding:36px 24px;
+    border-top:1px solid var(--border);
+    text-align:center;
+    color:var(--muted);
+    font-size:13px;
+  }
+  footer strong { color:var(--teal); }
+
+  /* ── FADE IN ── */
+  .fi { opacity:0; transform:translateY(14px); animation:fu .45s ease forwards; }
+  @keyframes fu { to{opacity:1;transform:translateY(0);} }
+  .fi:nth-child(1){animation-delay:.04s}
+  .fi:nth-child(2){animation-delay:.08s}
+  .fi:nth-child(3){animation-delay:.12s}
+  .fi:nth-child(4){animation-delay:.16s}
+  .fi:nth-child(5){animation-delay:.20s}
+
+  @media(max-width:640px){ pre{font-size:11.5px;} .out-body{font-size:11px;} }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">WSC2024 · SESSION 1 · TASK 1.2</div>
+  <h1>Data Cleaning &amp;<br>Transformation</h1>
+  <p class="hero-sub">ทำความสะอาดข้อมูล เติมค่าที่หายไป แปลงประเภทวันที่ และทำให้หมายเลขโทรศัพท์เป็นมาตรฐาน</p>
+  <div class="pill-row">
+    <div class="pill-badge"><div class="dot" style="background:var(--blue)"></div>เติม Missing Values</div>
+    <div class="pill-badge"><div class="dot" style="background:var(--teal)"></div>แปลงวันที่เป็น datetime</div>
+    <div class="pill-badge"><div class="dot" style="background:var(--green)"></div>ทำความสะอาดเบอร์โทร</div>
+    <div class="pill-badge"><div class="dot" style="background:var(--yellow)"></div>Export ไฟล์ CSV</div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- ===== OVERVIEW ===== -->
+  <div class="sec-head fi">
+    <div class="sec-badge sb-blue">OVERVIEW</div>
+    <div>
+      <h2>สิ่งที่ต้องทำใน Task 1.2</h2>
+      <p>3 งานหลัก → 2 ไฟล์ผลลัพธ์</p>
+    </div>
+  </div>
+
+  <div class="card fi">
+    <div class="card-body">
+      <div class="tbl">
+        <table>
+          <tr>
+            <th>#</th><th>งาน</th><th>ไฟล์ที่แก้</th><th>คอลัมน์</th><th>วิธีแก้</th>
+          </tr>
+          <tr>
+            <td><span class="tag t-blue">1a</span></td>
+            <td><strong>เติม Missing Values</strong></td>
+            <td><code>customers.csv</code></td>
+            <td><code>age</code></td>
+            <td>เติมด้วย median ของ age</td>
+          </tr>
+          <tr>
+            <td><span class="tag t-blue">1b</span></td>
+            <td><strong>เติม Missing Values</strong></td>
+            <td><code>customers.csv</code></td>
+            <td><code>phone_number</code></td>
+            <td>เติมด้วยค่า <code>'0'</code></td>
+          </tr>
+          <tr>
+            <td><span class="tag t-blue">1c</span></td>
+            <td><strong>เติม Missing Values</strong></td>
+            <td><code>sales_transactions.csv</code></td>
+            <td><code>promotion_id</code></td>
+            <td>เติมด้วยค่า <code>'0'</code></td>
+          </tr>
+          <tr>
+            <td><span class="tag t-teal">2a</span></td>
+            <td><strong>แปลงประเภทวันที่</strong></td>
+            <td><code>sales_transactions.csv</code></td>
+            <td><code>date</code></td>
+            <td>แปลงเป็น datetime + เพิ่มเวลาสุ่ม 9–17 น.</td>
+          </tr>
+          <tr>
+            <td><span class="tag t-teal">2b</span></td>
+            <td><strong>แปลงประเภทวันที่</strong></td>
+            <td><code>customers.csv</code></td>
+            <td><code>join_date, last_purchase_date</code></td>
+            <td>แปลงเป็น datetime + เพิ่มเวลาสุ่ม 9–17 น.</td>
+          </tr>
+          <tr>
+            <td><span class="tag t-green">3</span></td>
+            <td><strong>ทำให้เบอร์โทรเป็นมาตรฐาน</strong></td>
+            <td><code>customers.csv</code></td>
+            <td><code>phone_number</code></td>
+            <td>ลบ space, -, ( ) แต่เก็บ +</td>
+          </tr>
+        </table>
+      </div>
+      <div class="ib teal">
+        <div class="ib-title">📦 ผลลัพธ์ที่ต้องส่ง</div>
+        ไฟล์ <strong>customers_cleaned.csv</strong> และ <strong>sales_transactions_cleaned.csv</strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PART 1: MISSING VALUES ===== -->
+  <div class="sec-head fi">
+    <div class="sec-badge sb-blue">PART 1</div>
+    <div>
+      <h2>เติมค่าที่หายไป (Missing Values)</h2>
+      <p>ใช้ fillna() เติมค่าที่ขาดหายในคอลัมน์สำคัญ</p>
+    </div>
+  </div>
+
+  <!-- 1A: age -->
+  <div class="card fi">
+    <div class="card-head">
+      <span class="ico">🔢</span>
+      <span class="ttl">1A — เติม age ด้วยค่า Median</span>
+    </div>
+    <div class="card-body">
+      <p style="color:var(--muted);margin-bottom:14px;">Median คือค่ากลางของข้อมูลเมื่อเรียงลำดับ — เหมาะกว่า mean เพราะไม่ถูกรบกวนจากค่าสุดโต่ง</p>
+
+      <div class="ba-grid">
+        <div class="ba-box">
+          <div class="ba-head before">❌ ก่อนทำความสะอาด</div>
+          <div class="ba-body">age
+35.0
+NaN     ← หายไป
+28.0
+NaN     ← หายไป
+42.0</div>
+        </div>
+        <div class="ba-box">
+          <div class="ba-head after">✅ หลังทำความสะอาด</div>
+          <div class="ba-body">age
+35.0
+<span style="color:#4ade80">38.0</span>     ← เติมด้วย median
+28.0
+<span style="color:#4ade80">38.0</span>     ← เติมด้วย median
+42.0</div>
+        </div>
+      </div>
+
+      <div class="code-wrap">
+        <div class="code-bar">
+          <div class="code-bar-l">
+            <div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div>
+            <span class="fname">task1_2_cleaning.py</span>
+          </div>
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="cm"># คำนวณค่า median ของ age (ข้ามค่า NaN อัตโนมัติ)</span>
+<span class="var">age_median</span> <span class="op">=</span> <span class="var">customers</span>[<span class="str">'age'</span>].<span class="fn">median</span>()
+<span class="fn">print</span>(<span class="str">f"Median age = {<span class="var">age_median</span>}"</span>)
+
+<span class="cm"># เติมค่า NaN ด้วย median</span>
+<span class="var">customers</span>[<span class="str">'age'</span>] <span class="op">=</span> <span class="var">customers</span>[<span class="str">'age'</span>].<span class="fn">fillna</span>(<span class="var">age_median</span>)</pre>
+      </div>
+
+      <div class="out-wrap">
+        <div class="out-bar"><div class="out-dot"></div>ผลลัพธ์</div>
+        <div class="out-body">Median age = <span class="ob">38.0</span>
+<span class="cm"># age ไม่มี NaN อีกต่อไป ✓</span></div>
+      </div>
+
+      <div class="ib yellow">
+        <div class="ib-title">💡 ทำไมใช้ median ไม่ใช้ mean?</div>
+        ถ้าลูกค้าส่วนใหญ่อายุ 25–40 แต่มีลูกค้าอายุ 90 อยู่ไม่กี่คน mean จะถูกดึงให้สูงขึ้น แต่ median ไม่ได้รับผลกระทบ
+      </div>
+    </div>
+  </div>
+
+  <!-- 1B: phone_number -->
+  <div class="card fi">
+    <div class="card-head">
+      <span class="ico">📞</span>
+      <span class="ttl">1B — เติม phone_number ด้วย '0'</span>
+    </div>
+    <div class="card-body">
+      <div class="code-wrap">
+        <div class="code-bar">
+          <div class="code-bar-l">
+            <div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div>
+            <span class="fname">task1_2_cleaning.py</span>
+          </div>
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="cm"># เติม NaN ใน phone_number ด้วยสตริง '0'</span>
+<span class="var">customers</span>[<span class="str">'phone_number'</span>] <span class="op">=</span> <span class="var">customers</span>[<span class="str">'phone_number'</span>].<span class="fn">fillna</span>(<span class="str">'0'</span>)
+
+<span class="cm"># ตรวจสอบว่าไม่มี NaN แล้ว</span>
+<span class="fn">print</span>(<span class="var">customers</span>[<span class="str">'phone_number'</span>].<span class="fn">isnull</span>().<span class="fn">sum</span>())  <span class="cm"># ควรได้ 0</span></pre>
+      </div>
+      <div class="ib">
+        <div class="ib-title">📌 หมายเหตุ</div>
+        ใส่ <code>'0'</code> เป็น <strong>string</strong> (มีเครื่องหมายคำพูด) ไม่ใช่ตัวเลข เพราะ phone_number เก็บเป็น text
+      </div>
+    </div>
+  </div>
+
+  <!-- 1C: promotion_id -->
+  <div class="card fi">
+    <div class="card-head">
+      <span class="ico">🎟️</span>
+      <span class="ttl">1C — เติม promotion_id ด้วย '0'</span>
+    </div>
+    <div class="card-body">
+      <div class="code-wrap">
+        <div class="code-bar">
+          <div class="code-bar-l">
+            <div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div>
+            <span class="fname">task1_2_cleaning.py</span>
+          </div>
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="cm"># เติม NaN ใน promotion_id ด้วย '0'</span>
+<span class="var">sales</span>[<span class="str">'promotion_id'</span>] <span class="op">=</span> <span class="var">sales</span>[<span class="str">'promotion_id'</span>].<span class="fn">fillna</span>(<span class="str">'0'</span>)
+
+<span class="fn">print</span>(<span class="str">f"Missing promotion_id: {<span class="var">sales</span>[<span class="str">'promotion_id'</span>].<span class="fn">isnull</span>().<span class="fn">sum</span>()}"</span>)  <span class="cm"># → 0</span></pre>
+      </div>
+      <div class="out-wrap">
+        <div class="out-bar"><div class="out-dot"></div>ผลลัพธ์</div>
+        <div class="out-body">Missing promotion_id: <span class="og">0</span>   <span class="cm"># ✓ ไม่มีค่าหายแล้ว</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PART 2: DATETIME ===== -->
+  <div class="sec-head fi">
+    <div class="sec-badge sb-teal">PART 2</div>
+    <div>
+      <h2>แปลงวันที่เป็น datetime + เพิ่มเวลาสุ่ม</h2>
+      <p>ใช้ pd.to_datetime() แปลง string → datetime แล้วเพิ่มเวลาสุ่ม 09:00–17:00</p>
+    </div>
+  </div>
+
+  <div class="card fi">
+    <div class="card-head">
+      <span class="ico">📅</span>
+      <span class="ttl">ทำไมต้องแปลงเป็น datetime?</span>
+    </div>
+    <div class="card-body">
+      <div class="tbl">
+        <table>
+          <tr><th>ก่อนแปลง (object/str)</th><th>หลังแปลง (datetime64)</th></tr>
+          <tr>
+            <td><code>"2023-05-14"</code> — แค่ข้อความ</td>
+            <td><code>2023-05-14 10:32:00</code> — คำนวณได้</td>
+          </tr>
+          <tr>
+            <td>เรียงลำดับวันที่ไม่ได้</td>
+            <td>เรียงลำดับ, หาช่วง, คำนวณความต่างวันได้</td>
+          </tr>
+          <tr>
+            <td>จัดกลุ่มรายเดือนไม่ได้</td>
+            <td>ใช้ <code>.dt.month</code>, <code>.dt.year</code> ได้เลย</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="card fi">
+    <div class="card-head">
+      <span class="ico">⏰</span>
+      <span class="ttl">2A — แปลงวันที่ใน sales_transactions + เพิ่มเวลาสุ่ม</span>
+    </div>
+    <div class="card-body">
+
+      <div class="flow">
+        <div class="flow-item">
+          <div class="flow-l"><div class="flow-num">1</div><div class="flow-line"></div></div>
+          <div class="flow-c">
+            <div class="flow-t">แปลง string → datetime ด้วย pd.to_datetime()</div>
+            <div class="flow-d">errors='coerce' ทำให้วันที่ผิดรูปแบบกลายเป็น NaT แทนที่จะ error</div>
+          </div>
+        </div>
+        <div class="flow-item">
+          <div class="flow-l"><div class="flow-num teal">2</div><div class="flow-line"></div></div>
+          <div class="flow-c">
+            <div class="flow-t">สร้างเวลาสุ่มระหว่าง 09:00 – 17:00 น.</div>
+            <div class="flow-d">ใช้ random.randint() สุ่มชั่วโมงและนาที แล้วสร้างเป็น timedelta</div>
+          </div>
+        </div>
+        <div class="flow-item">
+          <div class="flow-l"><div class="flow-num green">3</div></div>
+          <div class="flow-c">
+            <div class="flow-t">รวมวันที่ + เวลาสุ่มเข้าด้วยกัน</div>
+            <div class="flow-d">บวก timedelta เข้ากับวันที่ที่แปลงแล้ว</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="code-wrap">
+        <div class="code-bar">
+          <div class="code-bar-l">
+            <div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div>
+            <span class="fname">task1_2_cleaning.py</span>
+          </div>
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="kw">import</span> <span class="var">pandas</span> <span class="kw">as</span> <span class="fn">pd</span>
+<span class="kw">import</span> <span class="var">numpy</span>  <span class="kw">as</span> <span class="fn">np</span>
+
+<span class="cm"># ── Step 1: แปลง string → datetime ──────────────────────</span>
+<span class="var">sales</span>[<span class="str">'date'</span>] <span class="op">=</span> <span class="fn">pd.to_datetime</span>(<span class="var">sales</span>[<span class="str">'date'</span>], <span class="var">errors</span><span class="op">=</span><span class="str">'coerce'</span>)
+
+<span class="cm"># ── Step 2: สร้างเวลาสุ่ม 09:00–17:00 สำหรับทุกแถว ──────</span>
+<span class="var">n</span> <span class="op">=</span> <span class="fn">len</span>(<span class="var">sales</span>)
+
+<span class="cm"># สุ่มชั่วโมง 9–16 (17 = สิ้นสุดงาน ไม่รวม)</span>
+<span class="var">random_hours</span>   <span class="op">=</span> <span class="fn">np.random.randint</span>(<span class="num">9</span>, <span class="num">17</span>, <span class="var">size</span><span class="op">=</span><span class="var">n</span>)
+<span class="cm"># สุ่มนาที 0–59</span>
+<span class="var">random_minutes</span> <span class="op">=</span> <span class="fn">np.random.randint</span>(<span class="num">0</span>, <span class="num">60</span>, <span class="var">size</span><span class="op">=</span><span class="var">n</span>)
+<span class="cm"># สุ่มวินาที 0–59</span>
+<span class="var">random_seconds</span> <span class="op">=</span> <span class="fn">np.random.randint</span>(<span class="num">0</span>, <span class="num">60</span>, <span class="var">size</span><span class="op">=</span><span class="var">n</span>)
+
+<span class="cm"># แปลงเป็น timedelta (ช่วงเวลา)</span>
+<span class="var">time_delta</span> <span class="op">=</span> (
+    <span class="fn">pd.to_timedelta</span>(<span class="var">random_hours</span>,   <span class="var">unit</span><span class="op">=</span><span class="str">'h'</span>) <span class="op">+</span>
+    <span class="fn">pd.to_timedelta</span>(<span class="var">random_minutes</span>, <span class="var">unit</span><span class="op">=</span><span class="str">'m'</span>) <span class="op">+</span>
+    <span class="fn">pd.to_timedelta</span>(<span class="var">random_seconds</span>, <span class="var">unit</span><span class="op">=</span><span class="str">'s'</span>)
+)
+
+<span class="cm"># ── Step 3: บวกเวลาเข้ากับวันที่ ───────────────────────</span>
+<span class="var">sales</span>[<span class="str">'date'</span>] <span class="op">=</span> <span class="var">sales</span>[<span class="str">'date'</span>] <span class="op">+</span> <span class="var">time_delta</span>
+
+<span class="cm"># ตรวจสอบผลลัพธ์</span>
+<span class="fn">print</span>(<span class="var">sales</span>[<span class="str">'date'</span>].<span class="fn">head</span>(<span class="num">3</span>))</pre>
+      </div>
+
+      <div class="out-wrap">
+        <div class="out-bar"><div class="out-dot"></div>ผลลัพธ์</div>
+        <div class="out-body">0   <span class="ob">2023-01-05 14:23:47</span>
+1   <span class="ob">2023-01-12 09:55:31</span>
+2   <span class="ob">2023-01-18 16:08:12</span>
+Name: date, dtype: datetime64[ns]</div>
+      </div>
+
+      <div class="ib green">
+        <div class="ib-title">✅ ผลที่ได้</div>
+        วันที่แต่ละแถวจะมีเวลาแนบมาด้วย (ระหว่าง 09:00–16:59) และประเภทเปลี่ยนจาก <code>object</code> เป็น <code>datetime64[ns]</code>
+      </div>
+    </div>
+  </div>
+
+  <div class="card fi">
+    <div class="card-head">
+      <span class="ico">📆</span>
+      <span class="ttl">2B — แปลงวันที่ใน customers (join_date, last_purchase_date)</span>
+    </div>
+    <div class="card-body">
+      <div class="code-wrap">
+        <div class="code-bar">
+          <div class="code-bar-l">
+            <div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div>
+            <span class="fname">task1_2_cleaning.py</span>
+          </div>
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="cm"># แปลงวันที่ทั้งสองคอลัมน์ใน customers</span>
+<span class="kw">for</span> <span class="var">col</span> <span class="kw">in</span> [<span class="str">'join_date'</span>, <span class="str">'last_purchase_date'</span>]:
+
+    <span class="cm"># Step 1: แปลงเป็น datetime</span>
+    <span class="var">customers</span>[<span class="var">col</span>] <span class="op">=</span> <span class="fn">pd.to_datetime</span>(<span class="var">customers</span>[<span class="var">col</span>], <span class="var">errors</span><span class="op">=</span><span class="str">'coerce'</span>)
+
+    <span class="cm"># Step 2: สร้างเวลาสุ่ม</span>
+    <span class="var">n</span> <span class="op">=</span> <span class="fn">len</span>(<span class="var">customers</span>)
+    <span class="var">td</span> <span class="op">=</span> (
+        <span class="fn">pd.to_timedelta</span>(<span class="fn">np.random.randint</span>(<span class="num">9</span>,<span class="num">17</span>,<span class="var">n</span>), <span class="var">unit</span><span class="op">=</span><span class="str">'h'</span>) <span class="op">+</span>
+        <span class="fn">pd.to_timedelta</span>(<span class="fn">np.random.randint</span>(<span class="num">0</span>,<span class="num">60</span>,<span class="var">n</span>), <span class="var">unit</span><span class="op">=</span><span class="str">'m'</span>) <span class="op">+</span>
+        <span class="fn">pd.to_timedelta</span>(<span class="fn">np.random.randint</span>(<span class="num">0</span>,<span class="num">60</span>,<span class="var">n</span>), <span class="var">unit</span><span class="op">=</span><span class="str">'s'</span>)
+    )
+
+    <span class="cm"># Step 3: บวกเวลาเข้ากับวันที่ (ข้าม NaT)</span>
+    <span class="var">mask</span> <span class="op">=</span> <span class="var">customers</span>[<span class="var">col</span>].<span class="fn">notna</span>()
+    <span class="var">customers</span>.<span class="fn">loc</span>[<span class="var">mask</span>, <span class="var">col</span>] <span class="op">=</span> <span class="var">customers</span>.<span class="fn">loc</span>[<span class="var">mask</span>, <span class="var">col</span>] <span class="op">+</span> <span class="var">td</span>[<span class="var">mask</span>]
+
+<span class="fn">print</span>(<span class="var">customers</span>[[<span class="str">'join_date'</span>, <span class="str">'last_purchase_date'</span>]].<span class="fn">head</span>(<span class="num">3</span>))</pre>
+      </div>
+      <div class="ib orange">
+        <div class="ib-title">⚠️ สำคัญ</div>
+        ใช้ <code>mask</code> ตรวจสอบก่อนว่าไม่ใช่ NaT เพื่อป้องกัน error เมื่อบวก timedelta กับ NaT
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PART 3: PHONE ===== -->
+  <div class="sec-head fi">
+    <div class="sec-badge sb-green">PART 3</div>
+    <div>
+      <h2>ทำให้เบอร์โทรเป็นมาตรฐาน</h2>
+      <p>ลบ spaces, dashes, parentheses ออก แต่เก็บ + ไว้</p>
+    </div>
+  </div>
+
+  <div class="card fi">
+    <div class="card-head">
+      <span class="ico">📱</span>
+      <span class="ttl">ตัวอย่างเบอร์โทรที่ต้องทำความสะอาด</span>
+    </div>
+    <div class="card-body">
+      <div class="ba-grid">
+        <div class="ba-box">
+          <div class="ba-head before">❌ รูปแบบที่พบในข้อมูล</div>
+          <div class="ba-body">+66 81-234-5678
+(02) 345-6789
+0812 345 678
++1 (555) 123-4567
+081 234 5678</div>
+        </div>
+        <div class="ba-box">
+          <div class="ba-head after">✅ หลังทำความสะอาด</div>
+          <div class="ba-body"><span style="color:#4ade80">+66812345678</span>
+<span style="color:#4ade80">023456789</span>
+<span style="color:#4ade80">0812345678</span>
+<span style="color:#4ade80">+15551234567</span>
+<span style="color:#4ade80">0812345678</span></div>
+        </div>
+      </div>
+
+      <p style="color:var(--muted);margin:14px 0 12px;font-size:14px;">กฎ: ลบทุกอักขระที่ไม่ใช่ตัวเลข <strong>ยกเว้น +</strong></p>
+
+      <div class="code-wrap">
+        <div class="code-bar">
+          <div class="code-bar-l">
+            <div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div>
+            <span class="fname">task1_2_cleaning.py</span>
+          </div>
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="cm"># ใช้ regex ลบอักขระที่ไม่ใช่ตัวเลขและ +</span>
+<span class="cm"># [^\d+] = อักขระที่ไม่ใช่ digit (\d) และไม่ใช่ +</span>
+
+<span class="var">customers</span>[<span class="str">'phone_number'</span>] <span class="op">=</span> (
+    <span class="var">customers</span>[<span class="str">'phone_number'</span>]
+    .<span class="fn">astype</span>(<span class="fn">str</span>)               <span class="cm"># แปลงทุกอย่างเป็น string ก่อน</span>
+    .<span class="fn">str</span>.<span class="fn">replace</span>(<span class="str">r'[^\d+]'</span>, <span class="str">''</span>, <span class="var">regex</span><span class="op">=</span><span class="kw">True</span>)  <span class="cm"># ลบทิ้ง</span>
+    .<span class="fn">replace</span>(<span class="str">'nan'</span>, <span class="str">'0'</span>)        <span class="cm"># จัดการค่าที่แปลงจาก NaN</span>
+)
+
+<span class="cm"># ตรวจสอบผลลัพธ์</span>
+<span class="fn">print</span>(<span class="var">customers</span>[<span class="str">'phone_number'</span>].<span class="fn">head</span>(<span class="num">5</span>))</pre>
+      </div>
+
+      <div class="out-wrap">
+        <div class="out-bar"><div class="out-dot"></div>ผลลัพธ์</div>
+        <div class="out-body">0    <span class="og">+66812345678</span>
+1    <span class="og">0812345678</span>
+2    <span class="og">0</span>             <span class="cm"># ← ถูกเติมด้วย '0' ก่อนแล้วในขั้นตอน 1B</span>
+3    <span class="og">023456789</span>
+4    <span class="og">+15551234567</span></div>
+      </div>
+
+      <div class="ib purple">
+        <div class="ib-title">🔍 regex [^\d+] คืออะไร?</div>
+        <div class="tbl" style="margin-top:10px">
+          <table>
+            <tr><th>pattern</th><th>ความหมาย</th></tr>
+            <tr><td><code>[^ ]</code></td><td>NOT — อักขระที่ไม่ใช่สิ่งที่อยู่ในวงเล็บ</td></tr>
+            <tr><td><code>\d</code></td><td>ตัวเลข 0–9</td></tr>
+            <tr><td><code>+</code></td><td>เครื่องหมาย plus (ตามตัวอักษร)</td></tr>
+            <tr><td><code>[^\d+]</code></td><td>ทุกอักขระที่ไม่ใช่ตัวเลขหรือ + → ลบทิ้ง</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PART 4: EXPORT ===== -->
+  <div class="sec-head fi">
+    <div class="sec-badge sb-yellow">PART 4</div>
+    <div>
+      <h2>Export ไฟล์ผลลัพธ์</h2>
+      <p>บันทึกเป็น customers_cleaned.csv และ sales_transactions_cleaned.csv</p>
+    </div>
+  </div>
+
+  <div class="card fi">
+    <div class="card-head">
+      <span class="ico">💾</span>
+      <span class="ttl">บันทึกไฟล์ด้วย df.to_csv()</span>
+    </div>
+    <div class="card-body">
+      <div class="code-wrap">
+        <div class="code-bar">
+          <div class="code-bar-l">
+            <div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div>
+            <span class="fname">task1_2_cleaning.py</span>
+          </div>
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="cm"># บันทึก customers ที่ทำความสะอาดแล้ว</span>
+<span class="var">customers</span>.<span class="fn">to_csv</span>(
+    <span class="str">'output/customers_cleaned.csv'</span>,
+    <span class="var">index</span><span class="op">=</span><span class="kw">False</span>,          <span class="cm"># ไม่เอา index ออกมาเป็นคอลัมน์</span>
+    <span class="var">encoding</span><span class="op">=</span><span class="str">'utf-8'</span>     <span class="cm"># รองรับอักขระพิเศษ</span>
+)
+
+<span class="cm"># บันทึก sales_transactions ที่ทำความสะอาดแล้ว</span>
+<span class="var">sales</span>.<span class="fn">to_csv</span>(
+    <span class="str">'output/sales_transactions_cleaned.csv'</span>,
+    <span class="var">index</span><span class="op">=</span><span class="kw">False</span>,
+    <span class="var">encoding</span><span class="op">=</span><span class="str">'utf-8'</span>
+)
+
+<span class="fn">print</span>(<span class="str">"✓ บันทึก customers_cleaned.csv"</span>)
+<span class="fn">print</span>(<span class="str">"✓ บันทึก sales_transactions_cleaned.csv"</span>)</pre>
+      </div>
+      <div class="out-wrap">
+        <div class="out-bar"><div class="out-dot"></div>ผลลัพธ์</div>
+        <div class="out-body"><span class="og">✓ บันทึก customers_cleaned.csv</span>
+<span class="og">✓ บันทึก sales_transactions_cleaned.csv</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== FULL CODE ===== -->
+  <div class="sec-head fi">
+    <div class="sec-badge sb-purple">FULL CODE</div>
+    <div>
+      <h2>โค้ดครบทั้งหมด Task 1.2</h2>
+      <p>รวมทุกขั้นตอนในไฟล์เดียว copy แล้วใช้ได้เลย</p>
+    </div>
+  </div>
+
+  <div class="card fi">
+    <div class="card-body">
+      <div class="code-wrap">
+        <div class="code-bar">
+          <div class="code-bar-l">
+            <div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div>
+            <span class="fname">task1_2_cleaning.py  ← โค้ดเต็ม</span>
+          </div>
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="kw">import</span> <span class="var">pandas</span> <span class="kw">as</span> <span class="fn">pd</span>
+<span class="kw">import</span> <span class="var">numpy</span>  <span class="kw">as</span> <span class="fn">np</span>
+
+<span class="cm"># ══════════════════════════════════════════════════
+#  โหลดข้อมูล
+# ══════════════════════════════════════════════════</span>
+<span class="var">customers</span> <span class="op">=</span> <span class="fn">pd.read_csv</span>(<span class="str">'data/customers.csv'</span>)
+<span class="var">sales</span>     <span class="op">=</span> <span class="fn">pd.read_csv</span>(<span class="str">'data/sales_transactions.csv'</span>)
+
+<span class="cm"># ══════════════════════════════════════════════════
+#  PART 1 — เติม Missing Values
+# ══════════════════════════════════════════════════</span>
+
+<span class="cm"># 1A: age → เติมด้วย median</span>
+<span class="var">customers</span>[<span class="str">'age'</span>] <span class="op">=</span> <span class="var">customers</span>[<span class="str">'age'</span>].<span class="fn">fillna</span>(<span class="var">customers</span>[<span class="str">'age'</span>].<span class="fn">median</span>())
+
+<span class="cm"># 1B: phone_number → เติมด้วย '0'</span>
+<span class="var">customers</span>[<span class="str">'phone_number'</span>] <span class="op">=</span> <span class="var">customers</span>[<span class="str">'phone_number'</span>].<span class="fn">fillna</span>(<span class="str">'0'</span>)
+
+<span class="cm"># 1C: promotion_id → เติมด้วย '0'</span>
+<span class="var">sales</span>[<span class="str">'promotion_id'</span>] <span class="op">=</span> <span class="var">sales</span>[<span class="str">'promotion_id'</span>].<span class="fn">fillna</span>(<span class="str">'0'</span>)
+
+<span class="fn">print</span>(<span class="str">"[1] เติม Missing Values เสร็จ ✓"</span>)
+
+<span class="cm"># ══════════════════════════════════════════════════
+#  PART 2 — แปลงวันที่เป็น datetime + เพิ่มเวลาสุ่ม
+# ══════════════════════════════════════════════════</span>
+
+<span class="kw">def</span> <span class="fn">add_random_time</span>(<span class="var">date_series</span>):
+    <span class="str">"""เพิ่มเวลาสุ่ม 09:00–17:00 ให้กับ datetime series"""</span>
+    <span class="var">n</span>  <span class="op">=</span> <span class="fn">len</span>(<span class="var">date_series</span>)
+    <span class="var">td</span> <span class="op">=</span> (
+        <span class="fn">pd.to_timedelta</span>(<span class="fn">np.random.randint</span>(<span class="num">9</span>,  <span class="num">17</span>, <span class="var">n</span>), <span class="var">unit</span><span class="op">=</span><span class="str">'h'</span>) <span class="op">+</span>
+        <span class="fn">pd.to_timedelta</span>(<span class="fn">np.random.randint</span>(<span class="num">0</span>,  <span class="num">60</span>, <span class="var">n</span>), <span class="var">unit</span><span class="op">=</span><span class="str">'m'</span>) <span class="op">+</span>
+        <span class="fn">pd.to_timedelta</span>(<span class="fn">np.random.randint</span>(<span class="num">0</span>,  <span class="num">60</span>, <span class="var">n</span>), <span class="var">unit</span><span class="op">=</span><span class="str">'s'</span>)
+    )
+    <span class="var">mask</span> <span class="op">=</span> <span class="var">date_series</span>.<span class="fn">notna</span>()
+    <span class="var">result</span> <span class="op">=</span> <span class="var">date_series</span>.<span class="fn">copy</span>()
+    <span class="var">result</span>[<span class="var">mask</span>] <span class="op">=</span> <span class="var">date_series</span>[<span class="var">mask</span>] <span class="op">+</span> <span class="var">td</span>[<span class="var">mask</span>]
+    <span class="kw">return</span> <span class="var">result</span>
+
+<span class="cm"># sales.date</span>
+<span class="var">sales</span>[<span class="str">'date'</span>] <span class="op">=</span> <span class="fn">pd.to_datetime</span>(<span class="var">sales</span>[<span class="str">'date'</span>], <span class="var">errors</span><span class="op">=</span><span class="str">'coerce'</span>)
+<span class="var">sales</span>[<span class="str">'date'</span>] <span class="op">=</span> <span class="fn">add_random_time</span>(<span class="var">sales</span>[<span class="str">'date'</span>])
+
+<span class="cm"># customers.join_date และ last_purchase_date</span>
+<span class="kw">for</span> <span class="var">col</span> <span class="kw">in</span> [<span class="str">'join_date'</span>, <span class="str">'last_purchase_date'</span>]:
+    <span class="var">customers</span>[<span class="var">col</span>] <span class="op">=</span> <span class="fn">pd.to_datetime</span>(<span class="var">customers</span>[<span class="var">col</span>], <span class="var">errors</span><span class="op">=</span><span class="str">'coerce'</span>)
+    <span class="var">customers</span>[<span class="var">col</span>] <span class="op">=</span> <span class="fn">add_random_time</span>(<span class="var">customers</span>[<span class="var">col</span>])
+
+<span class="fn">print</span>(<span class="str">"[2] แปลงวันที่ + เพิ่มเวลาสุ่ม เสร็จ ✓"</span>)
+
+<span class="cm"># ══════════════════════════════════════════════════
+#  PART 3 — ทำให้เบอร์โทรเป็นมาตรฐาน
+# ══════════════════════════════════════════════════</span>
+<span class="var">customers</span>[<span class="str">'phone_number'</span>] <span class="op">=</span> (
+    <span class="var">customers</span>[<span class="str">'phone_number'</span>]
+    .<span class="fn">astype</span>(<span class="fn">str</span>)
+    .<span class="fn">str</span>.<span class="fn">replace</span>(<span class="str">r'[^\d+]'</span>, <span class="str">''</span>, <span class="var">regex</span><span class="op">=</span><span class="kw">True</span>)
+    .<span class="fn">replace</span>(<span class="str">'nan'</span>, <span class="str">'0'</span>)
+)
+
+<span class="fn">print</span>(<span class="str">"[3] ทำความสะอาดเบอร์โทร เสร็จ ✓"</span>)
+
+<span class="cm"># ══════════════════════════════════════════════════
+#  PART 4 — Export ไฟล์
+# ══════════════════════════════════════════════════</span>
+<span class="var">customers</span>.<span class="fn">to_csv</span>(<span class="str">'output/customers_cleaned.csv'</span>,             <span class="var">index</span><span class="op">=</span><span class="kw">False</span>, <span class="var">encoding</span><span class="op">=</span><span class="str">'utf-8'</span>)
+<span class="var">sales</span>.<span class="fn">to_csv</span>(<span class="str">'output/sales_transactions_cleaned.csv'</span>, <span class="var">index</span><span class="op">=</span><span class="kw">False</span>, <span class="var">encoding</span><span class="op">=</span><span class="str">'utf-8'</span>)
+
+<span class="fn">print</span>(<span class="str">"\n✓ customers_cleaned.csv บันทึกแล้ว"</span>)
+<span class="fn">print</span>(<span class="str">"✓ sales_transactions_cleaned.csv บันทึกแล้ว"</span>)</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SUMMARY ===== -->
+  <div class="sec-head fi">
+    <div class="sec-badge sb-orange">SUMMARY</div>
+    <div>
+      <h2>สรุปคำสั่งทั้งหมดของ Task 1.2</h2>
+      <p>quick reference สำหรับการแข่งขัน</p>
+    </div>
+  </div>
+
+  <div class="card fi">
+    <div class="card-body">
+      <div class="tbl">
+        <table>
+          <tr><th>งาน</th><th>คำสั่ง Python</th><th>หมายเหตุ</th></tr>
+          <tr>
+            <td>เติมด้วย median</td>
+            <td><code>df['col'].fillna(df['col'].median())</code></td>
+            <td>สำหรับคอลัมน์ตัวเลข</td>
+          </tr>
+          <tr>
+            <td>เติมด้วยค่าคงที่</td>
+            <td><code>df['col'].fillna('0')</code></td>
+            <td>เติมด้วย string '0'</td>
+          </tr>
+          <tr>
+            <td>แปลง string → datetime</td>
+            <td><code>pd.to_datetime(col, errors='coerce')</code></td>
+            <td>ค่าผิดกลายเป็น NaT</td>
+          </tr>
+          <tr>
+            <td>สร้างเวลาสุ่ม</td>
+            <td><code>np.random.randint(9, 17, n)</code></td>
+            <td>สุ่มชั่วโมง 9–16</td>
+          </tr>
+          <tr>
+            <td>แปลงเป็น timedelta</td>
+            <td><code>pd.to_timedelta(arr, unit='h')</code></td>
+            <td>unit = 'h','m','s'</td>
+          </tr>
+          <tr>
+            <td>ลบอักขระด้วย regex</td>
+            <td><code>str.replace(r'[^\d+]', '', regex=True)</code></td>
+            <td>เก็บแค่ตัวเลขและ +</td>
+          </tr>
+          <tr>
+            <td>Export CSV</td>
+            <td><code>df.to_csv('file.csv', index=False)</code></td>
+            <td>index=False ไม่เอาเลขแถว</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <strong>WSC2024</strong> · Task 1.2 Data Cleaning &amp; Transformation Tutorial<br>
+  Belle Croissant Lyonnais · IT Software Solution for Business
+</footer>
+
+<script>
+function copyCode(btn) {
+  const pre = btn.closest('.code-wrap').querySelector('pre');
+  navigator.clipboard.writeText(pre.innerText).then(() => {
+    btn.textContent = 'copied!';
+    btn.classList.add('ok');
+    setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('ok'); }, 2000);
+  });
+}
+</script>
+</body>
+</html>

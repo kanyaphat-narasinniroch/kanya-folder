@@ -1,0 +1,87 @@
+Inconsistancy and Anomolies :
+### File : data/customers.csv
+Preview Head :
+   customer_id first_name  last_name   age gender  postal_code                       email phone_number membership_status            join_date last_purchase_date  total_spending  average_order_value  frequency preferred_category churned
+0          101        Léa       King  60.0      M        69003             Lking@orange.fr  33765451688             Basic            14/5/2095           8/1/1960          205.92              1124.64         26            Macaron   False
+1          102      Chloé      Smith  31.0      F        69006          CSMITH@HOTMAIL.COM          NaN              Gold            15/1/2074          17/9/1902          744.21              4403.42         24              Bread   False
+2          103     Harper   Robinson  38.0      M        69006           harperr@yahoo.com  33148254771             Basic            1/25/2022                NaN          929.52                42.25         22           Pastries   False
+3          104      Ethan  Rodriguez  54.0      F        69001  ETHAN_RODRIGUEZ@YANDEX.COM  33118046627             Basic  2033-03-23 00:00:00          7/17/2023          731.21                33.24         22            Unknown   False
+4          105        Ava      Allen  50.0      F        69006       Ava.allen@hotmail.com  33267246001            Silver            16/3/2000          5/18/2023          629.48                16.57         38              Bread    True
+Data Types :
+- customer_id: int64
+- first_name: str
+- last_name: str
+- age: float64
+- gender: str
+- postal_code: int64
+- email: str
+- phone_number: str
+- membership_status: str
+- join_date: str
+- last_purchase_date: str
+- total_spending: float64
+- average_order_value: float64
+- frequency: int64
+- preferred_category: str
+- churned: str
+//////////////////////////////////////////////////
+Invalid Dates : 344
+Negative Values : 0
+Invalid ID's: 0
+Unexpected Values: 720
+Formatting Issues: 442
+**************************************************
+Inconsistancy and Anomolies :
+### File : data/products.csv
+Preview Head :
+   product_id                     product_name category                                                     ingredients   price cost seasonal active      introduced_date
+0         1.0                Tarte Tropézienne    Tarte  Brioche dough, pastry cream, orange blossom water, pearl sugar  $6.50   $3     False   True  2018-03-25 00:00:00
+1         2.0                 tarte bourdaloue    Tarte  Sweet pastry crust, almond cream, poached pears, almond flakes  $7.00   $2      True    Yes  2015-10-01 00:00:00
+2         3.0                    tarte flambée      NaN                Thin dough, crème fraîche, onions, bacon lardons  $8.50   $2      True   True                  NaN
+3         4.0                   Tarte Normande    Tarte           Sweet pastry crust, apples, Calvados custard, almonds  $6.50   NaN    False   True  2033-12-23 00:00:00
+4         5.0  Tarte au Citron Vert et Basilic    Tarte             Tart shell, lime curd, fresh basil, meringue kisses  $7.50   $2        No   True                  NaN
+Data Types :
+- product_id: float64
+- product_name: str
+- category: str
+- ingredients: str
+- price: str
+- cost: str
+- seasonal: str
+- active: str
+- introduced_date: str
+//////////////////////////////////////////////////
+Invalid Dates : 10
+Negative Values : 2
+Invalid ID's: 0
+Unexpected Values: 24
+Formatting Issues: 8
+**************************************************
+Inconsistancy and Anomolies :
+### File : data/sales_transactions.csv
+Preview Head :
+   transaction_id  customer_id        date  product_id  quantity  price payment_method   channel  store_id  promotion_id  discount_amount
+0            8613          683  2023-11-30           6         1   2.92    Credit Card    Online       NaN           NaN             0.00
+1            1144          166  2023-11-30          15         1   3.67    Credit Card    Online       NaN           2.0             0.37
+2            9130          263  2023-11-30          21         1   6.37     Mobile Pay  In-store       5.0           NaN             0.00
+3            6649          576  2023-11-30          15         1   3.16     Mobile Pay  In-store       2.0           NaN             0.00
+4              88          276  2023-11-30          15         1   4.54    Credit Card    Online       NaN           8.0             0.45
+Data Types :
+- transaction_id: int64
+- customer_id: int64
+- date: str
+- product_id: int64
+- quantity: int64
+- price: float64
+- payment_method: str
+- channel: str
+- store_id: float64
+- promotion_id: float64
+- discount_amount: float64
+//////////////////////////////////////////////////
+Invalid Dates : 0
+Negative Values : 0
+Invalid ID's: 3
+Unexpected Values: 0
+Formatting Issues: 0
+**************************************************

@@ -1,0 +1,1508 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>สัญลักษณ์ ER-Diagram | การสอน</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&family=Kanit:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --card: #1c2128;
+  --border: #30363d;
+  --border2: #21262d;
+  --text: #e6edf3;
+  --muted: #7d8590;
+  --dim: #484f58;
+
+  /* Symbol colors */
+  --entity:     #58a6ff;
+  --attr:       #3fb950;
+  --rel:        #f78166;
+  --weak-e:     #d2a8ff;
+  --weak-r:     #ffa657;
+  --derived:    #79c0ff;
+  --multi:      #56d364;
+  --key:        #e3b341;
+  --part-key:   #ff7b72;
+  --total:      #39d353;
+  --partial:    #ffa657;
+  --special:    #bc8cff;
+
+  --glow-blue:  0 0 20px rgba(88,166,255,0.3);
+  --glow-green: 0 0 20px rgba(63,185,80,0.3);
+  --glow-red:   0 0 20px rgba(247,129,102,0.3);
+  --glow-purple:0 0 20px rgba(210,168,255,0.3);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Sarabun', sans-serif;
+  font-size: 15px;
+  line-height: 1.7;
+  min-height: 100vh;
+}
+
+/* Background pattern */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 20% 50%, rgba(88,166,255,0.04) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(210,168,255,0.04) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.wrap { max-width: 1060px; margin: 0 auto; padding: 0 20px 100px; position: relative; z-index: 1; }
+
+/* ─── HERO ─── */
+.hero {
+  padding: 72px 0 56px;
+  text-align: center;
+}
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(88,166,255,0.1);
+  border: 1px solid rgba(88,166,255,0.25);
+  border-radius: 100px;
+  padding: 6px 18px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--entity);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 24px;
+}
+.hero h1 {
+  font-family: 'Kanit', sans-serif;
+  font-size: clamp(30px, 5vw, 52px);
+  font-weight: 800;
+  line-height: 1.15;
+  color: #fff;
+  margin-bottom: 16px;
+}
+.hero h1 em {
+  font-style: normal;
+  background: linear-gradient(135deg, var(--entity), var(--special));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero p {
+  font-size: 17px;
+  color: var(--muted);
+  max-width: 520px;
+  margin: 0 auto 36px;
+}
+.hero-chips {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.hero-chip {
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ─── STICKY NAV ─── */
+.sticky-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(13,17,23,0.92);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  padding: 0;
+  margin: 0 -20px;
+}
+.nav-inner {
+  max-width: 1060px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  gap: 2px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.nav-inner::-webkit-scrollbar { display: none; }
+.nav-item {
+  padding: 12px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  transition: color 0.2s, border-color 0.2s;
+  text-decoration: none;
+  display: block;
+}
+.nav-item:hover { color: var(--text); }
+.nav-item.active { color: var(--entity); border-bottom-color: var(--entity); }
+
+/* ─── SECTION ─── */
+.section {
+  margin-top: 64px;
+}
+.section-heading {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 32px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.section-icon {
+  width: 44px; height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.section-heading h2 {
+  font-family: 'Kanit', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+}
+.section-heading p {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+/* ─── SYMBOL CARDS GRID ─── */
+.symbols-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+  margin-bottom: 40px;
+}
+
+.sym-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  cursor: default;
+}
+.sym-card:hover { transform: translateY(-3px); }
+
+.sym-visual {
+  padding: 28px 20px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border2);
+}
+
+.sym-info { padding: 16px 18px; }
+.sym-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 4px;
+}
+.sym-name-en {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 10px;
+  letter-spacing: 0.5px;
+}
+.sym-desc {
+  font-size: 13.5px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.sym-example {
+  margin-top: 10px;
+  padding: 8px 12px;
+  background: var(--bg);
+  border-radius: 6px;
+  font-size: 12.5px;
+  color: var(--dim);
+  border: 1px solid var(--border2);
+}
+.sym-example strong { color: var(--text); }
+
+/* SVG Symbols */
+svg.sym { overflow: visible; }
+
+/* Entity rectangle */
+.sv-entity rect { fill: none; stroke: var(--entity); stroke-width: 2.5; }
+.sv-entity text { fill: var(--entity); font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 600; }
+
+/* Weak Entity double rect */
+.sv-weak rect.outer { fill: none; stroke: var(--weak-e); stroke-width: 2.5; }
+.sv-weak rect.inner { fill: none; stroke: var(--weak-e); stroke-width: 1.5; }
+.sv-weak text { fill: var(--weak-e); font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600; }
+
+/* Attribute ellipse */
+.sv-attr ellipse { fill: none; stroke: var(--attr); stroke-width: 2; }
+.sv-attr text { fill: var(--attr); font-size: 13px; }
+
+/* Key attribute */
+.sv-key ellipse { fill: none; stroke: var(--key); stroke-width: 2; }
+.sv-key text { fill: var(--key); font-size: 13px; text-decoration: underline; font-weight: 700; }
+
+/* Derived attribute */
+.sv-derived ellipse { fill: none; stroke: var(--derived); stroke-width: 2; stroke-dasharray: 6 3; }
+.sv-derived text { fill: var(--derived); font-size: 13px; }
+
+/* Multi-valued attribute */
+.sv-multi ellipse.outer { fill: none; stroke: var(--multi); stroke-width: 2; }
+.sv-multi ellipse.inner { fill: none; stroke: var(--multi); stroke-width: 1.5; }
+.sv-multi text { fill: var(--multi); font-size: 13px; }
+
+/* Composite attribute */
+.sv-composite ellipse { fill: none; stroke: var(--attr); stroke-width: 2; }
+.sv-composite text { fill: var(--attr); font-size: 13px; }
+.sv-composite line { stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 4 2; }
+
+/* Relationship diamond */
+.sv-rel polygon { fill: none; stroke: var(--rel); stroke-width: 2.5; }
+.sv-rel text { fill: var(--rel); font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; }
+
+/* Weak Relationship double diamond */
+.sv-weak-rel polygon.outer { fill: none; stroke: var(--weak-r); stroke-width: 2.5; }
+.sv-weak-rel polygon.inner { fill: none; stroke: var(--weak-r); stroke-width: 1.5; }
+.sv-weak-rel text { fill: var(--weak-r); font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; }
+
+/* Lines */
+.sv-line-single line { stroke: var(--muted); stroke-width: 2.5; }
+.sv-line-double line { stroke: var(--total); stroke-width: 2; }
+
+/* Partial key underline dashed */
+.sv-partkey ellipse { fill: none; stroke: var(--part-key); stroke-width: 2; }
+.sv-partkey text { fill: var(--part-key); font-size: 13px; text-decoration: underline; text-decoration-style: dashed; }
+
+/* Specialization circle */
+.sv-special circle { fill: none; stroke: var(--special); stroke-width: 2; }
+.sv-special text { fill: var(--special); font-size: 14px; font-weight: 700; }
+.sv-special line { stroke: var(--special); stroke-width: 2; }
+
+/* ─── FULL ER EXAMPLES ─── */
+.er-example-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 28px;
+}
+.er-example-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 22px;
+  border-bottom: 1px solid var(--border2);
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.er-example-title {
+  font-weight: 700;
+  color: #fff;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.er-example-chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.chip {
+  padding: 3px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  border: 1px solid;
+}
+.er-canvas {
+  padding: 24px;
+  overflow-x: auto;
+  background: var(--surface);
+  min-height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.er-canvas svg { max-width: 100%; height: auto; }
+.er-explain {
+  padding: 16px 22px;
+  border-top: 1px solid var(--border2);
+}
+.er-explain-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-family: 'JetBrains Mono', monospace;
+  margin-bottom: 10px;
+}
+.er-rules {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 8px;
+}
+.er-rule {
+  display: flex;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--muted);
+  align-items: flex-start;
+  line-height: 1.5;
+}
+.er-rule::before {
+  content: '▸';
+  color: var(--entity);
+  flex-shrink: 0;
+  padding-top: 1px;
+}
+
+/* ─── COMPARISON TABLE ─── */
+.compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+  margin-bottom: 28px;
+}
+.compare-table th {
+  background: var(--surface);
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+  font-family: 'JetBrains Mono', monospace;
+}
+.compare-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border2);
+  vertical-align: middle;
+  color: var(--muted);
+}
+.compare-table tr:last-child td { border-bottom: none; }
+.compare-table tr:hover td { background: rgba(255,255,255,0.02); }
+.sym-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+}
+td strong { color: var(--text); }
+
+/* ─── STEP-BY-STEP ─── */
+.steps { display: flex; flex-direction: column; gap: 16px; margin-bottom: 32px; }
+.step {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 20px;
+  transition: border-color 0.2s;
+}
+.step:hover { border-color: var(--entity); }
+.step-num {
+  width: 36px; height: 36px;
+  border-radius: 8px;
+  background: rgba(88,166,255,0.15);
+  border: 1px solid rgba(88,166,255,0.3);
+  color: var(--entity);
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.step-body { flex: 1; }
+.step-title { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+.step-desc { font-size: 13.5px; color: var(--muted); line-height: 1.65; }
+.step-tip {
+  margin-top: 10px;
+  padding: 8px 12px;
+  background: rgba(88,166,255,0.06);
+  border-left: 3px solid var(--entity);
+  border-radius: 0 6px 6px 0;
+  font-size: 13px;
+  color: var(--dim);
+}
+.step-tip strong { color: var(--entity); }
+
+/* ─── TIPS BOX ─── */
+.tip-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px;
+  margin-bottom: 32px;
+}
+.tip-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px;
+}
+.tip-icon { font-size: 24px; margin-bottom: 10px; }
+.tip-title { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+.tip-text { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+/* ─── ANIMATIONS ─── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.section { animation: fadeUp 0.5s ease both; }
+
+/* Progress */
+#prog { position: fixed; top: 0; left: 0; height: 2px; background: linear-gradient(90deg, var(--entity), var(--special)); z-index: 200; transition: width 0.2s; }
+
+@media (max-width: 600px) {
+  .symbols-grid { grid-template-columns: 1fr; }
+  .er-rules { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div id="prog"></div>
+
+<div class="wrap">
+
+<!-- ─── HERO ─── -->
+<div class="hero">
+  <div class="hero-eyebrow">📐 Database Design · Chen Notation</div>
+  <h1>สัญลักษณ์ใน<br><em>ER-Diagram</em></h1>
+  <p>เรียนรู้สัญลักษณ์ทุกตัว ความหมาย และวิธีใช้งานจริง พร้อมตัวอย่างครบถ้วน</p>
+  <div class="hero-chips">
+    <span class="hero-chip" style="color:var(--entity);border-color:rgba(88,166,255,0.3);background:rgba(88,166,255,0.08);">Entity</span>
+    <span class="hero-chip" style="color:var(--attr);border-color:rgba(63,185,80,0.3);background:rgba(63,185,80,0.08);">Attribute</span>
+    <span class="hero-chip" style="color:var(--rel);border-color:rgba(247,129,102,0.3);background:rgba(247,129,102,0.08);">Relationship</span>
+    <span class="hero-chip" style="color:var(--weak-e);border-color:rgba(210,168,255,0.3);background:rgba(210,168,255,0.08);">Weak Entity</span>
+    <span class="hero-chip" style="color:var(--special);border-color:rgba(188,140,255,0.3);background:rgba(188,140,255,0.08);">Specialization</span>
+  </div>
+</div>
+
+<!-- ─── STICKY NAV ─── -->
+<nav class="sticky-nav">
+  <div class="nav-inner">
+    <a class="nav-item active" href="#entity">Entity</a>
+    <a class="nav-item" href="#attribute">Attribute</a>
+    <a class="nav-item" href="#relationship">Relationship</a>
+    <a class="nav-item" href="#weak">Weak Entity</a>
+    <a class="nav-item" href="#participation">Participation</a>
+    <a class="nav-item" href="#specialization">Specialization</a>
+    <a class="nav-item" href="#examples">ตัวอย่างเต็ม</a>
+    <a class="nav-item" href="#howto">วิธีวาด</a>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- SECTION 1: ENTITY -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="section" id="entity">
+  <div class="section-heading">
+    <div class="section-icon" style="background:rgba(88,166,255,0.12); border:1px solid rgba(88,166,255,0.25);">🟦</div>
+    <div>
+      <h2>Entity (เอนทิตี)</h2>
+      <p>สิ่งที่ต้องการเก็บข้อมูลในระบบ — มีตัวตนหรือแนวคิดที่ชัดเจน</p>
+    </div>
+  </div>
+
+  <div class="symbols-grid">
+
+    <!-- Regular Entity -->
+    <div class="sym-card" style="border-color:rgba(88,166,255,0.3);">
+      <div class="sym-visual">
+        <svg class="sym sv-entity" width="160" height="60" viewBox="0 0 160 60">
+          <rect x="10" y="10" width="140" height="40" rx="3"/>
+          <text x="80" y="35" text-anchor="middle" dominant-baseline="middle">นักศึกษา</text>
+        </svg>
+      </div>
+      <div class="sym-info">
+        <div class="sym-name">Strong Entity (เอนทิตีหลัก)</div>
+        <div class="sym-name-en">STRONG ENTITY</div>
+        <div class="sym-desc">สิ่งที่มีตัวตนอิสระ มี Primary Key เป็นของตัวเอง วาดด้วยสี่เหลี่ยมเส้นเดี่ยว</div>
+        <div class="sym-example">✦ <strong>ตัวอย่าง:</strong> นักศึกษา, สินค้า, พนักงาน, ลูกค้า, วิชา</div>
+      </div>
+    </div>
+
+    <!-- Weak Entity -->
+    <div class="sym-card" style="border-color:rgba(210,168,255,0.3);">
+      <div class="sym-visual">
+        <svg class="sym sv-weak" width="160" height="70" viewBox="0 0 160 70">
+          <rect class="outer" x="6" y="6" width="148" height="58" rx="3"/>
+          <rect class="inner" x="12" y="12" width="136" height="46" rx="2"/>
+          <text x="80" y="38" text-anchor="middle" dominant-baseline="middle">ผู้ติดตาม</text>
+        </svg>
+      </div>
+      <div class="sym-info">
+        <div class="sym-name">Weak Entity (เอนทิตีอ่อน)</div>
+        <div class="sym-name-en">WEAK ENTITY</div>
+        <div class="sym-desc">ไม่มี Primary Key เป็นของตัวเอง ต้องอาศัย Strong Entity ระบุตัวตน วาดด้วยสี่เหลี่ยมเส้นคู่</div>
+        <div class="sym-example">✦ <strong>ตัวอย่าง:</strong> ผู้ติดตาม (ของพนักงาน), รายการสั่งซื้อ, ห้องพัก (ของอาคาร)</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Key Point -->
+  <div style="background:rgba(88,166,255,0.06);border:1px solid rgba(88,166,255,0.2);border-radius:10px;padding:16px 20px;margin-bottom:20px;">
+    <div style="font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--entity);font-family:'JetBrains Mono',monospace;margin-bottom:8px;">💡 หลักการเลือก Entity</div>
+    <div style="font-size:14px;color:var(--muted);line-height:1.7;">
+      สิ่งที่จะเป็น Entity ต้องผ่านเงื่อนไข: (1) มีตัวตนชัดเจน (2) เก็บข้อมูลได้มากกว่า 1 Attribute (3) มีความสัมพันธ์กับ Entity อื่น<br>
+      <span style="color:var(--entity);">✓ Entity:</span> <span style="color:var(--text);">นักศึกษา, สินค้า, แผนก</span> &nbsp;&nbsp;
+      <span style="color:var(--rel);">✗ ไม่ใช่ Entity:</span> <span style="color:var(--text);">อายุ, ราคา, ชื่อ (เหล่านี้คือ Attribute)</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- SECTION 2: ATTRIBUTE -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="section" id="attribute">
+  <div class="section-heading">
+    <div class="section-icon" style="background:rgba(63,185,80,0.12); border:1px solid rgba(63,185,80,0.25);">🟢</div>
+    <div>
+      <h2>Attribute (แอตทริบิวต์)</h2>
+      <p>คุณสมบัติหรือข้อมูลที่ต้องการเก็บของ Entity</p>
+    </div>
+  </div>
+
+  <div class="symbols-grid">
+
+    <!-- Simple Attribute -->
+    <div class="sym-card">
+      <div class="sym-visual">
+        <svg class="sym sv-attr" width="130" height="55" viewBox="0 0 130 55">
+          <ellipse cx="65" cy="27" rx="58" ry="22"/>
+          <text x="65" y="27" text-anchor="middle" dominant-baseline="middle" fill="#3fb950" font-family="JetBrains Mono" font-size="13">ชื่อ</text>
+        </svg>
+      </div>
+      <div class="sym-info">
+        <div class="sym-name">Simple Attribute</div>
+        <div class="sym-name-en">SIMPLE / ATOMIC</div>
+        <div class="sym-desc">Attribute ธรรมดา แบ่งย่อยไม่ได้อีก วาดด้วยวงรีเส้นเดี่ยว</div>
+        <div class="sym-example">✦ ชื่อ, อายุ, เพศ, ราคา, วันที่</div>
+      </div>
+    </div>
+
+    <!-- Key Attribute -->
+    <div class="sym-card" style="border-color:rgba(227,179,65,0.3);">
+      <div class="sym-visual">
+        <svg class="sym sv-key" width="160" height="55" viewBox="0 0 160 55">
+          <ellipse cx="80" cy="27" rx="72" ry="22"/>
+          <text x="80" y="27" text-anchor="middle" dominant-baseline="middle" fill="#e3b341" font-family="JetBrains Mono" font-size="13" text-decoration="underline">student_id</text>
+        </svg>
+      </div>
+      <div class="sym-info">
+        <div class="sym-name">Key Attribute (Primary Key)</div>
+        <div class="sym-name-en">KEY ATTRIBUTE</div>
+        <div class="sym-desc">ระบุตัวตนของ Entity ได้ไม่ซ้ำกัน วาดวงรีเส้นเดี่ยว แต่<strong style="color:#e3b341;">ขีดเส้นใต้</strong>ชื่อ Attribute</div>
+        <div class="sym-example">✦ student_id, emp_id, product_code</div>
+      </div>
+    </div>
+
+    <!-- Partial Key -->
+    <div class="sym-card" style="border-color:rgba(255,123,114,0.3);">
+      <div class="sym-visual">
+        <svg class="sym sv-partkey" width="130" height="55" viewBox="0 0 130 55">
+          <ellipse cx="65" cy="27" rx="58" ry="22" fill="none" stroke="#ff7b72" stroke-width="2"/>
+          <text x="65" y="24" text-anchor="middle" dominant-baseline="middle" fill="#ff7b72" font-family="JetBrains Mono" font-size="12">เลขห้อง</text>
+          <!-- Dashed underline -->
+          <line x1="28" y1="33" x2="102" y2="33" stroke="#ff7b72" stroke-width="1.5" stroke-dasharray="4 2"/>
+        </svg>
+      </div>
+      <div class="sym-info">
+        <div class="sym-name">Partial Key</div>
+        <div class="sym-name-en">PARTIAL KEY / DISCRIMINATOR</div>
+        <div class="sym-desc">Key ของ Weak Entity ที่ไม่สามารถระบุได้เพียงลำพัง ต้องใช้คู่กับ Key ของ Strong Entity ขีดเส้นใต้<strong style="color:#ff7b72;">เส้นประ</strong></div>
+        <div class="sym-example">✦ เลขห้อง (ของอาคาร), ลำดับที่ (ของออเดอร์)</div>
+      </div>
+    </div>
+
+    <!-- Derived Attribute -->
+    <div class="sym-card" style="border-color:rgba(121,192,255,0.3);">
+      <div class="sym-visual">
+        <svg class="sym sv-derived" width="130" height="55" viewBox="0 0 130 55">
+          <ellipse cx="65" cy="27" rx="58" ry="22"/>
+          <text x="65" y="27" text-anchor="middle" dominant-baseline="middle" fill="#79c0ff" font-family="JetBrains Mono" font-size="12">อายุ</text>
+        </svg>
+      </div>
+      <div class="sym-info">
+        <div class="sym-name">Derived Attribute</div>
+        <div class="sym-name-en">DERIVED ATTRIBUTE</div>
+        <div class="sym-desc">คำนวณได้จาก Attribute อื่น ไม่ต้องเก็บจริงในฐานข้อมูล วาดวงรี<strong style="color:#79c0ff;">เส้นประ</strong></div>
+        <div class="sym-example">✦ อายุ (จากวันเกิด), ราคารวม (จากราคา×จำนวน)</div>
+      </div>
+    </div>
+
+    <!-- Multi-valued Attribute -->
+    <div class="sym-card" style="border-color:rgba(86,211,100,0.3);">
+      <div class="sym-visual">
+        <svg class="sym sv-multi" width="150" height="65" viewBox="0 0 150 65">
+          <ellipse class="outer" cx="75" cy="32" rx="68" ry="27"/>
+          <ellipse class="inner" cx="75" cy="32" rx="62" ry="21"/>
+          <text x="75" y="32" text-anchor="middle" dominant-baseline="middle" fill="#56d364" font-family="JetBrains Mono" font-size="12">เบอร์โทร</text>
+        </svg>
+      </div>
+      <div class="sym-info">
+        <div class="sym-name">Multi-valued Attribute</div>
+        <div class="sym-name-en">MULTI-VALUED</div>
+        <div class="sym-desc">เก็บค่าได้หลายค่า วาด<strong style="color:#56d364;">วงรีซ้อนกัน 2 ชั้น</strong></div>
+        <div class="sym-example">✦ เบอร์โทร (หลายเบอร์), ภาษาที่พูดได้, ทักษะ</div>
+      </div>
+    </div>
+
+    <!-- Composite Attribute -->
+    <div class="sym-card" style="border-color:rgba(63,185,80,0.2);">
+      <div class="sym-visual">
+        <svg width="200" height="90" viewBox="0 0 200 90">
+          <!-- Parent -->
+          <ellipse cx="100" cy="20" rx="55" ry="18" fill="none" stroke="#3fb950" stroke-width="2"/>
+          <text x="100" y="20" text-anchor="middle" dominant-baseline="middle" fill="#3fb950" font-size="12" font-family="JetBrains Mono">ที่อยู่</text>
+          <!-- Lines to children -->
+          <line x1="55" y1="30" x2="35" y2="70" stroke="#484f58" stroke-width="1.5"/>
+          <line x1="100" y1="38" x2="100" y2="70" stroke="#484f58" stroke-width="1.5"/>
+          <line x1="145" y1="30" x2="165" y2="70" stroke="#484f58" stroke-width="1.5"/>
+          <!-- Child ellipses -->
+          <ellipse cx="35" cy="78" rx="30" ry="14" fill="none" stroke="#3fb950" stroke-width="1.5"/>
+          <text x="35" y="78" text-anchor="middle" dominant-baseline="middle" fill="#3fb950" font-size="10" font-family="JetBrains Mono">บ้านเลขที่</text>
+          <ellipse cx="100" cy="78" rx="28" ry="14" fill="none" stroke="#3fb950" stroke-width="1.5"/>
+          <text x="100" y="78" text-anchor="middle" dominant-baseline="middle" fill="#3fb950" font-size="10" font-family="JetBrains Mono">ถนน</text>
+          <ellipse cx="165" cy="78" rx="28" ry="14" fill="none" stroke="#3fb950" stroke-width="1.5"/>
+          <text x="165" y="78" text-anchor="middle" dominant-baseline="middle" fill="#3fb950" font-size="10" font-family="JetBrains Mono">จังหวัด</text>
+        </svg>
+      </div>
+      <div class="sym-info">
+        <div class="sym-name">Composite Attribute</div>
+        <div class="sym-name-en">COMPOSITE ATTRIBUTE</div>
+        <div class="sym-desc">Attribute ที่แบ่งย่อยได้ต่ออีก มี Sub-Attribute ข้างใต้ เชื่อมด้วยเส้น</div>
+        <div class="sym-example">✦ ที่อยู่ (บ้านเลขที่, ถนน, จังหวัด), ชื่อเต็ม (ชื่อ, นามสกุล)</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Quick Reference Table -->
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>สัญลักษณ์</th>
+        <th>ประเภท</th>
+        <th>ลักษณะเส้น</th>
+        <th>สถานการณ์ที่ใช้</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><div class="sym-preview"><svg width="60" height="30"><ellipse cx="30" cy="15" rx="26" ry="12" fill="none" stroke="#3fb950" stroke-width="2"/></svg></div></td>
+        <td><strong>Simple</strong></td>
+        <td style="font-family:monospace;color:#3fb950;">วงรีเส้นเดี่ยว</td>
+        <td>ข้อมูลทั่วไป แบ่งย่อยไม่ได้</td>
+      </tr>
+      <tr>
+        <td><div class="sym-preview"><svg width="60" height="30"><ellipse cx="30" cy="15" rx="26" ry="12" fill="none" stroke="#e3b341" stroke-width="2"/><text x="30" y="15" text-anchor="middle" dominant-baseline="middle" fill="#e3b341" font-size="8" text-decoration="underline" font-weight="700">id</text></svg></div></td>
+        <td><strong style="color:#e3b341;">Key</strong></td>
+        <td style="font-family:monospace;color:#e3b341;">วงรี + ขีดเส้นใต้</td>
+        <td>Primary Key ระบุตัวตนได้</td>
+      </tr>
+      <tr>
+        <td><div class="sym-preview"><svg width="60" height="30"><ellipse cx="30" cy="15" rx="26" ry="12" fill="none" stroke="#ff7b72" stroke-width="2"/><line x1="7" y1="21" x2="53" y2="21" stroke="#ff7b72" stroke-width="1.5" stroke-dasharray="3 2"/></svg></div></td>
+        <td><strong style="color:#ff7b72;">Partial Key</strong></td>
+        <td style="font-family:monospace;color:#ff7b72;">วงรี + เส้นประใต้</td>
+        <td>Key ของ Weak Entity</td>
+      </tr>
+      <tr>
+        <td><div class="sym-preview"><svg width="60" height="30"><ellipse cx="30" cy="15" rx="26" ry="12" fill="none" stroke="#79c0ff" stroke-width="2" stroke-dasharray="5 3"/></svg></div></td>
+        <td><strong style="color:#79c0ff;">Derived</strong></td>
+        <td style="font-family:monospace;color:#79c0ff;">วงรีเส้นประ</td>
+        <td>คำนวณได้จากค่าอื่น</td>
+      </tr>
+      <tr>
+        <td><div class="sym-preview"><svg width="60" height="30"><ellipse cx="30" cy="15" rx="26" ry="12" fill="none" stroke="#56d364" stroke-width="2"/><ellipse cx="30" cy="15" rx="21" ry="9" fill="none" stroke="#56d364" stroke-width="1.5"/></svg></div></td>
+        <td><strong style="color:#56d364;">Multi-valued</strong></td>
+        <td style="font-family:monospace;color:#56d364;">วงรีซ้อน 2 ชั้น</td>
+        <td>มีค่าได้หลายค่า</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- SECTION 3: RELATIONSHIP -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="section" id="relationship">
+  <div class="section-heading">
+    <div class="section-icon" style="background:rgba(247,129,102,0.12); border:1px solid rgba(247,129,102,0.25);">🔸</div>
+    <div>
+      <h2>Relationship (ความสัมพันธ์)</h2>
+      <p>การเชื่อมโยงระหว่าง Entity ตั้งแต่ 2 ตัวขึ้นไป</p>
+    </div>
+  </div>
+
+  <div class="symbols-grid">
+    <!-- Regular Relationship -->
+    <div class="sym-card" style="border-color:rgba(247,129,102,0.3);">
+      <div class="sym-visual">
+        <svg class="sym sv-rel" width="140" height="70" viewBox="0 0 140 70">
+          <polygon points="70,5 135,35 70,65 5,35"/>
+          <text x="70" y="35" text-anchor="middle" dominant-baseline="middle">ลงทะเบียน</text>
+        </svg>
+      </div>
+      <div class="sym-info">
+        <div class="sym-name">Regular Relationship</div>
+        <div class="sym-name-en">RELATIONSHIP</div>
+        <div class="sym-desc">ความสัมพันธ์ระหว่าง Strong Entity วาดด้วย<strong style="color:#f78166;">รูปเพชรเส้นเดี่ยว</strong></div>
+        <div class="sym-example">✦ ลงทะเบียน, ซื้อ, จัดการ, สังกัด</div>
+      </div>
+    </div>
+
+    <!-- Weak Relationship -->
+    <div class="sym-card" style="border-color:rgba(255,166,87,0.3);">
+      <div class="sym-visual">
+        <svg class="sym sv-weak-rel" width="150" height="80" viewBox="0 0 150 80">
+          <polygon class="outer" points="75,5 145,40 75,75 5,40"/>
+          <polygon class="inner" points="75,14 136,40 75,66 14,40"/>
+          <text x="75" y="40" text-anchor="middle" dominant-baseline="middle">เป็นของ</text>
+        </svg>
+      </div>
+      <div class="sym-info">
+        <div class="sym-name">Identifying Relationship</div>
+        <div class="sym-name-en">WEAK RELATIONSHIP</div>
+        <div class="sym-desc">ความสัมพันธ์ระหว่าง Weak Entity กับ Strong Entity ที่เป็นเจ้าของ วาดด้วย<strong style="color:#ffa657;">รูปเพชรเส้นคู่</strong></div>
+        <div class="sym-example">✦ เป็นของ, สังกัด (ของ Weak Entity)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cardinality Visual -->
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:24px;">
+    <div style="font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-bottom:20px;">CARDINALITY RATIO — ตัวเลขบนเส้น</div>
+
+    <div style="display:flex;flex-direction:column;gap:20px;">
+
+      <!-- 1:1 -->
+      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+        <div style="min-width:260px;flex:1;">
+          <svg width="100%" height="60" viewBox="0 0 340 60">
+            <rect x="5" y="15" width="90" height="30" rx="3" fill="none" stroke="#58a6ff" stroke-width="2"/>
+            <text x="50" y="30" text-anchor="middle" dominant-baseline="middle" fill="#58a6ff" font-family="JetBrains Mono" font-size="12">พนักงาน</text>
+            <line x1="95" y1="30" x2="130" y2="30" stroke="#7d8590" stroke-width="2"/>
+            <text x="120" y="22" fill="#e3b341" font-family="JetBrains Mono" font-size="14" font-weight="700">1</text>
+            <polygon points="175,10 230,30 175,50 120,30" fill="none" stroke="#f78166" stroke-width="2"/>
+            <text x="175" y="30" text-anchor="middle" dominant-baseline="middle" fill="#f78166" font-family="JetBrains Mono" font-size="11">มี</text>
+            <line x1="230" y1="30" x2="265" y2="30" stroke="#7d8590" stroke-width="2"/>
+            <text x="252" y="22" fill="#e3b341" font-family="JetBrains Mono" font-size="14" font-weight="700">1</text>
+            <rect x="265" y="15" width="70" height="30" rx="3" fill="none" stroke="#58a6ff" stroke-width="2"/>
+            <text x="300" y="30" text-anchor="middle" dominant-baseline="middle" fill="#58a6ff" font-family="JetBrains Mono" font-size="12">รหัสบัตร</text>
+          </svg>
+        </div>
+        <div style="min-width:200px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-weight:700;color:#e3b341;font-size:18px;margin-bottom:4px;">1 : 1</div>
+          <div style="font-size:13px;color:var(--muted);">พนักงาน 1 คน มีรหัสบัตร 1 ใบ — ทั้งสองฝั่งมีได้แค่ 1 ตัว</div>
+        </div>
+      </div>
+
+      <div style="height:1px;background:var(--border2);"></div>
+
+      <!-- 1:N -->
+      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+        <div style="min-width:260px;flex:1;">
+          <svg width="100%" height="60" viewBox="0 0 340 60">
+            <rect x="5" y="15" width="80" height="30" rx="3" fill="none" stroke="#58a6ff" stroke-width="2"/>
+            <text x="45" y="30" text-anchor="middle" dominant-baseline="middle" fill="#58a6ff" font-family="JetBrains Mono" font-size="12">แผนก</text>
+            <line x1="85" y1="30" x2="120" y2="30" stroke="#7d8590" stroke-width="2"/>
+            <text x="110" y="22" fill="#e3b341" font-family="JetBrains Mono" font-size="14" font-weight="700">1</text>
+            <polygon points="175,10 230,30 175,50 120,30" fill="none" stroke="#f78166" stroke-width="2"/>
+            <text x="175" y="30" text-anchor="middle" dominant-baseline="middle" fill="#f78166" font-family="JetBrains Mono" font-size="11">มี</text>
+            <line x1="230" y1="30" x2="265" y2="30" stroke="#7d8590" stroke-width="2"/>
+            <text x="252" y="22" fill="#2196f3" font-family="JetBrains Mono" font-size="14" font-weight="700">N</text>
+            <rect x="265" y="15" width="70" height="30" rx="3" fill="none" stroke="#58a6ff" stroke-width="2"/>
+            <text x="300" y="30" text-anchor="middle" dominant-baseline="middle" fill="#58a6ff" font-family="JetBrains Mono" font-size="12">พนักงาน</text>
+          </svg>
+        </div>
+        <div style="min-width:200px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-weight:700;color:#2196f3;font-size:18px;margin-bottom:4px;">1 : N</div>
+          <div style="font-size:13px;color:var(--muted);">แผนก 1 แผนก มีพนักงานได้หลายคน แต่พนักงาน 1 คนสังกัดแผนกเดียว</div>
+        </div>
+      </div>
+
+      <div style="height:1px;background:var(--border2);"></div>
+
+      <!-- M:N -->
+      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+        <div style="min-width:260px;flex:1;">
+          <svg width="100%" height="60" viewBox="0 0 340 60">
+            <rect x="5" y="15" width="80" height="30" rx="3" fill="none" stroke="#58a6ff" stroke-width="2"/>
+            <text x="45" y="30" text-anchor="middle" dominant-baseline="middle" fill="#58a6ff" font-family="JetBrains Mono" font-size="12">นักศึกษา</text>
+            <line x1="85" y1="30" x2="120" y2="30" stroke="#7d8590" stroke-width="2"/>
+            <text x="108" y="22" fill="#2196f3" font-family="JetBrains Mono" font-size="14" font-weight="700">M</text>
+            <polygon points="175,10 230,30 175,50 120,30" fill="none" stroke="#f78166" stroke-width="2"/>
+            <text x="175" y="30" text-anchor="middle" dominant-baseline="middle" fill="#f78166" font-family="JetBrains Mono" font-size="11">ลงทะเบียน</text>
+            <line x1="230" y1="30" x2="265" y2="30" stroke="#7d8590" stroke-width="2"/>
+            <text x="252" y="22" fill="#2196f3" font-family="JetBrains Mono" font-size="14" font-weight="700">N</text>
+            <rect x="265" y="15" width="70" height="30" rx="3" fill="none" stroke="#58a6ff" stroke-width="2"/>
+            <text x="300" y="30" text-anchor="middle" dominant-baseline="middle" fill="#58a6ff" font-family="JetBrains Mono" font-size="12">วิชา</text>
+          </svg>
+        </div>
+        <div style="min-width:200px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-weight:700;color:#bc8cff;font-size:18px;margin-bottom:4px;">M : N</div>
+          <div style="font-size:13px;color:var(--muted);">นักศึกษา 1 คน ลงวิชาได้หลายวิชา / วิชา 1 วิชา มีนักศึกษาหลายคน</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- SECTION 4: WEAK ENTITY -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="section" id="weak">
+  <div class="section-heading">
+    <div class="section-icon" style="background:rgba(210,168,255,0.12); border:1px solid rgba(210,168,255,0.25);">🟣</div>
+    <div>
+      <h2>Weak Entity (เอนทิตีอ่อน)</h2>
+      <p>Entity ที่ไม่มี Primary Key เป็นของตัวเอง ต้องอาศัย Strong Entity</p>
+    </div>
+  </div>
+
+  <div class="er-example-card">
+    <div class="er-example-header">
+      <div class="er-example-title">📦 ตัวอย่าง: ระบบพนักงานและผู้ติดตาม</div>
+      <div class="er-example-chips">
+        <span class="chip" style="color:var(--weak-e);border-color:rgba(210,168,255,0.3);">Weak Entity</span>
+        <span class="chip" style="color:var(--weak-r);border-color:rgba(255,166,87,0.3);">Identifying Rel</span>
+        <span class="chip" style="color:var(--part-key);border-color:rgba(255,123,114,0.3);">Partial Key</span>
+      </div>
+    </div>
+    <div class="er-canvas">
+      <svg width="700" height="200" viewBox="0 0 700 200">
+        <!-- Strong Entity: Employee -->
+        <rect x="20" y="80" width="130" height="40" rx="3" fill="none" stroke="#58a6ff" stroke-width="2.5"/>
+        <text x="85" y="100" text-anchor="middle" dominant-baseline="middle" fill="#58a6ff" font-family="JetBrains Mono" font-size="14" font-weight="600">พนักงาน</text>
+
+        <!-- emp_id (Key) -->
+        <line x1="85" y1="80" x2="85" y2="30" stroke="#484f58" stroke-width="1.5"/>
+        <ellipse cx="85" cy="18" rx="40" ry="14" fill="none" stroke="#e3b341" stroke-width="2"/>
+        <text x="85" y="18" text-anchor="middle" dominant-baseline="middle" fill="#e3b341" font-family="JetBrains Mono" font-size="11" text-decoration="underline" font-weight="700">emp_id</text>
+
+        <!-- ชื่อ -->
+        <line x1="150" y1="80" x2="180" y2="40" stroke="#484f58" stroke-width="1.5"/>
+        <ellipse cx="200" cy="28" rx="32" ry="14" fill="none" stroke="#3fb950" stroke-width="2"/>
+        <text x="200" y="28" text-anchor="middle" dominant-baseline="middle" fill="#3fb950" font-family="JetBrains Mono" font-size="11">ชื่อ</text>
+
+        <!-- เงินเดือน -->
+        <line x1="150" y1="110" x2="195" y2="145" stroke="#484f58" stroke-width="1.5"/>
+        <ellipse cx="215" cy="158" rx="44" ry="14" fill="none" stroke="#3fb950" stroke-width="2"/>
+        <text x="215" y="158" text-anchor="middle" dominant-baseline="middle" fill="#3fb950" font-family="JetBrains Mono" font-size="11">เงินเดือน</text>
+
+        <!-- Line to Identifying Rel -->
+        <line x1="150" y1="100" x2="248" y2="100" stroke="#7d8590" stroke-width="2"/>
+        <line x1="153" y1="103" x2="248" y2="103" stroke="#7d8590" stroke-width="2"/>
+
+        <!-- Identifying Relationship (double diamond) -->
+        <polygon points="300,65 355,100 300,135 245,100" fill="none" stroke="#ffa657" stroke-width="2.5"/>
+        <polygon points="300,73 347,100 300,127 253,100" fill="none" stroke="#ffa657" stroke-width="1.5"/>
+        <text x="300" y="100" text-anchor="middle" dominant-baseline="middle" fill="#ffa657" font-family="JetBrains Mono" font-size="10" font-weight="700">มี</text>
+
+        <!-- Label Total Participation on left -->
+        <text x="200" y="92" fill="#39d353" font-size="11" font-family="JetBrains Mono">Total</text>
+
+        <!-- Line to Weak Entity (double) -->
+        <line x1="355" y1="100" x2="440" y2="100" stroke="#7d8590" stroke-width="2"/>
+        <line x1="355" y1="103" x2="440" y2="103" stroke="#7d8590" stroke-width="2"/>
+
+        <!-- Cardinality -->
+        <text x="370" y="92" fill="#e3b341" font-family="JetBrains Mono" font-size="14" font-weight="700">1</text>
+        <text x="415" y="92" fill="#2196f3" font-family="JetBrains Mono" font-size="14" font-weight="700">N</text>
+
+        <!-- Weak Entity: ผู้ติดตาม (double rect) -->
+        <rect x="440" y="74" width="130" height="52" rx="3" fill="none" stroke="#d2a8ff" stroke-width="2.5"/>
+        <rect x="446" y="80" width="118" height="40" rx="2" fill="none" stroke="#d2a8ff" stroke-width="1.5"/>
+        <text x="505" y="100" text-anchor="middle" dominant-baseline="middle" fill="#d2a8ff" font-family="JetBrains Mono" font-size="13" font-weight="600">ผู้ติดตาม</text>
+
+        <!-- Partial Key: ชื่อ (dashed underline) -->
+        <line x1="505" y1="74" x2="505" y2="28" stroke="#484f58" stroke-width="1.5"/>
+        <ellipse cx="505" cy="18" rx="36" ry="14" fill="none" stroke="#ff7b72" stroke-width="2"/>
+        <text x="505" y="16" text-anchor="middle" dominant-baseline="middle" fill="#ff7b72" font-family="JetBrains Mono" font-size="11">ชื่อ</text>
+        <line x1="472" y1="23" x2="538" y2="23" stroke="#ff7b72" stroke-width="1.5" stroke-dasharray="3 2"/>
+
+        <!-- ความสัมพันธ์ attr -->
+        <line x1="570" y1="100" x2="628" y2="70" stroke="#484f58" stroke-width="1.5"/>
+        <ellipse cx="645" cy="60" rx="42" ry="14" fill="none" stroke="#3fb950" stroke-width="2"/>
+        <text x="645" y="60" text-anchor="middle" dominant-baseline="middle" fill="#3fb950" font-family="JetBrains Mono" font-size="10">ความสัมพันธ์</text>
+
+        <line x1="570" y1="110" x2="628" y2="140" stroke="#484f58" stroke-width="1.5"/>
+        <ellipse cx="644" cy="152" rx="34" ry="14" fill="none" stroke="#3fb950" stroke-width="2"/>
+        <text x="644" y="152" text-anchor="middle" dominant-baseline="middle" fill="#3fb950" font-family="JetBrains Mono" font-size="10">วันเกิด</text>
+      </svg>
+    </div>
+    <div class="er-explain">
+      <div class="er-explain-title">อ่านอย่างไร?</div>
+      <div class="er-rules">
+        <div class="er-rule">เส้นคู่รอบ "ผู้ติดตาม" = Weak Entity ไม่มี PK อิสระ</div>
+        <div class="er-rule">เพชรคู่ "มี" = Identifying Relationship</div>
+        <div class="er-rule">"ชื่อ" ขีดเส้นประใต้ = Partial Key ต้องใช้คู่กับ emp_id</div>
+        <div class="er-rule">เส้นคู่ฝั่งซ้าย = Total Participation (พนักงานทุกคนต้องมี Weak Entity)</div>
+        <div class="er-rule">1:N = พนักงาน 1 คน มีผู้ติดตามได้หลายคน</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- SECTION 5: PARTICIPATION -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="section" id="participation">
+  <div class="section-heading">
+    <div class="section-icon" style="background:rgba(57,211,83,0.12); border:1px solid rgba(57,211,83,0.25);">〰️</div>
+    <div>
+      <h2>Participation Constraint (เส้นเชื่อม)</h2>
+      <p>บอกว่า Entity ทุกตัวต้องมีความสัมพันธ์หรือไม่</p>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px;">
+
+    <!-- Total -->
+    <div style="background:var(--card);border:1px solid rgba(57,211,83,0.3);border-radius:14px;padding:22px;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+        <svg width="80" height="20" viewBox="0 0 80 20">
+          <line x1="0" y1="7" x2="80" y2="7" stroke="#39d353" stroke-width="2.5"/>
+          <line x1="0" y1="13" x2="80" y2="13" stroke="#39d353" stroke-width="2.5"/>
+        </svg>
+        <div>
+          <div style="font-size:16px;font-weight:700;color:#39d353;">Total Participation</div>
+          <div style="font-size:12px;color:var(--muted);">เส้นคู่ (Double Line)</div>
+        </div>
+      </div>
+      <div style="font-size:13.5px;color:var(--muted);line-height:1.7;">
+        <strong style="color:var(--text);">ทุก</strong>อินสแตนซ์ของ Entity <strong style="color:#39d353;">ต้องมี</strong>ความสัมพันธ์<br>
+        ไม่มีตัวที่ไม่มีคู่ได้ = Mandatory
+      </div>
+      <div style="margin-top:12px;padding:10px 14px;background:rgba(57,211,83,0.06);border-radius:6px;border-left:3px solid #39d353;font-size:12.5px;color:#39d353;">
+        ✅ พนักงาน<strong>ทุกคน</strong>ต้องสังกัดแผนก<br>
+        ✅ Bill<strong>ทุกใบ</strong>ต้องมีการสั่งซื้อ
+      </div>
+    </div>
+
+    <!-- Partial -->
+    <div style="background:var(--card);border:1px solid rgba(255,166,87,0.3);border-radius:14px;padding:22px;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+        <svg width="80" height="20" viewBox="0 0 80 20">
+          <line x1="0" y1="10" x2="80" y2="10" stroke="#ffa657" stroke-width="2.5"/>
+        </svg>
+        <div>
+          <div style="font-size:16px;font-weight:700;color:#ffa657;">Partial Participation</div>
+          <div style="font-size:12px;color:var(--muted);">เส้นเดี่ยว (Single Line)</div>
+        </div>
+      </div>
+      <div style="font-size:13.5px;color:var(--muted);line-height:1.7;">
+        <strong style="color:var(--text);">บาง</strong>อินสแตนซ์ของ Entity <strong style="color:#ffa657;">อาจไม่มี</strong>ความสัมพันธ์<br>
+        มีตัวที่ไม่มีคู่ได้ = Optional
+      </div>
+      <div style="margin-top:12px;padding:10px 14px;background:rgba(255,166,87,0.06);border-radius:6px;border-left:3px solid #ffa657;font-size:12.5px;color:#ffa657;">
+        ⚪ พนักงาน<strong>บางคน</strong>อาจไม่ดูแลโครงการ<br>
+        ⚪ ลูกค้า<strong>บางราย</strong>อาจยังไม่เคยสั่งซื้อ
+      </div>
+    </div>
+  </div>
+
+  <!-- Visual comparison with ER -->
+  <div class="er-example-card">
+    <div class="er-example-header">
+      <div class="er-example-title">🔍 เปรียบเทียบ Total vs Partial บน Diagram</div>
+    </div>
+    <div class="er-canvas">
+      <svg width="680" height="160" viewBox="0 0 680 160">
+        <!-- LEFT: Total – Total -->
+        <text x="170" y="15" text-anchor="middle" fill="#39d353" font-size="11" font-family="JetBrains Mono" letter-spacing="1">TOTAL — TOTAL</text>
+        <!-- Entity A -->
+        <rect x="20" y="60" width="90" height="36" rx="3" fill="none" stroke="#58a6ff" stroke-width="2"/>
+        <text x="65" y="78" text-anchor="middle" dominant-baseline="middle" fill="#58a6ff" font-family="JetBrains Mono" font-size="12">ลูกจ้าง</text>
+        <!-- Double line left -->
+        <line x1="110" y1="75" x2="150" y2="75" stroke="#39d353" stroke-width="2.5"/>
+        <line x1="110" y1="79" x2="150" y2="79" stroke="#39d353" stroke-width="2.5"/>
+        <text x="138" y="68" fill="#7d8590" font-family="JetBrains Mono" font-size="12">N</text>
+        <!-- Diamond -->
+        <polygon points="200,55 248,77 200,99 152,77" fill="none" stroke="#f78166" stroke-width="2"/>
+        <text x="200" y="77" text-anchor="middle" dominant-baseline="middle" fill="#f78166" font-family="JetBrains Mono" font-size="10">สังกัด</text>
+        <!-- Double line right -->
+        <line x1="248" y1="75" x2="288" y2="75" stroke="#39d353" stroke-width="2.5"/>
+        <line x1="248" y1="79" x2="288" y2="79" stroke="#39d353" stroke-width="2.5"/>
+        <text x="256" y="68" fill="#7d8590" font-family="JetBrains Mono" font-size="12">1</text>
+        <!-- Entity B -->
+        <rect x="288" y="60" width="80" height="36" rx="3" fill="none" stroke="#58a6ff" stroke-width="2"/>
+        <text x="328" y="78" text-anchor="middle" dominant-baseline="middle" fill="#58a6ff" font-family="JetBrains Mono" font-size="12">แผนก</text>
+        <!-- Labels -->
+        <text x="65" y="110" text-anchor="middle" fill="#39d353" font-size="11" font-family="Sarabun">ทุกคนต้องสังกัด</text>
+        <text x="328" y="110" text-anchor="middle" fill="#39d353" font-size="11" font-family="Sarabun">ทุกแผนกต้องมีพนักงาน</text>
+
+        <!-- DIVIDER -->
+        <line x1="390" y1="20" x2="390" y2="140" stroke="#30363d" stroke-width="1" stroke-dasharray="4 3"/>
+
+        <!-- RIGHT: Partial – Partial -->
+        <text x="540" y="15" text-anchor="middle" fill="#ffa657" font-size="11" font-family="JetBrains Mono" letter-spacing="1">PARTIAL — PARTIAL</text>
+        <!-- Entity A -->
+        <rect x="400" y="60" width="90" height="36" rx="3" fill="none" stroke="#58a6ff" stroke-width="2"/>
+        <text x="445" y="78" text-anchor="middle" dominant-baseline="middle" fill="#58a6ff" font-family="JetBrains Mono" font-size="12">พนักงาน</text>
+        <!-- Single line left -->
+        <line x1="490" y1="77" x2="530" y2="77" stroke="#ffa657" stroke-width="2.5"/>
+        <text x="518" y="68" fill="#7d8590" font-family="JetBrains Mono" font-size="12">1</text>
+        <!-- Diamond -->
+        <polygon points="580,57 628,77 580,97 532,77" fill="none" stroke="#f78166" stroke-width="2"/>
+        <text x="580" y="77" text-anchor="middle" dominant-baseline="middle" fill="#f78166" font-family="JetBrains Mono" font-size="10">จัดการ</text>
+        <!-- Single line right -->
+        <line x1="628" y1="77" x2="668" y2="77" stroke="#ffa657" stroke-width="2.5"/>
+        <text x="636" y="68" fill="#7d8590" font-family="JetBrains Mono" font-size="12">N</text>
+        <!-- Entity B -->
+        <rect x="590" y="60" width="80" height="36" rx="3" fill="none" stroke="#58a6ff" stroke-width="2"/>
+        <text x="630" y="78" text-anchor="middle" dominant-baseline="middle" fill="#58a6ff" font-family="JetBrains Mono" font-size="12">โครงการ</text>
+        <!-- Labels -->
+        <text x="445" y="110" text-anchor="middle" fill="#ffa657" font-size="11" font-family="Sarabun">บางคนไม่ดูแลโครงการ</text>
+        <text x="630" y="110" text-anchor="middle" fill="#ffa657" font-size="11" font-family="Sarabun">บางโครงการไม่มีพนักงาน</text>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- SECTION 6: SPECIALIZATION -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="section" id="specialization">
+  <div class="section-heading">
+    <div class="section-icon" style="background:rgba(188,140,255,0.12); border:1px solid rgba(188,140,255,0.25);">🔺</div>
+    <div>
+      <h2>Specialization / Generalization</h2>
+      <p>ความสัมพันธ์แบบ Is-a ระหว่าง Superclass และ Subclass</p>
+    </div>
+  </div>
+
+  <div class="er-example-card">
+    <div class="er-example-header">
+      <div class="er-example-title">🏦 ตัวอย่าง: ระบบบัญชีธนาคาร</div>
+      <div class="er-example-chips">
+        <span class="chip" style="color:var(--special);border-color:rgba(188,140,255,0.3);">Disjoint</span>
+        <span class="chip" style="color:var(--total);border-color:rgba(57,211,83,0.3);">Total</span>
+      </div>
+    </div>
+    <div class="er-canvas">
+      <svg width="620" height="320" viewBox="0 0 620 320">
+        <!-- Superclass: บัญชี -->
+        <rect x="220" y="20" width="140" height="44" rx="3" fill="none" stroke="#58a6ff" stroke-width="2.5"/>
+        <text x="290" y="42" text-anchor="middle" dominant-baseline="middle" fill="#58a6ff" font-family="JetBrains Mono" font-size="14" font-weight="600">บัญชี</text>
+
+        <!-- Superclass attributes -->
+        <line x1="290" y1="20" x2="220" y2="0" stroke="#484f58" stroke-width="1.5"/>
+        <ellipse cx="185" cy="0" rx="40" ry="12" fill="none" stroke="#e3b341" stroke-width="2"/>
+        <text x="185" y="0" text-anchor="middle" dominant-baseline="middle" fill="#e3b341" font-family="JetBrains Mono" font-size="10" text-decoration="underline" font-weight="700">acc_id</text>
+
+        <line x1="360" y1="20" x2="395" y2="2" stroke="#484f58" stroke-width="1.5"/>
+        <ellipse cx="420" cy="-2" rx="34" ry="12" fill="none" stroke="#3fb950" stroke-width="2"/>
+        <text x="420" y="-2" text-anchor="middle" dominant-baseline="middle" fill="#3fb950" font-family="JetBrains Mono" font-size="10">ยอดเงิน</text>
+
+        <!-- Line down to circle -->
+        <line x1="290" y1="64" x2="290" y2="110" stroke="#bc8cff" stroke-width="2"/>
+
+        <!-- Specialization circle with 'd' (Disjoint) -->
+        <circle cx="290" cy="130" r="24" fill="none" stroke="#bc8cff" stroke-width="2.5"/>
+        <text x="290" y="130" text-anchor="middle" dominant-baseline="middle" fill="#bc8cff" font-size="18" font-weight="800" font-family="JetBrains Mono">d</text>
+
+        <!-- Double line (Total) -->
+        <line x1="290" y1="106" x2="290" y2="86" stroke="#39d353" stroke-width="2.5"/>
+        <line x1="294" y1="106" x2="294" y2="86" stroke="#39d353" stroke-width="2.5"/>
+        <text x="302" y="100" fill="#39d353" font-size="10" font-family="Sarabun">Total</text>
+
+        <!-- Lines to subclasses -->
+        <line x1="270" y1="152" x2="100" y2="220" stroke="#bc8cff" stroke-width="1.5"/>
+        <line x1="290" y1="154" x2="290" y2="220" stroke="#bc8cff" stroke-width="1.5"/>
+        <line x1="310" y1="152" x2="480" y2="220" stroke="#bc8cff" stroke-width="1.5"/>
+
+        <!-- Subclass 1: บัญชีออมทรัพย์ -->
+        <rect x="20" y="220" width="160" height="44" rx="3" fill="none" stroke="#bc8cff" stroke-width="2.5"/>
+        <text x="100" y="242" text-anchor="middle" dominant-baseline="middle" fill="#bc8cff" font-family="JetBrains Mono" font-size="12" font-weight="600">บัญชีออมทรัพย์</text>
+        <!-- specific attr -->
+        <line x1="100" y1="264" x2="70" y2="295" stroke="#484f58" stroke-width="1.5"/>
+        <ellipse cx="55" cy="306" rx="40" ry="12" fill="none" stroke="#3fb950" stroke-width="1.5"/>
+        <text x="55" y="306" text-anchor="middle" dominant-baseline="middle" fill="#3fb950" font-family="JetBrains Mono" font-size="10">อัตราดอกเบี้ย</text>
+
+        <!-- Subclass 2: บัญชีกระแสรายวัน -->
+        <rect x="210" y="220" width="160" height="44" rx="3" fill="none" stroke="#bc8cff" stroke-width="2.5"/>
+        <text x="290" y="242" text-anchor="middle" dominant-baseline="middle" fill="#bc8cff" font-family="JetBrains Mono" font-size="11" font-weight="600">กระแสรายวัน</text>
+        <!-- specific attr -->
+        <line x1="290" y1="264" x2="290" y2="294" stroke="#484f58" stroke-width="1.5"/>
+        <ellipse cx="290" cy="306" rx="44" ry="12" fill="none" stroke="#3fb950" stroke-width="1.5"/>
+        <text x="290" y="306" text-anchor="middle" dominant-baseline="middle" fill="#3fb950" font-family="JetBrains Mono" font-size="10">วงเงินเบิกเกิน</text>
+
+        <!-- Subclass 3: บัญชีเงินฝากประจำ -->
+        <rect x="400" y="220" width="180" height="44" rx="3" fill="none" stroke="#bc8cff" stroke-width="2.5"/>
+        <text x="490" y="242" text-anchor="middle" dominant-baseline="middle" fill="#bc8cff" font-family="JetBrains Mono" font-size="11" font-weight="600">เงินฝากประจำ</text>
+        <!-- specific attr -->
+        <line x1="490" y1="264" x2="520" y2="294" stroke="#484f58" stroke-width="1.5"/>
+        <ellipse cx="538" cy="306" rx="48" ry="12" fill="none" stroke="#3fb950" stroke-width="1.5"/>
+        <text x="538" y="306" text-anchor="middle" dominant-baseline="middle" fill="#3fb950" font-family="JetBrains Mono" font-size="10">ระยะเวลาฝาก</text>
+
+        <!-- Legend -->
+        <text x="10" y="190" fill="#7d8590" font-size="11" font-family="Sarabun">⟵ Is-a</text>
+      </svg>
+    </div>
+    <div class="er-explain">
+      <div class="er-explain-title">อ่าน Specialization อย่างไร?</div>
+      <div class="er-rules">
+        <div class="er-rule">วงกลม "d" = Disjoint บัญชี 1 บัญชีเป็นได้แค่ประเภทเดียว</div>
+        <div class="er-rule">วงกลม "o" = Overlapping เป็นได้หลายประเภทพร้อมกัน</div>
+        <div class="er-rule">เส้นคู่จาก Superclass → วงกลม = Total Specialization (ต้องจัดอยู่ใน Subclass)</div>
+        <div class="er-rule">เส้นเดี่ยว = Partial Specialization (บางตัวอาจไม่อยู่ใน Subclass)</div>
+        <div class="er-rule">Subclass รับ Attribute ทุกตัวจาก Superclass + มี Attribute เฉพาะของตัวเอง</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick comparison d vs o -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:28px;">
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;text-align:center;">
+      <svg width="50" height="50" viewBox="0 0 50 50"><circle cx="25" cy="25" r="22" fill="none" stroke="#bc8cff" stroke-width="2.5"/><text x="25" y="25" text-anchor="middle" dominant-baseline="middle" fill="#bc8cff" font-size="22" font-weight="800" font-family="JetBrains Mono">d</text></svg>
+      <div style="font-size:15px;font-weight:700;color:var(--special);margin-top:8px;">Disjoint (d)</div>
+      <div style="font-size:13px;color:var(--muted);margin-top:6px;line-height:1.6;">เป็นได้แค่ Subclass เดียว<br><em style="color:var(--dim);">บัญชีออมทรัพย์ ≠ กระแสรายวัน</em></div>
+    </div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;text-align:center;">
+      <svg width="50" height="50" viewBox="0 0 50 50"><circle cx="25" cy="25" r="22" fill="none" stroke="#bc8cff" stroke-width="2.5"/><text x="25" y="25" text-anchor="middle" dominant-baseline="middle" fill="#bc8cff" font-size="22" font-weight="800" font-family="JetBrains Mono">o</text></svg>
+      <div style="font-size:15px;font-weight:700;color:var(--special);margin-top:8px;">Overlapping (o)</div>
+      <div style="font-size:13px;color:var(--muted);margin-top:6px;line-height:1.6;">เป็นได้หลาย Subclass พร้อมกัน<br><em style="color:var(--dim);">คนเดียวเป็นทั้งอาจารย์และนักศึกษา</em></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- SECTION 7: FULL EXAMPLES -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="section" id="examples">
+  <div class="section-heading">
+    <div class="section-icon" style="background:rgba(88,166,255,0.12); border:1px solid rgba(88,166,255,0.25);">🗺️</div>
+    <div>
+      <h2>ตัวอย่าง ER-Diagram เต็มระบบ</h2>
+      <p>ระบบงานจริงที่ใช้สัญลักษณ์ครบทุกประเภท</p>
+    </div>
+  </div>
+
+  <!-- Complete ER: HR System -->
+  <div class="er-example-card" style="margin-bottom:28px;">
+    <div class="er-example-header">
+      <div class="er-example-title">🏢 ระบบ HR — พนักงาน + แผนก + โครงการ</div>
+      <div class="er-example-chips">
+        <span class="chip" style="color:var(--entity);border-color:rgba(88,166,255,0.3);">Strong Entity</span>
+        <span class="chip" style="color:var(--weak-e);border-color:rgba(210,168,255,0.3);">Weak Entity</span>
+        <span class="chip" style="color:var(--total);border-color:rgba(57,211,83,0.3);">Total Part.</span>
+        <span class="chip" style="color:var(--partial);border-color:rgba(255,166,87,0.3);">Partial Part.</span>
+        <span class="chip" style="color:var(--rel);border-color:rgba(247,129,102,0.3);">M:N Rel.</span>
+      </div>
+    </div>
+    <div class="er-canvas" style="overflow-x:auto;">
+      <svg width="820" height="380" viewBox="0 0 820 380" style="min-width:700px;">
+
+        <!-- ── ENTITY: แผนก ── -->
+        <rect x="20" y="150" width="110" height="40" rx="3" fill="none" stroke="#58a6ff" stroke-width="2.5"/>
+        <text x="75" y="170" text-anchor="middle" dominant-baseline="middle" fill="#58a6ff" font-family="JetBrains Mono" font-size="13" font-weight="600">แผนก</text>
+        <!-- dept_id -->
+        <line x1="75" y1="150" x2="55" y2="110" stroke="#484f58" stroke-width="1.5"/>
+        <ellipse cx="40" cy="99" rx="32" ry="13" fill="none" stroke="#e3b341" stroke-width="2"/>
+        <text x="40" y="99" text-anchor="middle" dominant-baseline="middle" fill="#e3b341" font-family="JetBrains Mono" font-size="10" text-decoration="underline" font-weight="700">dept_id</text>
+        <!-- ชื่อแผนก -->
+        <line x1="75" y1="150" x2="95" y2="110" stroke="#484f58" stroke-width="1.5"/>
+        <ellipse cx="110" cy="99" rx="36" ry="13" fill="none" stroke="#3fb950" stroke-width="2"/>
+        <text x="110" y="99" text-anchor="middle" dominant-baseline="middle" fill="#3fb950" font-family="JetBrains Mono" font-size="10">ชื่อแผนก</text>
+
+        <!-- ── REL: สังกัด (1:N, Total Employee, Total Dept) ── -->
+        <line x1="130" y1="170" x2="185" y2="170" stroke="#39d353" stroke-width="2.5"/>
+        <line x1="130" y1="174" x2="185" y2="174" stroke="#39d353" stroke-width="2.5"/>
+        <text x="150" y="164" fill="#7d8590" font-family="JetBrains Mono" font-size="11">1</text>
+        <polygon points="230,150 274,170 230,190 186,170" fill="none" stroke="#f78166" stroke-width="2"/>
+        <text x="230" y="170" text-anchor="middle" dominant-baseline="middle" fill="#f78166" font-family="JetBrains Mono" font-size="10">สังกัด</text>
+        <line x1="274" y1="170" x2="319" y2="170" stroke="#39d353" stroke-width="2.5"/>
+        <line x1="274" y1="174" x2="319" y2="174" stroke="#39d353" stroke-width="2.5"/>
+        <text x="288" y="164" fill="#7d8590" font-family="JetBrains Mono" font-size="11">N</text>
+
+        <!-- ── ENTITY: พนักงาน ── -->
+        <rect x="320" y="150" width="120" height="40" rx="3" fill="none" stroke="#58a6ff" stroke-width="2.5"/>
+        <text x="380" y="170" text-anchor="middle" dominant-baseline="middle" fill="#58a6ff" font-family="JetBrains Mono" font-size="13" font-weight="600">พนักงาน</text>
+        <!-- emp_id (Key) -->
+        <line x1="345" y1="150" x2="320" y2="110" stroke="#484f58" stroke-width="1.5"/>
+        <ellipse cx="302" cy="99" rx="32" ry="13" fill="none" stroke="#e3b341" stroke-width="2"/>
+        <text x="302" y="99" text-anchor="middle" dominant-baseline="middle" fill="#e3b341" font-family="JetBrains Mono" font-size="10" text-decoration="underline" font-weight="700">emp_id</text>
+        <!-- ชื่อ -->
+        <line x1="380" y1="150" x2="360" y2="110" stroke="#484f58" stroke-width="1.5"/>
+        <ellipse cx="348" cy="98" rx="26" ry="13" fill="none" stroke="#3fb950" stroke-width="2"/>
+        <text x="348" y="98" text-anchor="middle" dominant-baseline="middle" fill="#3fb950" font-family="JetBrains Mono" font-size="10">ชื่อ</text>
+        <!-- เงินเดือน -->
+        <line x1="415" y1="150" x2="435" y2="110" stroke="#484f58" stroke-width="1.5"/>
+        <ellipse cx="455" cy="99" rx="38" ry="13" fill="none" stroke="#3fb950" stroke-width="2"/>
+        <text x="455" y="99" text-anchor="middle" dominant-baseline="middle" fill="#3fb950" font-family="JetBrains Mono" font-size="10">เงินเดือน</text>
+        <!-- ที่อยู่ (Multi) -->
+        <line x1="435" y1="150" x2="500" y2="115" stroke="#484f58" stroke-width="1.5"/>
+        <ellipse cx="524" cy="104" rx="34" ry="13" fill="none" stroke="#56d364" stroke-width="2"/>
+        <ellipse cx="524" cy="104" rx="28" ry="9" fill="none" stroke="#56d364" stroke-width="1.5"/>
+        <text x="524" y="104" text-anchor="middle" dominant-baseline="middle" fill="#56d364" font-family="JetBrains Mono" font-size="10">เบอร์โทร</text>
+
+        <!-- ── RECURSIVE: ดูแล (Employee supervises Employee) ── -->
+        <line x1="380" y1="150" x2="380" y2="52" stroke="#ffa657" stroke-width="2"/>
+        <line x1="380" y1="52" x2="592" y2="52" stroke="#ffa657" stroke-width="2"/>
+        <line x1="592" y1="52" x2="592" y2="75" stroke="#ffa657" stroke-width="2"/>
+        <polygon points="592,60 615,75 592,90 569,75" fill="none" stroke="#f78166" stroke-width="2"/>
+        <text x="592" y="75" text-anchor="middle" dominant-baseline="middle" fill="#f78166" font-family="JetBrains Mono" font-size="10">ดูแล</text>
+        <line x1="592" y1="90" x2="592" y2="100" stroke="#ffa657" stroke-width="2"/>
+        <line x1="440" y1="150" x2="592" y2="150" stroke="#ffa657" stroke-width="2"/>
+        <text x="440" y="46" fill="#ffa657" font-family="JetBrains Mono" font-size="10">1 (Supervisor)</text>
+        <text x="520" y="144" fill="#ffa657" font-family="JetBrains Mono" font-size="10">N (Supervisee)</text>
+
+        <!-- ── REL: ทำงานใน (M:N, Partial) ── -->
+        <line x1="380" y1="190" x2="380" y2="258" stroke="#ffa657" stroke-width="2.5"/>
+        <text x="388" y="245" fill="#7d8590" font-family="JetBrains Mono" font-size="11">M</text>
+        <polygon points="380,275 430,300 380,325 330,300" fill="none" stroke="#f78166" stroke-width="2"/>
+        <text x="380" y="300" text-anchor="middle" dominant-baseline="middle" fill="#f78166" font-family="JetBrains Mono" font-size="10">ทำงานใน</text>
+        <!-- Rel attr: hours -->
+        <line x1="430" y1="300" x2="490" y2="300" stroke="#484f58" stroke-width="1.5"/>
+        <ellipse cx="528" cy="300" rx="40" ry="13" fill="none" stroke="#79c0ff" stroke-width="2"/>
+        <text x="528" y="300" text-anchor="middle" dominant-baseline="middle" fill="#79c0ff" font-family="JetBrains Mono" font-size="10">ชม./สัปดาห์</text>
+        <line x1="380" y1="325" x2="380" y2="355" stroke="#ffa657" stroke-width="2.5"/>
+        <text x="388" y="352" fill="#7d8590" font-family="JetBrains Mono" font-size="11">N</text>
+
+        <!-- ── ENTITY: โครงการ ── -->
+        <rect x="320" y="355" width="120" height="40" rx="3" fill="none" stroke="#58a6ff" stroke-width="2.5"/>
+        <text x="380" y="375" text-anchor="middle" dominant-baseline="middle" fill="#58a6ff" font-family="JetBrains Mono" font-size="13" font-weight="600">โครงการ</text>
+        <!-- proj_id -->
+        <line x1="345" y1="395" x2="320" y2="415" stroke="#484f58" stroke-width="1.5"/>
+        <ellipse cx="302" cy="423" rx="32" ry="13" fill="none" stroke="#e3b341" stroke-width="2"/>
+        <text x="302" y="423" text-anchor="middle" dominant-baseline="middle" fill="#e3b341" font-family="JetBrains Mono" font-size="10" text-decoration="underline" font-weight="700">proj_id</text>
+        <line x1="415" y1="395" x2="435" y2="415" stroke="#484f58" stroke-width="1.5"/>
+        <ellipse cx="455" cy="423" rx="38" ry="13" fill="none" stroke="#3fb950" stroke-width="2"/>
+        <text x="455" y="423" text-anchor="middle" dominant-baseline="middle" fill="#3fb950" font-family="JetBrains Mono" font-size="10">ชื่อโครงการ</text>
+
+        <!-- ── WEAK ENTITY: ผู้ติดตาม ── -->
+        <line x1="320" y1="170" x2="200" y2="260" stroke="#7d8590" stroke-width="2"/>
+        <line x1="320" y1="174" x2="200" y2="264" stroke="#7d8590" stroke-width="2"/>
+        <text x="240" y="226" fill="#7d8590" font-family="JetBrains Mono" font-size="11">1</text>
+        <polygon points="155,265 200,285 155,305 110,285" fill="none" stroke="#ffa657" stroke-width="2.5"/>
+        <polygon points="155,271 193,285 155,299 117,285" fill="none" stroke="#ffa657" stroke-width="1.5"/>
+        <text x="155" y="285" text-anchor="middle" dominant-baseline="middle" fill="#ffa657" font-family="JetBrains Mono" font-size="9" font-weight="700">มีผู้ติดตาม</text>
+        <line x1="110" y1="285" x2="65" y2="285" stroke="#7d8590" stroke-width="2"/>
+        <line x1="110" y1="289" x2="65" y2="289" stroke="#7d8590" stroke-width="2"/>
+        <text x="80" y="278" fill="#7d8590" font-family="JetBrains Mono" font-size="11">N</text>
+        <!-- Weak Entity box -->
+        <rect x="6" y="266" width="110" height="40" rx="3" fill="none" stroke="#d2a8ff" stroke-width="2.5"/>
+        <rect x="11" y="271" width="100" height="30" rx="2" fill="none" stroke="#d2a8ff" stroke-width="1.5"/>
+        <text x="61" y="286" text-anchor="middle" dominant-baseline="middle" fill="#d2a8ff" font-family="JetBrains Mono" font-size="12" font-weight="600">ผู้ติดตาม</text>
+        <!-- Partial key ชื่อ -->
+        <line x1="61" y1="306" x2="61" y2="330" stroke="#484f58" stroke-width="1.5"/>
+        <ellipse cx="61" cy="342" rx="26" ry="13" fill="none" stroke="#ff7b72" stroke-width="2"/>
+        <text x="61" y="340" text-anchor="middle" dominant-baseline="middle" fill="#ff7b72" font-family="JetBrains Mono" font-size="10">ชื่อ</text>
+        <line x1="38" y1="347" x2="84" y2="347" stroke="#ff7b72" stroke-width="1.5" stroke-dasharray="3 2"/>
+      </svg>
+    </div>
+    <div class="er-explain">
+      <div class="er-explain-title">✦ สัญลักษณ์ที่ใช้ในแผนภาพนี้</div>
+      <div class="er-rules">
+        <div class="er-rule">เส้นคู่ (Total) ระหว่างพนักงานกับแผนก = พนักงานทุกคนต้องสังกัดแผนก</div>
+        <div class="er-rule">เส้นเดี่ยว (Partial) ระหว่างพนักงานกับโครงการ = บางคนอาจไม่ทำโครงการ</div>
+        <div class="er-rule">วงรีซ้อน "เบอร์โทร" = Multi-valued Attribute มีได้หลายเบอร์</div>
+        <div class="er-rule">เพชรคู่ + กล่องคู่ = Weak Entity "ผู้ติดตาม" กับ Identifying Relationship</div>
+        <div class="er-rule">วงรีเส้นประ (Derived) บน Relationship = Attribute ของ Relationship "ชม./สัปดาห์"</div>
+        <div class="er-rule">เส้นวนกลับ (Recursive) = พนักงานดูแลพนักงาน Role: Supervisor:Supervisee</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- SECTION 8: HOW TO DRAW -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="section" id="howto">
+  <div class="section-heading">
+    <div class="section-icon" style="background:rgba(57,211,83,0.12); border:1px solid rgba(57,211,83,0.25);">✏️</div>
+    <div>
+      <h2>วิธีวาด ER-Diagram (Step by Step)</h2>
+      <p>กระบวนการวาดที่ถูกต้องตั้งแต่เริ่มต้น</p>
+    </div>
+  </div>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <div class="step-title">อ่านโจทย์และขีดเส้นใต้ "คำนาม"</div>
+        <div class="step-desc">คำนามในโจทย์มักเป็น Entity ที่ต้องวาด เช่น "พนักงาน", "แผนก", "โครงการ" ขีดเส้นใต้ไว้ก่อน</div>
+        <div class="step-tip"><strong>เทคนิค:</strong> คำนามที่เก็บข้อมูลได้หลายรายการ = Entity / คำนามที่เป็นแค่ค่าเดียว = Attribute</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <div class="step-title">ระบุ Attribute ของแต่ละ Entity</div>
+        <div class="step-desc">หาคุณสมบัติที่ต้องเก็บของแต่ละ Entity แล้วจัดประเภท: Simple, Key, Multi-valued, Derived, Composite</div>
+        <div class="step-tip"><strong>ต้องมีเสมอ:</strong> Key Attribute อย่างน้อย 1 ตัวต่อ 1 Strong Entity</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <div class="step-title">ระบุ Relationship และตั้งชื่อ</div>
+        <div class="step-desc">หาว่า Entity คู่ไหนมีความสัมพันธ์กัน ตั้งชื่อ Relationship เป็นกริยา เช่น "สังกัด", "ลงทะเบียน", "จัดการ"</div>
+        <div class="step-tip"><strong>ถามว่า:</strong> "Entity A _____ Entity B" ช่องว่างคือชื่อ Relationship</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <div class="step-title">กำหนด Cardinality (1:1, 1:N, M:N)</div>
+        <div class="step-desc">ถามทั้ง 2 ทิศ: "A 1 ตัว ไปกับ B กี่ตัว?" และ "B 1 ตัว ไปกับ A กี่ตัว?" เขียนตัวเลขบนเส้น</div>
+        <div class="step-tip"><strong>จำง่าย:</strong> ตัวเลขเขียนใกล้ Entity ที่ตัวเลขนั้นชี้ถึง</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-body">
+        <div class="step-title">กำหนด Participation (Total / Partial)</div>
+        <div class="step-desc">ถามว่า "Entity ทุกตัวต้องมีความสัมพันธ์ไหม?" ถ้าใช่ = Total (เส้นคู่) ถ้าไม่ = Partial (เส้นเดี่ยว)</div>
+        <div class="step-tip"><strong>คำชี้บอก:</strong> "ทุก...", "ต้องมี..." = Total &nbsp;|&nbsp; "บางส่วน...", "อาจจะ..." = Partial</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">6</div>
+      <div class="step-body">
+        <div class="step-title">ตรวจสอบ Weak Entity และ Specialization</div>
+        <div class="step-desc">มี Entity ใดที่ไม่มี PK อิสระไหม? (= Weak Entity) มี Entity ที่แบ่งประเภทย่อยได้ไหม? (= Specialization)</div>
+        <div class="step-tip"><strong>Weak Entity:</strong> ถ้า Entity นั้นหายไปเมื่อ Strong Entity ถูกลบ = Weak Entity</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">7</div>
+      <div class="step-body">
+        <div class="step-title">วาดและจัดวางให้ชัดเจน</div>
+        <div class="step-desc">วาง Entity ให้ห่างพอ, เส้นไม่ตัดกันมากเกินไป, เขียนตัวเลข Cardinality ให้อ่านชัด, ไม่ลืม Attribute</div>
+        <div class="step-tip"><strong>เรียงลำดับ:</strong> Entity หลักตรงกลาง, Entity ที่เชื่อมกันมากวางใกล้กัน</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tips -->
+  <div style="font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-bottom:16px;">⚡ เทคนิคและข้อผิดพลาดที่พบบ่อย</div>
+  <div class="tip-grid">
+    <div class="tip-card" style="border-color:rgba(247,129,102,0.3);">
+      <div class="tip-icon">🚫</div>
+      <div class="tip-title" style="color:#f78166;">อย่าทำ</div>
+      <div class="tip-text">ลืมระบุ Cardinality บนเส้น — ทำให้ไม่รู้ว่าความสัมพันธ์เป็นแบบไหน</div>
+    </div>
+    <div class="tip-card" style="border-color:rgba(247,129,102,0.3);">
+      <div class="tip-icon">🚫</div>
+      <div class="tip-title" style="color:#f78166;">อย่าทำ</div>
+      <div class="tip-text">ลืม Participation Constraint — เส้นเดี่ยวกับเส้นคู่มีความหมายต่างกันมาก</div>
+    </div>
+    <div class="tip-card" style="border-color:rgba(57,211,83,0.3);">
+      <div class="tip-icon">✅</div>
+      <div class="tip-title" style="color:#39d353;">ทำถูก</div>
+      <div class="tip-text">M:N ทุกคู่ต้องสร้าง Junction/Associative Table เมื่อแปลงเป็น Relational Schema</div>
+    </div>
+    <div class="tip-card" style="border-color:rgba(57,211,83,0.3);">
+      <div class="tip-icon">✅</div>
+      <div class="tip-title" style="color:#39d353;">ทำถูก</div>
+      <div class="tip-text">Weak Entity มี Participation แบบ Total เสมอ (ต้องมี Strong Entity ที่เป็นเจ้าของ)</div>
+    </div>
+    <div class="tip-card" style="border-color:rgba(88,166,255,0.3);">
+      <div class="tip-icon">💡</div>
+      <div class="tip-title" style="color:var(--entity);">เคล็ดลับ</div>
+      <div class="tip-text">Relationship Attribute วาดวงรีต่อออกจาก Relationship Diamond ไม่ใช่ต่อจาก Entity</div>
+    </div>
+    <div class="tip-card" style="border-color:rgba(88,166,255,0.3);">
+      <div class="tip-icon">💡</div>
+      <div class="tip-title" style="color:var(--entity);">เคล็ดลับ</div>
+      <div class="tip-text">ตัวเลข Cardinality เขียนใกล้ Entity ไม่ใช่ใกล้ Diamond — สังเกตตำแหน่งให้ดี</div>
+    </div>
+  </div>
+
+  <!-- Summary symbol quick-ref -->
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-top:32px;">
+    <div style="background:var(--surface);padding:14px 20px;border-bottom:1px solid var(--border);font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-family:'JetBrains Mono',monospace;">
+      📋 ตารางสรุปสัญลักษณ์ทั้งหมด
+    </div>
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:13.5px;">
+        <thead>
+          <tr style="background:rgba(255,255,255,0.03);">
+            <th style="padding:11px 16px;text-align:left;color:var(--muted);font-size:11px;font-family:'JetBrains Mono',monospace;letter-spacing:1px;border-bottom:1px solid var(--border2);">รูปร่าง</th>
+            <th style="padding:11px 16px;text-align:left;color:var(--muted);font-size:11px;font-family:'JetBrains Mono',monospace;letter-spacing:1px;border-bottom:1px solid var(--border2);">ชื่อ</th>
+            <th style="padding:11px 16px;text-align:left;color:var(--muted);font-size:11px;font-family:'JetBrains Mono',monospace;letter-spacing:1px;border-bottom:1px solid var(--border2);">ความหมาย</th>
+            <th style="padding:11px 16px;text-align:left;color:var(--muted);font-size:11px;font-family:'JetBrains Mono',monospace;letter-spacing:1px;border-bottom:1px solid var(--border2);">ตัวอย่าง</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td style="padding:10px 16px;border-bottom:1px solid var(--border2);"><svg width="60" height="28"><rect x="2" y="4" width="56" height="20" rx="2" fill="none" stroke="#58a6ff" stroke-width="2"/></svg></td><td style="padding:10px 16px;border-bottom:1px solid var(--border2);"><strong style="color:#58a6ff;">Strong Entity</strong></td><td style="padding:10px 16px;border-bottom:1px solid var(--border2);color:var(--muted);">สี่เหลี่ยมเส้นเดี่ยว</td><td style="padding:10px 16px;border-bottom:1px solid var(--border2);color:var(--muted);">พนักงาน, สินค้า</td></tr>
+          <tr><td style="padding:10px 16px;border-bottom:1px solid var(--border2);"><svg width="60" height="28"><rect x="2" y="3" width="56" height="22" rx="2" fill="none" stroke="#d2a8ff" stroke-width="2.5"/><rect x="6" y="7" width="48" height="14" rx="1.5" fill="none" stroke="#d2a8ff" stroke-width="1.5"/></svg></td><td style="padding:10px 16px;border-bottom:1px solid var(--border2);"><strong style="color:#d2a8ff;">Weak Entity</strong></td><td style="padding:10px 16px;border-bottom:1px solid var(--border2);color:var(--muted);">สี่เหลี่ยมเส้นคู่</td><td style="padding:10px 16px;border-bottom:1px solid var(--border2);color:var(--muted);">ผู้ติดตาม, รายการ</td></tr>
+          <tr><td style="padding:10px 16px;border-bottom:1px solid var(--border2);"><svg width="60" height="28"><ellipse cx="30" cy="14" rx="27" ry="11" fill="none" stroke="#3fb950" stroke-width="2"/></svg></td><td style="padding:10px 16px;border-bottom:1px solid var(--border2);"><strong style="color:#3fb950;">Attribute</strong></td><td style="padding:10px 16px;border-bottom:1px solid var(--border2);color:var(--muted);">วงรีเส้นเดี่ยว</td><td style="padding:10px 16px;border-bottom:1px solid var(--border2);color:var(--muted);">ชื่อ, อายุ</td></tr>
+          <tr><td style="padding:10px 16px;border-bottom:1px solid var(--border2);"><svg width="60" height="28"><ellipse cx="30" cy="14" rx="27" ry="11" fill="none" stroke="#e3b341" stroke-width="2"/><text x="30" y="14" text-anchor="middle" dominant-baseline="middle" fill="#e3b341" font-size="9" text-decoration="underline" font-weight="700">id</text></svg></td><td style="padding:10px 16px;border-bottom:1px solid var(--border2);"><strong style="color:#e3b341;">Key Attribute</strong></td><td style="padding:10px 16px;border-bottom:1px solid var(--border2);color:var(--muted);">วงรี + ขีดเส้นใต้</td><td style="padding:10px 16px;border-bottom:1px solid var(--border2);color:var(--muted);">emp_id, student_id</td></tr>
+          <tr><td style="padding:10px 16px;border-bottom:1px solid var(--border2);"><svg width="60" height="28"><ellipse cx="30" cy="14" rx="27" ry="11" fill="none" stroke="#ff7b72" stroke-width="2"/><line x1="5" y1="20" x2="55" y2="20" stroke="#ff7b72" stroke-width="1.5" stroke-dasharray="3 2"/></svg></td><td style="padding:10px 16px;border-bottom:1px solid var(--border2);"><strong style="color:#ff7b72;">Partial Key</strong></td><td style="padding:10px 16px;border-bottom:1px solid var(--border2);color:var(--muted);">วงรี + เส้นประใต้</td><td style="padding:10px 16px;border-bottom:1px solid var(--border2);color:var(--muted);">เลขห้อง (ของอาคาร)</td></tr>
+          <tr><td style="padding:10px 16px;border-bottom:1px solid var(--border2);"><svg width="60" height="28"><ellipse cx="30" cy="14" rx="27" ry="11" fill="none" stroke="#79c0ff" stroke-width="2" stroke-dasharray="5 3"/></svg></td><td style="padding:10px 16px;border-bottom:1px solid var(--border2);"><strong style="color:#79c0ff;">Derived Attr.</strong></td><td style="padding:10px 16px;border-bottom:1px solid var(--border2);color:var(--muted);">วงรีเส้นประ</td><td style="padding:10px 16px;border-bottom:1px solid var(--border2);color:var(--muted);">อายุ, ราคารวม</td></tr>
+          <tr><td style="padding:10px 16px;border-bottom:1px solid var(--border2);"><svg width="60" height="28"><ellipse cx="30" cy="14" rx="27" ry="11" fill="none" stroke="#56d364" stroke-width="2"/><ellipse cx="30" cy="14" rx="21" ry="8" fill="none" stroke="#56d364" stroke-width="1.5"/></svg></td><td style="padding:10px 16px;border-bottom:1px solid var(--border2);"><strong style="color:#56d364;">Multi-valued</strong></td><td style="padding:10px 16px;border-bottom:1px solid var(--border2);color:var(--muted);">วงรีซ้อน 2 ชั้น</td><td style="padding:10px 16px;border-bottom:1px solid var(--border2);color:var(--muted);">เบอร์โทร, ทักษะ</td></tr>
+          <tr><td style="padding:10px 16px;border-bottom:1px solid var(--border2);"><svg width="60" height="28"><polygon points="30,3 56,14 30,25 4,14" fill="none" stroke="#f78166" stroke-width="2"/></svg></td><td style="padding:10px 16px;border-bottom:1px solid var(--border2);"><strong style="color:#f78166;">Relationship</strong></td><td style="padding:10px 16px;border-bottom:1px solid var(--border2);color:var(--muted);">รูปเพชรเส้นเดี่ยว</td><td style="padding:10px 16px;border-bottom:1px solid var(--border2);color:var(--muted);">สังกัด, ลงทะเบียน</td></tr>
+          <tr><td style="padding:10px 16px;border-bottom:1px solid var(--border2);"><svg width="60" height="28"><polygon points="30,2 58,14 30,26 2,14" fill="none" stroke="#ffa657" stroke-width="2.5"/><polygon points="30,7 52,14 30,21 8,14" fill="none" stroke="#ffa657" stroke-width="1.5"/></svg></td><td style="padding:10px 16px;border-bottom:1px solid var(--border2);"><strong style="color:#ffa657;">Identifying Rel.</strong></td><td style="padding:10px 16px;border-bottom:1px solid var(--border2);color:var(--muted);">รูปเพชรเส้นคู่</td><td style="padding:10px 16px;border-bottom:1px solid var(--border2);color:var(--muted);">เป็นของ (Weak)</td></tr>
+          <tr><td style="padding:10px 16px;border-bottom:1px solid var(--border2);"><svg width="60" height="16"><line x1="0" y1="5" x2="60" y2="5" stroke="#39d353" stroke-width="2.5"/><line x1="0" y1="11" x2="60" y2="11" stroke="#39d353" stroke-width="2.5"/></svg></td><td style="padding:10px 16px;border-bottom:1px solid var(--border2);"><strong style="color:#39d353;">Total Part.</strong></td><td style="padding:10px 16px;border-bottom:1px solid var(--border2);color:var(--muted);">เส้นคู่</td><td style="padding:10px 16px;border-bottom:1px solid var(--border2);color:var(--muted);">ทุกคนต้องมีความสัมพันธ์</td></tr>
+          <tr><td style="padding:10px 16px;"><svg width="60" height="16"><line x1="0" y1="8" x2="60" y2="8" stroke="#ffa657" stroke-width="2.5"/></svg></td><td style="padding:10px 16px;"><strong style="color:#ffa657;">Partial Part.</strong></td><td style="padding:10px 16px;color:var(--muted);">เส้นเดี่ยว</td><td style="padding:10px 16px;color:var(--muted);">บางตัวอาจไม่มีความสัมพันธ์</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+</div><!-- wrap -->
+
+<script>
+// Progress bar
+window.addEventListener('scroll', () => {
+  const h = document.body.scrollHeight - window.innerHeight;
+  document.getElementById('prog').style.width = (window.scrollY / h * 100) + '%';
+});
+
+// Active nav
+const sections = document.querySelectorAll('.section');
+const navItems = document.querySelectorAll('.nav-item');
+window.addEventListener('scroll', () => {
+  let cur = '';
+  sections.forEach(s => {
+    if (window.scrollY >= s.offsetTop - 100) cur = s.id;
+  });
+  navItems.forEach(n => {
+    n.classList.toggle('active', n.getAttribute('href') === '#' + cur);
+  });
+});
+</script>
+</body>
+</html>

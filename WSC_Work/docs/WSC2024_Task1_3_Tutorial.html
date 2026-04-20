@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WSC2024 | Task 1.3 — Sales Trend Analysis</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&family=JetBrains+Mono:wght@400;600&family=Prompt:wght@300;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080b11;--bg2:#0d1118;--card:#111826;--border:#1c2638;
+  --blue:#60a5fa;--teal:#2dd4bf;--green:#4ade80;--yellow:#fbbf24;
+  --orange:#fb923c;--pink:#f472b6;--red:#f87171;--purple:#a78bfa;
+  --cyan:#22d3ee;
+  --text:#dde5f4;--muted:#4e6080;--dim:#7a90b0;--code:#060910;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);line-height:1.75;font-size:15px;}
+
+/* ── HERO ── */
+.hero{
+  padding:60px 24px 52px;text-align:center;
+  background:linear-gradient(170deg,#080b11 0%,#0c1422 55%,#080b11 100%);
+  border-bottom:1px solid var(--border);position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 65% 45% at 50% -5%,rgba(96,165,250,.12),transparent 65%);
+}
+.eyebrow{
+  font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.13em;
+  color:var(--orange);background:rgba(251,146,60,.08);border:1px solid rgba(251,146,60,.22);
+  padding:4px 16px;border-radius:20px;display:inline-block;margin-bottom:20px;
+}
+.hero h1{
+  font-family:'Prompt',sans-serif;font-weight:900;
+  font-size:clamp(28px,5vw,52px);line-height:1.1;
+  background:linear-gradient(120deg,#dde5f4 15%,#fb923c 55%,#fbbf24 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  margin-bottom:14px;
+}
+.hero-desc{color:var(--muted);font-size:17px;max-width:560px;margin:0 auto 32px;}
+.badge-row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;}
+.badge{
+  display:flex;align-items:center;gap:8px;
+  background:var(--card);border:1px solid var(--border);
+  padding:7px 18px;border-radius:8px;font-size:13px;color:var(--dim);
+}
+.badge-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+
+/* ── LAYOUT ── */
+.wrap{max-width:940px;margin:0 auto;padding:0 22px;}
+
+/* ── STICKY NAV ── */
+.sticky-nav{
+  position:sticky;top:0;z-index:60;
+  background:rgba(8,11,17,.95);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  padding:10px 22px;display:flex;flex-wrap:wrap;gap:8px;
+}
+.snav-pill{
+  font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;
+  padding:4px 13px;border-radius:16px;text-decoration:none;
+  background:var(--card);border:1px solid var(--border);color:var(--muted);
+  transition:all .18s;
+}
+.snav-pill:hover,.snav-pill.on{background:var(--orange);color:#080b11;border-color:var(--orange);}
+
+/* ── SECTION ── */
+.sec{margin:52px 0 20px;}
+.sec-chip{
+  display:inline-flex;align-items:center;gap:7px;
+  font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;
+  letter-spacing:.09em;padding:4px 12px;border-radius:5px;margin-bottom:10px;
+}
+.sc-orange{background:rgba(251,146,60,.12);color:var(--orange);border:1px solid rgba(251,146,60,.22);}
+.sc-blue  {background:rgba(96,165,250,.12); color:var(--blue);  border:1px solid rgba(96,165,250,.22);}
+.sc-teal  {background:rgba(45,212,191,.12); color:var(--teal);  border:1px solid rgba(45,212,191,.22);}
+.sc-green {background:rgba(74,222,128,.12); color:var(--green); border:1px solid rgba(74,222,128,.22);}
+.sc-yellow{background:rgba(251,191,36,.12); color:var(--yellow);border:1px solid rgba(251,191,36,.22);}
+.sc-pink  {background:rgba(244,114,182,.12);color:var(--pink);  border:1px solid rgba(244,114,182,.22);}
+.sc-purple{background:rgba(167,139,250,.12);color:var(--purple);border:1px solid rgba(167,139,250,.22);}
+.sc-cyan  {background:rgba(34,211,238,.12); color:var(--cyan);  border:1px solid rgba(34,211,238,.22);}
+
+.sec h2{font-family:'Prompt',sans-serif;font-weight:700;font-size:20px;color:var(--text);}
+.sec p{color:var(--muted);font-size:14px;margin-top:3px;}
+
+/* ── CARD ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:13px;margin-bottom:18px;overflow:hidden;}
+.card-head{padding:12px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.015);}
+.card-head .ico{font-size:16px;}
+.card-head .ttl{font-weight:700;font-size:14px;}
+.card-body{padding:20px;}
+
+/* ── CODE ── */
+.cw{background:var(--code);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin:13px 0;}
+.cb{display:flex;align-items:center;justify-content:space-between;padding:8px 15px;border-bottom:1px solid #141c28;background:#0a0d14;}
+.cbl{display:flex;align-items:center;gap:9px;}
+.dots{display:flex;gap:5px;}
+.dots span{width:10px;height:10px;border-radius:50%;}
+.dr{background:#ff5f57}.dy{background:#febc2e}.dg{background:#28c840}
+.fn2{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);}
+.cpbtn{background:var(--border);border:none;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:11px;padding:3px 12px;border-radius:5px;cursor:pointer;transition:all .18s;}
+.cpbtn:hover{background:var(--orange);color:#080b11;}
+.cpbtn.ok{background:var(--green);color:#080b11;}
+pre{padding:18px;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.8;color:#abb2bf;tab-size:4;}
+.kw{color:#c678dd;}.fn{color:#61afef;}.st{color:#98c379;}.cm{color:#424d5c;font-style:italic;}.nm{color:#d19a66;}.vr{color:#e5c07b;}.op{color:#56b6c2;}
+
+/* ── INFO BOX ── */
+.ib{border-left:3px solid var(--blue);background:rgba(96,165,250,.06);border-radius:0 8px 8px 0;padding:12px 16px;margin:12px 0;font-size:14px;}
+.ib.green {border-color:var(--green); background:rgba(74,222,128,.06);}
+.ib.yellow{border-color:var(--yellow);background:rgba(251,191,36,.06);}
+.ib.teal  {border-color:var(--teal);  background:rgba(45,212,191,.06);}
+.ib.orange{border-color:var(--orange);background:rgba(251,146,60,.06);}
+.ib.purple{border-color:var(--purple);background:rgba(167,139,250,.06);}
+.ib.cyan  {border-color:var(--cyan);  background:rgba(34,211,238,.06);}
+.ib-t{font-weight:700;font-size:11px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px;color:var(--blue);}
+.ib.green .ib-t{color:var(--green);}.ib.yellow .ib-t{color:var(--yellow);}
+.ib.teal .ib-t{color:var(--teal);}.ib.orange .ib-t{color:var(--orange);}
+.ib.purple .ib-t{color:var(--purple);}.ib.cyan .ib-t{color:var(--cyan);}
+
+/* ── OUTPUT ── */
+.ow{background:#040608;border:1px solid var(--border);border-radius:10px;overflow:hidden;margin:12px 0;}
+.oh{background:#0a0d14;padding:8px 15px;border-bottom:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);display:flex;align-items:center;gap:8px;}
+.odot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:bl 2s infinite;}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.3}}
+.ob2{padding:15px 20px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.85;color:#7a90b0;white-space:pre;overflow-x:auto;}
+.og{color:#3fb950}.oy{color:#e3b341}.ob{color:#79c0ff}.ov{color:#ff7b72}.op2{color:#d2a8ff}
+
+/* ── TABLE ── */
+.tbl{overflow-x:auto;border-radius:10px;border:1px solid var(--border);margin:12px 0;}
+table{width:100%;border-collapse:collapse;font-size:14px;}
+th{background:#0a0d14;padding:10px 16px;text-align:left;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.06em;border-bottom:1px solid var(--border);}
+td{padding:9px 16px;border-bottom:1px solid rgba(28,38,56,.5);vertical-align:top;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(96,165,250,.03);}
+
+/* ── TAG ── */
+.tag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:11px;padding:2px 8px;border-radius:4px;font-weight:600;}
+.t-orange{background:rgba(251,146,60,.15);color:var(--orange);}
+.t-blue  {background:rgba(96,165,250,.15);color:var(--blue);}
+.t-green {background:rgba(74,222,128,.15);color:var(--green);}
+.t-teal  {background:rgba(45,212,191,.15);color:var(--teal);}
+.t-yellow{background:rgba(251,191,36,.15);color:var(--yellow);}
+.t-purple{background:rgba(167,139,250,.15);color:var(--purple);}
+.t-cyan  {background:rgba(34,211,238,.15);color:var(--cyan);}
+
+/* ── FLOW ── */
+.flow{display:flex;flex-direction:column;}
+.fi2{display:flex;gap:14px;}
+.fl{display:flex;flex-direction:column;align-items:center;width:34px;flex-shrink:0;}
+.fnum{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:13px;color:#080b11;background:var(--orange);flex-shrink:0;z-index:1;}
+.fnum.blue{background:var(--blue);}
+.fnum.green{background:var(--green);}
+.fnum.teal{background:var(--teal);}
+.fnum.yellow{background:var(--yellow);}
+.fnum.purple{background:var(--purple);}
+.fline{width:2px;flex:1;background:var(--border);margin:3px 0;min-height:14px;}
+.fi2:last-child .fline{display:none;}
+.fc{padding:3px 0 22px;flex:1;}
+.ft{font-weight:700;font-size:15px;color:var(--text);margin-bottom:4px;}
+.fd{color:var(--muted);font-size:14px;}
+
+/* ── CHART PREVIEW ── */
+.chart-preview{
+  background:linear-gradient(135deg,#0d1520 0%,#111e30 100%);
+  border:1px solid var(--border);border-radius:10px;
+  padding:24px;margin:14px 0;
+  position:relative;overflow:hidden;
+}
+.chart-title-fake{font-weight:700;font-size:13px;color:var(--dim);margin-bottom:16px;}
+.chart-bars{display:flex;align-items:flex-end;gap:6px;height:80px;}
+.cbar{
+  background:linear-gradient(180deg,var(--orange),rgba(251,146,60,.3));
+  border-radius:3px 3px 0 0;flex:1;
+  transition:height .4s ease;
+}
+.chart-line-demo{position:relative;height:70px;margin-top:4px;}
+.chart-line-demo svg{width:100%;height:70px;}
+.x-labels{display:flex;gap:6px;margin-top:6px;}
+.xl{flex:1;text-align:center;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);}
+
+code{background:rgba(96,165,250,.1);color:var(--blue);font-family:'JetBrains Mono',monospace;font-size:12px;padding:2px 6px;border-radius:4px;}
+
+/* ── 2-COL ── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:12px 0;}
+@media(max-width:600px){.two-col{grid-template-columns:1fr;}}
+.col-box{background:var(--code);border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+.col-box-head{padding:8px 14px;border-bottom:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.06em;}
+.col-box-head.orange{color:var(--orange);background:rgba(251,146,60,.07);}
+.col-box-head.green {color:var(--green); background:rgba(74,222,128,.07);}
+.col-box-body{padding:14px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.8;color:#7a90b0;white-space:pre;}
+
+hr{border:none;border-top:1px solid var(--border);margin:40px 0;}
+
+footer{padding:36px 24px;border-top:1px solid var(--border);text-align:center;color:var(--muted);font-size:13px;margin-top:60px;}
+footer strong{color:var(--orange);}
+
+.fi{opacity:0;transform:translateY(12px);animation:fu .42s ease forwards;}
+@keyframes fu{to{opacity:1;transform:translateY(0);}}
+.fi:nth-child(1){animation-delay:.04s}.fi:nth-child(2){animation-delay:.08s}
+.fi:nth-child(3){animation-delay:.12s}.fi:nth-child(4){animation-delay:.16s}
+.fi:nth-child(5){animation-delay:.20s}.fi:nth-child(6){animation-delay:.24s}
+@media(max-width:640px){pre{font-size:11.5px;}.ob2{font-size:11px;}}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="eyebrow">WSC2024 · SESSION 1 · TASK 1.3</div>
+  <h1>Sales Trend Analysis</h1>
+  <p class="hero-desc">คำนวณแนวโน้มการขายรายเดือน วาด Line Chart 3 กราฟ และหา Top 3 เดือนที่ขายดีสุด แล้ว export เป็น PDF</p>
+  <div class="badge-row">
+    <div class="badge"><div class="badge-dot" style="background:var(--orange)"></div>คำนวณ Monthly Metrics</div>
+    <div class="badge"><div class="badge-dot" style="background:var(--blue)"></div>วาด Line Chart ด้วย matplotlib</div>
+    <div class="badge"><div class="badge-dot" style="background:var(--green)"></div>Top 3 ด้วย nlargest()</div>
+    <div class="badge"><div class="badge-dot" style="background:var(--yellow)"></div>Export PDF ด้วย reportlab</div>
+  </div>
+</div>
+
+<!-- NAV -->
+<div class="sticky-nav">
+  <a class="snav-pill" href="#s0">ภาพรวม</a>
+  <a class="snav-pill" href="#s1">ติดตั้ง</a>
+  <a class="snav-pill" href="#s2">โหลดข้อมูล</a>
+  <a class="snav-pill" href="#s3">คำนวณ Monthly</a>
+  <a class="snav-pill" href="#s4">Line Chart</a>
+  <a class="snav-pill" href="#s5">Top 3</a>
+  <a class="snav-pill" href="#s6">Export PDF</a>
+  <a class="snav-pill" href="#s7">Full Code</a>
+</div>
+
+<div class="wrap">
+
+<!-- ═══════════ OVERVIEW ═══════════ -->
+<div class="sec fi" id="s0">
+  <div class="sec-chip sc-orange">OVERVIEW</div>
+  <h2>Task 1.3 ต้องทำอะไรบ้าง?</h2>
+  <p>3 งานหลัก → 1 ไฟล์ PDF</p>
+</div>
+
+<div class="card fi">
+  <div class="card-body">
+    <div class="flow">
+      <div class="fi2">
+        <div class="fl"><div class="fnum">1</div><div class="fline"></div></div>
+        <div class="fc">
+          <div class="ft">คำนวณ 3 ตัวชี้วัดรายเดือน</div>
+          <div class="fd">
+            • <strong>Total Sales Revenue</strong> — รายได้รวมต่อเดือน (price × quantity)<br>
+            • <strong>Number of Transactions</strong> — จำนวนออเดอร์ต่อเดือน<br>
+            • <strong>Average Order Value</strong> — มูลค่าเฉลี่ยต่อออเดอร์ (Revenue ÷ Transactions)
+          </div>
+        </div>
+      </div>
+      <div class="fi2">
+        <div class="fl"><div class="fnum blue">2</div><div class="fline"></div></div>
+        <div class="fc">
+          <div class="ft">วาด Line Chart 3 กราฟ</div>
+          <div class="fd">ใช้ matplotlib วาดกราฟเส้นสำหรับแต่ละตัวชี้วัด แกน X = เดือน แกน Y = ค่า</div>
+        </div>
+      </div>
+      <div class="fi2">
+        <div class="fl"><div class="fnum green">3</div></div>
+        <div class="fc">
+          <div class="ft">หา Top 3 เดือนยอดขายสูงสุด + Export PDF</div>
+          <div class="fd">ใช้ <code>nlargest(3)</code> หา 3 เดือนที่มี Revenue สูงสุด แล้วรวมทุกอย่างเป็น PDF ไฟล์เดียว</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tbl">
+      <table>
+        <tr><th>Deliverable</th><th>ชื่อไฟล์</th><th>ประกอบด้วย</th></tr>
+        <tr>
+          <td><span class="tag t-orange">PDF Report</span></td>
+          <td><code>Session1_SalesTrends.pdf</code></td>
+          <td>Line Chart ×3 + ตาราง Top 3</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ INSTALL ═══════════ -->
+<div class="sec fi" id="s1">
+  <div class="sec-chip sc-blue">STEP 01 · ติดตั้ง</div>
+  <h2>Library ที่ต้องใช้เพิ่มจาก Task 1.1</h2>
+  <p>Task 1.3 ต้องการ matplotlib และ reportlab เพิ่มเติม</p>
+</div>
+
+<div class="card fi">
+  <div class="card-body">
+    <div class="tbl">
+      <table>
+        <tr><th>Library</th><th>ใช้ทำอะไร</th><th>ติดตั้ง</th></tr>
+        <tr><td><strong>pandas</strong></td><td>จัดการข้อมูล groupby คำนวณ</td><td><span class="tag t-green">มีแล้ว</span></td></tr>
+        <tr><td><strong>numpy</strong></td><td>คำนวณตัวเลข</td><td><span class="tag t-green">มีแล้ว</span></td></tr>
+        <tr><td><strong>matplotlib</strong></td><td>วาดกราฟ Line Chart บันทึกเป็น PNG</td><td><span class="tag t-orange">ติดตั้งใหม่</span></td></tr>
+        <tr><td><strong>reportlab</strong></td><td>สร้างไฟล์ PDF ใส่กราฟ ตาราง ข้อความ</td><td><span class="tag t-orange">ติดตั้งใหม่</span></td></tr>
+      </table>
+    </div>
+    <div class="cw">
+      <div class="cb">
+        <div class="cbl"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="fn2">terminal</span></div>
+        <button class="cpbtn" onclick="cp(this)">copy</button>
+      </div>
+      <pre><span class="fn">pip</span> install <span class="st">matplotlib reportlab</span></pre>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ LOAD DATA ═══════════ -->
+<div class="sec fi" id="s2">
+  <div class="sec-chip sc-teal">STEP 02 · โหลดข้อมูล</div>
+  <h2>โหลดไฟล์และเตรียมคอลัมน์ที่ต้องใช้</h2>
+  <p>ใช้ sales_transactions_cleaned.csv (ผลจากข้อ 1.2) หรือ sales_transactions.csv ก็ได้</p>
+</div>
+
+<div class="card fi">
+  <div class="card-head"><span class="ico">📥</span><span class="ttl">โหลดและเตรียมข้อมูลเบื้องต้น</span></div>
+  <div class="card-body">
+    <div class="cw">
+      <div class="cb">
+        <div class="cbl"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="fn2">task1_3_sales_trends.py</span></div>
+        <button class="cpbtn" onclick="cp(this)">copy</button>
+      </div>
+      <pre><span class="kw">import</span> <span class="vr">pandas</span> <span class="kw">as</span> <span class="fn">pd</span>
+<span class="kw">import</span> <span class="vr">numpy</span>  <span class="kw">as</span> <span class="fn">np</span>
+<span class="kw">import</span> <span class="vr">matplotlib</span>
+<span class="vr">matplotlib</span>.<span class="fn">use</span>(<span class="st">'Agg'</span>)       <span class="cm"># ไม่เปิดหน้าต่างกราฟ — บันทึกเป็นไฟล์แทน</span>
+<span class="kw">import</span> <span class="vr">matplotlib.pyplot</span> <span class="kw">as</span> <span class="fn">plt</span>
+<span class="kw">import</span> <span class="vr">matplotlib.ticker</span> <span class="kw">as</span> <span class="fn">mticker</span>
+<span class="kw">import</span> <span class="vr">os</span>
+
+<span class="cm"># โหลดข้อมูล</span>
+<span class="vr">sales</span> <span class="op">=</span> <span class="fn">pd.read_csv</span>(<span class="st">'data/sales_transactions.csv'</span>)
+
+<span class="cm"># แปลงวันที่เป็น datetime</span>
+<span class="vr">sales</span>[<span class="st">'date'</span>] <span class="op">=</span> <span class="fn">pd.to_datetime</span>(<span class="vr">sales</span>[<span class="st">'date'</span>], <span class="vr">errors</span><span class="op">=</span><span class="st">'coerce'</span>)
+
+<span class="cm"># คำนวณ revenue ต่อแถว (price × quantity)</span>
+<span class="vr">sales</span>[<span class="st">'total_revenue'</span>] <span class="op">=</span> <span class="vr">sales</span>[<span class="st">'price'</span>] <span class="op">*</span> <span class="vr">sales</span>[<span class="st">'quantity'</span>]
+
+<span class="cm"># สร้างคอลัมน์ 'month' เป็น Period เช่น 2024-03</span>
+<span class="vr">sales</span>[<span class="st">'month'</span>] <span class="op">=</span> <span class="vr">sales</span>[<span class="st">'date'</span>].<span class="vr">dt</span>.<span class="fn">to_period</span>(<span class="st">'M'</span>)
+
+<span class="fn">os.makedirs</span>(<span class="st">'output'</span>, <span class="vr">exist_ok</span><span class="op">=</span><span class="kw">True</span>)</pre>
+    </div>
+
+    <div class="ib orange">
+      <div class="ib-t">📌 matplotlib.use('Agg') คืออะไร?</div>
+      บอก matplotlib ว่า "ไม่ต้องเปิดหน้าต่างแสดงกราฟ" แต่ให้บันทึกเป็นไฟล์ PNG แทน ถ้าไม่ใส่จะ error บนเซิร์ฟเวอร์หรือสภาพแวดล้อมที่ไม่มี Display
+    </div>
+
+    <div class="ib teal">
+      <div class="ib-t">💡 dt.to_period('M') คืออะไร?</div>
+      แปลง datetime เป็น "ช่วงเดือน" เช่น <code>2024-03-15</code> → <code>2024-03</code> ทำให้ groupby ตามเดือนได้โดยไม่สนใจวันที่จริง
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ MONTHLY CALC ═══════════ -->
+<div class="sec fi" id="s3">
+  <div class="sec-chip sc-orange">STEP 03 · คำนวณ</div>
+  <h2>คำนวณ 3 ตัวชี้วัดรายเดือน</h2>
+  <p>ใช้ groupby + agg รวมข้อมูลตามเดือน</p>
+</div>
+
+<div class="card fi">
+  <div class="card-head"><span class="ico">📊</span><span class="ttl">groupby('month') + agg()</span></div>
+  <div class="card-body">
+    <div class="cw">
+      <div class="cb">
+        <div class="cbl"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="fn2">task1_3_sales_trends.py</span></div>
+        <button class="cpbtn" onclick="cp(this)">copy</button>
+      </div>
+      <pre><span class="cm"># รวมข้อมูลตามเดือน</span>
+<span class="vr">monthly</span> <span class="op">=</span> <span class="vr">sales</span>.<span class="fn">groupby</span>(<span class="st">'month'</span>).<span class="fn">agg</span>(
+    <span class="vr">total_revenue</span>    <span class="op">=</span> (<span class="st">'total_revenue'</span>,  <span class="st">'sum'</span>),   <span class="cm"># รวม revenue ทุกแถวในเดือน</span>
+    <span class="vr">num_transactions</span> <span class="op">=</span> (<span class="st">'transaction_id'</span>, <span class="st">'count'</span>), <span class="cm"># นับจำนวน transaction</span>
+).<span class="fn">reset_index</span>()
+
+<span class="cm"># คำนวณ avg_order_value = revenue รวม ÷ จำนวน transaction</span>
+<span class="vr">monthly</span>[<span class="st">'avg_order_value'</span>] <span class="op">=</span> <span class="vr">monthly</span>[<span class="st">'total_revenue'</span>] <span class="op">/</span> <span class="vr">monthly</span>[<span class="st">'num_transactions'</span>]
+
+<span class="cm"># แปลง Period เป็น string สำหรับแสดงบนแกน X</span>
+<span class="vr">monthly</span>[<span class="st">'month_str'</span>] <span class="op">=</span> <span class="vr">monthly</span>[<span class="st">'month'</span>].<span class="fn">astype</span>(<span class="fn">str</span>)
+
+<span class="fn">print</span>(<span class="vr">monthly</span>)</pre>
+    </div>
+
+    <div class="ow">
+      <div class="oh"><div class="odot"></div>ผลลัพธ์จากข้อมูลจริง</div>
+      <div class="ob2">     month  total_revenue  num_transactions  avg_order_value  month_str
+<span class="ob">0</span>  2023-11       <span class="og">63.87</span>                10         6.39      <span class="ob">2023-11</span>
+<span class="ob">1</span>  2023-12    <span class="og">10770.53</span>              1350         7.98      <span class="ob">2023-12</span>
+<span class="ob">2</span>  2024-01    <span class="og">10452.52</span>              1364         7.66      <span class="ob">2024-01</span>
+<span class="ob">3</span>  2024-02     <span class="og">9457.58</span>              1175         8.05      <span class="ob">2024-02</span>
+<span class="ob">4</span>  2024-03    <span class="og">12226.12</span>              1244         9.83      <span class="ob">2024-03</span>
+<span class="ob">5</span>  2024-04    <span class="og">11088.08</span>              1363         8.13      <span class="ob">2024-04</span>
+<span class="ob">6</span>  2024-05    <span class="og">12194.93</span>              1413         8.63      <span class="ob">2024-05</span>
+<span class="ob">7</span>  2024-06    <span class="og">11014.45</span>              1375         8.01      <span class="ob">2024-06</span>
+<span class="ob">8</span>  2024-07    <span class="ov">69530.17</span>              1371       <span class="ov">50.72</span>      <span class="ob">2024-07</span>  <span class="cm">← ผิดปกติ!</span>
+<span class="ob">9</span>  2024-08     <span class="og">6756.32</span>               789         8.56      <span class="ob">2024-08</span></div>
+    </div>
+
+    <div class="ib yellow">
+      <div class="ib-t">🔍 groupby + agg คืออะไร?</div>
+      <code>groupby('month')</code> — แบ่งข้อมูลเป็นกลุ่มตามเดือน<br>
+      <code>.agg(ชื่อใหม่=('คอลัมน์เดิม','วิธีรวม'))</code> — คำนวณแต่ละกลุ่ม<br>
+      <code>.reset_index()</code> — แปลง index กลับเป็นคอลัมน์ปกติ
+    </div>
+
+    <div class="tbl">
+      <table>
+        <tr><th>วิธีรวม (agg function)</th><th>ความหมาย</th><th>ใช้กับ</th></tr>
+        <tr><td><span class="tag t-orange">'sum'</span></td><td>รวมทุกค่าในกลุ่ม</td><td>total_revenue</td></tr>
+        <tr><td><span class="tag t-blue">'count'</span></td><td>นับจำนวนแถว</td><td>num_transactions</td></tr>
+        <tr><td><span class="tag t-green">'mean'</span></td><td>ค่าเฉลี่ย</td><td>ใช้ได้ แต่ Task นี้คำนวณเองจาก sum/count</td></tr>
+        <tr><td><span class="tag t-teal">'max'</span></td><td>ค่าสูงสุด</td><td>ใช้ได้กรณีอื่น</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ LINE CHART ═══════════ -->
+<div class="sec fi" id="s4">
+  <div class="sec-chip sc-blue">STEP 04 · กราฟ</div>
+  <h2>วาด Line Chart ด้วย matplotlib</h2>
+  <p>สร้างฟังก์ชันวาดกราฟ แล้วเรียก 3 ครั้ง — ไม่ต้องเขียนซ้ำ</p>
+</div>
+
+<div class="card fi">
+  <div class="card-head"><span class="ico">📈</span><span class="ttl">ฟังก์ชัน make_line_chart() — วาดกราฟเส้นและบันทึกเป็น PNG</span></div>
+  <div class="card-body">
+
+    <div class="flow" style="margin-bottom:16px;">
+      <div class="fi2">
+        <div class="fl"><div class="fnum">1</div><div class="fline"></div></div>
+        <div class="fc"><div class="ft">สร้าง Figure และ Axes</div><div class="fd"><code>fig, ax = plt.subplots()</code> — เหมือนเปิดกระดาษวาดใหม่</div></div>
+      </div>
+      <div class="fi2">
+        <div class="fl"><div class="fnum blue">2</div><div class="fline"></div></div>
+        <div class="fc"><div class="ft">วาดเส้น + พื้นที่ใต้เส้น</div><div class="fd"><code>ax.plot()</code> วาดเส้น, <code>ax.fill_between()</code> เติมสีใต้เส้น</div></div>
+      </div>
+      <div class="fi2">
+        <div class="fl"><div class="fnum teal">3</div><div class="fline"></div></div>
+        <div class="fc"><div class="ft">ตกแต่ง — หัวข้อ ป้ายกำกับ เส้นตาราง</div><div class="fd"><code>ax.set_title()</code>, <code>ax.set_xlabel()</code>, <code>ax.grid()</code></div></div>
+      </div>
+      <div class="fi2">
+        <div class="fl"><div class="fnum green">4</div></div>
+        <div class="fc"><div class="ft">บันทึกเป็น PNG</div><div class="fd"><code>plt.savefig()</code> บันทึกไฟล์, <code>plt.close()</code> ปิดเพื่อคืน memory</div></div>
+      </div>
+    </div>
+
+    <div class="cw">
+      <div class="cb">
+        <div class="cbl"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="fn2">task1_3_sales_trends.py</span></div>
+        <button class="cpbtn" onclick="cp(this)">copy</button>
+      </div>
+      <pre><span class="kw">def</span> <span class="fn">make_line_chart</span>(<span class="vr">x</span>, <span class="vr">y</span>, <span class="vr">title</span>, <span class="vr">ylabel</span>, <span class="vr">color</span>, <span class="vr">fname</span>):
+    <span class="cm">"""วาด Line Chart และบันทึกเป็น PNG"""</span>
+
+    <span class="cm"># ── สร้างกระดาษวาด (Figure) ขนาด 9×3.5 นิ้ว ──</span>
+    <span class="vr">fig</span>, <span class="vr">ax</span> <span class="op">=</span> <span class="fn">plt.subplots</span>(<span class="vr">figsize</span><span class="op">=</span>(<span class="nm">9</span>, <span class="nm">3.5</span>), <span class="vr">facecolor</span><span class="op">=</span><span class="st">'#F8FAFC'</span>)
+    <span class="vr">ax</span>.<span class="fn">set_facecolor</span>(<span class="st">'#F8FAFC'</span>)
+
+    <span class="cm"># ── วาดเส้นกราฟ ────────────────────────────────</span>
+    <span class="vr">ax</span>.<span class="fn">plot</span>(
+        <span class="vr">x</span>, <span class="vr">y</span>,
+        <span class="vr">color</span><span class="op">=</span><span class="vr">color</span>,       <span class="cm"># สีเส้น</span>
+        <span class="vr">linewidth</span><span class="op">=</span><span class="nm">2.5</span>,      <span class="cm"># ความหนาเส้น</span>
+        <span class="vr">marker</span><span class="op">=</span><span class="st">'o'</span>,         <span class="cm"># จุดที่แต่ละ data point</span>
+        <span class="vr">markersize</span><span class="op">=</span><span class="nm">5</span>,      <span class="cm"># ขนาดจุด</span>
+        <span class="vr">zorder</span><span class="op">=</span><span class="nm">3</span>           <span class="cm"># วาดทับเส้นอื่น</span>
+    )
+
+    <span class="cm"># ── เติมพื้นที่ใต้เส้น (ทำให้ดูดีขึ้น) ────────</span>
+    <span class="vr">ax</span>.<span class="fn">fill_between</span>(<span class="vr">x</span>, <span class="vr">y</span>, <span class="vr">alpha</span><span class="op">=</span><span class="nm">0.1</span>, <span class="vr">color</span><span class="op">=</span><span class="vr">color</span>)
+
+    <span class="cm"># ── หัวข้อและป้ายกำกับ ────────────────────────</span>
+    <span class="vr">ax</span>.<span class="fn">set_title</span>(<span class="vr">title</span>,  <span class="vr">fontsize</span><span class="op">=</span><span class="nm">13</span>, <span class="vr">fontweight</span><span class="op">=</span><span class="st">'bold'</span>, <span class="vr">pad</span><span class="op">=</span><span class="nm">12</span>)
+    <span class="vr">ax</span>.<span class="fn">set_ylabel</span>(<span class="vr">ylabel</span>, <span class="vr">fontsize</span><span class="op">=</span><span class="nm">10</span>)
+    <span class="vr">ax</span>.<span class="fn">set_xlabel</span>(<span class="st">'Month'</span>, <span class="vr">fontsize</span><span class="op">=</span><span class="nm">10</span>)
+
+    <span class="cm"># ── หมุนป้ายแกน X ──────────────────────────────</span>
+    <span class="vr">ax</span>.<span class="fn">tick_params</span>(<span class="vr">axis</span><span class="op">=</span><span class="st">'x'</span>, <span class="vr">rotation</span><span class="op">=</span><span class="nm">30</span>, <span class="vr">labelsize</span><span class="op">=</span><span class="nm">9</span>)
+
+    <span class="cm"># ── จัดรูปแบบตัวเลขแกน Y เป็น 1,000 ──────────</span>
+    <span class="vr">ax</span>.<span class="vr">yaxis</span>.<span class="fn">set_major_formatter</span>(
+        <span class="fn">mticker.FuncFormatter</span>(<span class="kw">lambda</span> <span class="vr">v</span>, <span class="vr">_</span>: <span class="fn">f</span><span class="st">'{v:,.0f}'</span>)
+    )
+
+    <span class="cm"># ── เส้นตารางแนวนอน ─────────────────────────</span>
+    <span class="vr">ax</span>.<span class="fn">grid</span>(<span class="vr">axis</span><span class="op">=</span><span class="st">'y'</span>, <span class="vr">linestyle</span><span class="op">=</span><span class="st">'--'</span>, <span class="vr">alpha</span><span class="op">=</span><span class="nm">0.4</span>)
+
+    <span class="cm"># ── ปรับ layout อัตโนมัติ ──────────────────</span>
+    <span class="fn">plt.tight_layout</span>()
+
+    <span class="cm"># ── บันทึกเป็น PNG ──────────────────────────</span>
+    <span class="vr">path</span> <span class="op">=</span> <span class="fn">f</span><span class="st">'output/{fname}'</span>
+    <span class="fn">plt.savefig</span>(<span class="vr">path</span>, <span class="vr">dpi</span><span class="op">=</span><span class="nm">150</span>, <span class="vr">bbox_inches</span><span class="op">=</span><span class="st">'tight'</span>)
+    <span class="fn">plt.close</span>()   <span class="cm"># คืน memory — สำคัญมากเมื่อสร้างหลายกราฟ</span>
+    <span class="kw">return</span> <span class="vr">path</span>   <span class="cm"># ส่ง path กลับไปใช้ตอนสร้าง PDF</span></pre>
+    </div>
+
+    <div class="ib">
+      <div class="ib-t">📌 parameter ของฟังก์ชัน</div>
+      <div class="tbl" style="margin-top:8px;">
+        <table>
+          <tr><th>parameter</th><th>ความหมาย</th><th>ตัวอย่าง</th></tr>
+          <tr><td><code>x</code></td><td>ค่าแกน X (ชื่อเดือน)</td><td>monthly['month_str']</td></tr>
+          <tr><td><code>y</code></td><td>ค่าแกน Y (ตัวชี้วัด)</td><td>monthly['total_revenue']</td></tr>
+          <tr><td><code>title</code></td><td>หัวข้อกราฟ</td><td>'Total Sales Revenue...'</td></tr>
+          <tr><td><code>ylabel</code></td><td>ป้ายกำกับแกน Y</td><td>'Revenue (€)'</td></tr>
+          <tr><td><code>color</code></td><td>สีเส้นกราฟ</td><td>'#3B82F6'</td></tr>
+          <tr><td><code>fname</code></td><td>ชื่อไฟล์ PNG</td><td>'chart_revenue.png'</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <p style="color:var(--dim);margin-bottom:12px;margin-top:16px;font-weight:700;">เรียกฟังก์ชัน 3 ครั้งสำหรับ 3 กราฟ:</p>
+    <div class="cw">
+      <div class="cb">
+        <div class="cbl"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="fn2">task1_3_sales_trends.py</span></div>
+        <button class="cpbtn" onclick="cp(this)">copy</button>
+      </div>
+      <pre><span class="cm"># กราฟที่ 1: Total Sales Revenue</span>
+<span class="vr">chart1</span> <span class="op">=</span> <span class="fn">make_line_chart</span>(
+    <span class="vr">monthly</span>[<span class="st">'month_str'</span>],
+    <span class="vr">monthly</span>[<span class="st">'total_revenue'</span>],
+    <span class="st">'Total Sales Revenue per Month'</span>,
+    <span class="st">'Revenue (€)'</span>,
+    <span class="st">'#3B82F6'</span>,          <span class="cm"># สีน้ำเงิน</span>
+    <span class="st">'chart_revenue.png'</span>
+)
+
+<span class="cm"># กราฟที่ 2: Number of Transactions</span>
+<span class="vr">chart2</span> <span class="op">=</span> <span class="fn">make_line_chart</span>(
+    <span class="vr">monthly</span>[<span class="st">'month_str'</span>],
+    <span class="vr">monthly</span>[<span class="st">'num_transactions'</span>],
+    <span class="st">'Number of Transactions per Month'</span>,
+    <span class="st">'Transactions'</span>,
+    <span class="st">'#10B981'</span>,          <span class="cm"># สีเขียว</span>
+    <span class="st">'chart_transactions.png'</span>
+)
+
+<span class="cm"># กราฟที่ 3: Average Order Value</span>
+<span class="vr">chart3</span> <span class="op">=</span> <span class="fn">make_line_chart</span>(
+    <span class="vr">monthly</span>[<span class="st">'month_str'</span>],
+    <span class="vr">monthly</span>[<span class="st">'avg_order_value'</span>],
+    <span class="st">'Average Order Value per Month'</span>,
+    <span class="st">'Avg Order Value (€)'</span>,
+    <span class="st">'#F59E0B'</span>,          <span class="cm"># สีส้มทอง</span>
+    <span class="st">'chart_avg_order.png'</span>
+)
+
+<span class="fn">print</span>(<span class="st">"✓ สร้างกราฟ 3 ไฟล์แล้ว"</span>)</pre>
+    </div>
+
+    <div class="ib green">
+      <div class="ib-t">✅ ทำไมต้อง return path?</div>
+      ฟังก์ชัน return path ของไฟล์ PNG กลับมา เพื่อให้นำไปใส่ใน PDF ได้ด้วย <code>reportlab.platypus.Image(chart1, ...)</code>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ TOP 3 ═══════════ -->
+<div class="sec fi" id="s5">
+  <div class="sec-chip sc-green">STEP 05 · Top 3</div>
+  <h2>หา 3 เดือนที่มียอดขายสูงสุด</h2>
+  <p>ใช้คำสั่ง .nlargest() หา Top N แถวจาก DataFrame</p>
+</div>
+
+<div class="card fi">
+  <div class="card-head"><span class="ico">🏆</span><span class="ttl">nlargest(3) — หา 3 ค่าสูงสุด</span></div>
+  <div class="card-body">
+    <div class="cw">
+      <div class="cb">
+        <div class="cbl"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="fn2">task1_3_sales_trends.py</span></div>
+        <button class="cpbtn" onclick="cp(this)">copy</button>
+      </div>
+      <pre><span class="cm"># หา 3 เดือนที่มี total_revenue สูงสุด</span>
+<span class="vr">top3</span> <span class="op">=</span> (
+    <span class="vr">monthly</span>
+    .<span class="fn">nlargest</span>(<span class="nm">3</span>, <span class="st">'total_revenue'</span>)     <span class="cm"># เลือก 3 แถวที่ total_revenue สูงสุด</span>
+    [[<span class="st">'month_str'</span>, <span class="st">'total_revenue'</span>]]  <span class="cm"># เลือกแค่ 2 คอลัมน์</span>
+    .<span class="fn">reset_index</span>(<span class="vr">drop</span><span class="op">=</span><span class="kw">True</span>)           <span class="cm"># reset index เป็น 0,1,2</span>
+)
+
+<span class="fn">print</span>(<span class="vr">top3</span>)</pre>
+    </div>
+
+    <div class="ow">
+      <div class="oh"><div class="odot"></div>ผลลัพธ์จากข้อมูลจริง</div>
+      <div class="ob2">  month_str  total_revenue
+<span class="ob">0</span>   <span class="og">2024-07</span>      <span class="ov">69530.17</span>   <span class="cm">← อันดับ 1</span>
+<span class="ob">1</span>   <span class="og">2024-03</span>      <span class="og">12226.12</span>   <span class="cm">← อันดับ 2</span>
+<span class="ob">2</span>   <span class="og">2024-05</span>      <span class="og">12194.93</span>   <span class="cm">← อันดับ 3</span></div>
+    </div>
+
+    <div class="two-col">
+      <div class="col-box">
+        <div class="col-box-head orange">nlargest(n, col)</div>
+        <div class="col-box-body">df.nlargest(3, 'revenue')
+→ 3 แถวที่ revenue สูงสุด
+→ เรียงจากมากไปน้อย</div>
+      </div>
+      <div class="col-box">
+        <div class="col-box-head green">nsmallest(n, col)</div>
+        <div class="col-box-body">df.nsmallest(3, 'revenue')
+→ 3 แถวที่ revenue ต่ำสุด
+→ เรียงจากน้อยไปมาก</div>
+      </div>
+    </div>
+
+    <div class="ib yellow">
+      <div class="ib-t">💡 เทียบกับ sort_values</div>
+      <code>df.nlargest(3, 'col')</code> เขียนสั้นกว่า <code>df.sort_values('col', ascending=False).head(3)</code> ได้ผลเหมือนกันทุกประการ
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ PDF ═══════════ -->
+<div class="sec fi" id="s6">
+  <div class="sec-chip sc-yellow">STEP 06 · PDF</div>
+  <h2>Export รายงาน PDF ด้วย reportlab</h2>
+  <p>ใส่กราฟ PNG + ตาราง Top 3 รวมกันในไฟล์เดียว</p>
+</div>
+
+<div class="card fi">
+  <div class="card-head"><span class="ico">📄</span><span class="ttl">สร้าง PDF ด้วย SimpleDocTemplate</span></div>
+  <div class="card-body">
+
+    <div class="flow" style="margin-bottom:14px;">
+      <div class="fi2">
+        <div class="fl"><div class="fnum">1</div><div class="fline"></div></div>
+        <div class="fc"><div class="ft">Import reportlab</div><div class="fd">ใช้ platypus — ระบบจัดวางองค์ประกอบ (Paragraph, Image, Table, Spacer)</div></div>
+      </div>
+      <div class="fi2">
+        <div class="fl"><div class="fnum yellow">2</div><div class="fline"></div></div>
+        <div class="fc"><div class="ft">กำหนด Styles</div><div class="fd">สร้าง ParagraphStyle สำหรับหัวข้อและเนื้อหา</div></div>
+      </div>
+      <div class="fi2">
+        <div class="fl"><div class="fnum teal">3</div><div class="fline"></div></div>
+        <div class="fc"><div class="ft">สร้าง story list</div><div class="fd">เพิ่ม Paragraph, Image, Table เข้า list ตามลำดับที่ต้องการแสดง</div></div>
+      </div>
+      <div class="fi2">
+        <div class="fl"><div class="fnum green">4</div></div>
+        <div class="fc"><div class="ft">doc.build(story)</div><div class="fd">สั่งสร้าง PDF จาก list ทั้งหมดออกมาเป็นไฟล์</div></div>
+      </div>
+    </div>
+
+    <div class="cw">
+      <div class="cb">
+        <div class="cbl"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="fn2">task1_3_sales_trends.py</span></div>
+        <button class="cpbtn" onclick="cp(this)">copy</button>
+      </div>
+      <pre><span class="kw">from</span> <span class="vr">reportlab.lib.pagesizes</span> <span class="kw">import</span> <span class="vr">A4</span>
+<span class="kw">from</span> <span class="vr">reportlab.platypus</span> <span class="kw">import</span> (
+    <span class="vr">SimpleDocTemplate</span>, <span class="vr">Image</span>, <span class="vr">Spacer</span>,
+    <span class="vr">Table</span>, <span class="vr">TableStyle</span>, <span class="vr">Paragraph</span>
+)
+<span class="kw">from</span> <span class="vr">reportlab.lib.styles</span> <span class="kw">import</span> <span class="vr">ParagraphStyle</span>
+<span class="kw">from</span> <span class="vr">reportlab.lib</span> <span class="kw">import</span> <span class="vr">colors</span>
+<span class="kw">from</span> <span class="vr">reportlab.lib.units</span> <span class="kw">import</span> <span class="vr">cm</span>
+
+<span class="cm"># ── กำหนด Styles ─────────────────────────────────────────</span>
+<span class="vr">title_style</span> <span class="op">=</span> <span class="fn">ParagraphStyle</span>(<span class="st">'t'</span>, <span class="vr">fontSize</span><span class="op">=</span><span class="nm">18</span>, <span class="vr">fontName</span><span class="op">=</span><span class="st">'Helvetica-Bold'</span>,
+    <span class="vr">spaceAfter</span><span class="op">=</span><span class="nm">4</span>)
+<span class="vr">head_style</span>  <span class="op">=</span> <span class="fn">ParagraphStyle</span>(<span class="st">'h'</span>, <span class="vr">fontSize</span><span class="op">=</span><span class="nm">13</span>, <span class="vr">fontName</span><span class="op">=</span><span class="st">'Helvetica-Bold'</span>,
+    <span class="vr">spaceBefore</span><span class="op">=</span><span class="nm">12</span>, <span class="vr">spaceAfter</span><span class="op">=</span><span class="nm">6</span>)
+
+<span class="cm"># ── สร้าง Document ───────────────────────────────────────</span>
+<span class="vr">doc</span> <span class="op">=</span> <span class="fn">SimpleDocTemplate</span>(
+    <span class="st">'output/Session1_SalesTrends.pdf'</span>,
+    <span class="vr">pagesize</span><span class="op">=</span><span class="vr">A4</span>,
+    <span class="vr">rightMargin</span><span class="op">=</span><span class="nm">2</span><span class="op">*</span><span class="vr">cm</span>, <span class="vr">leftMargin</span><span class="op">=</span><span class="nm">2</span><span class="op">*</span><span class="vr">cm</span>,
+    <span class="vr">topMargin</span><span class="op">=</span><span class="nm">2</span><span class="op">*</span><span class="vr">cm</span>,   <span class="vr">bottomMargin</span><span class="op">=</span><span class="nm">2</span><span class="op">*</span><span class="vr">cm</span>
+)
+
+<span class="cm"># ── สร้าง story list ─────────────────────────────────────</span>
+<span class="vr">story</span> <span class="op">=</span> []
+
+<span class="cm"># หัวข้อรายงาน</span>
+<span class="vr">story</span>.<span class="fn">append</span>(<span class="fn">Paragraph</span>(<span class="st">"Session 1 — Sales Trend Analysis"</span>, <span class="vr">title_style</span>))
+
+<span class="cm"># ใส่กราฟทั้ง 3 พร้อมหัวข้อ</span>
+<span class="kw">for</span> <span class="vr">chart</span>, <span class="vr">heading</span> <span class="kw">in</span> [
+    (<span class="vr">chart1</span>, <span class="st">"Total Sales Revenue per Month"</span>),
+    (<span class="vr">chart2</span>, <span class="st">"Number of Transactions per Month"</span>),
+    (<span class="vr">chart3</span>, <span class="st">"Average Order Value per Month"</span>),
+]:
+    <span class="vr">story</span>.<span class="fn">append</span>(<span class="fn">Paragraph</span>(<span class="vr">heading</span>, <span class="vr">head_style</span>))
+    <span class="vr">story</span>.<span class="fn">append</span>(<span class="fn">Image</span>(<span class="vr">chart</span>, <span class="vr">width</span><span class="op">=</span><span class="nm">16</span><span class="op">*</span><span class="vr">cm</span>, <span class="vr">height</span><span class="op">=</span><span class="nm">6</span><span class="op">*</span><span class="vr">cm</span>))
+    <span class="vr">story</span>.<span class="fn">append</span>(<span class="fn">Spacer</span>(<span class="nm">1</span>, <span class="nm">8</span>))          <span class="cm"># ช่องว่าง 8pt</span>
+
+<span class="cm"># ── ตาราง Top 3 ──────────────────────────────────────────</span>
+<span class="vr">story</span>.<span class="fn">append</span>(<span class="fn">Paragraph</span>(<span class="st">"Top 3 Months by Sales Revenue"</span>, <span class="vr">head_style</span>))
+
+<span class="cm"># สร้างข้อมูลตาราง: แถวแรก = header</span>
+<span class="vr">tbl_data</span> <span class="op">=</span> [[<span class="st">'Month'</span>, <span class="st">'Total Revenue (€)'</span>]]
+<span class="kw">for</span> <span class="vr">_</span>, <span class="vr">row</span> <span class="kw">in</span> <span class="vr">top3</span>.<span class="fn">iterrows</span>():
+    <span class="vr">tbl_data</span>.<span class="fn">append</span>([
+        <span class="vr">row</span>[<span class="st">'month_str'</span>],
+        <span class="fn">f</span><span class="st">"€ {row['total_revenue']:,.2f}"</span>   <span class="cm"># จัดรูปแบบตัวเลข</span>
+    ])
+
+<span class="cm"># สร้างตาราง</span>
+<span class="vr">tbl</span> <span class="op">=</span> <span class="fn">Table</span>(<span class="vr">tbl_data</span>, <span class="vr">colWidths</span><span class="op">=</span>[<span class="nm">8</span><span class="op">*</span><span class="vr">cm</span>, <span class="nm">8</span><span class="op">*</span><span class="vr">cm</span>])
+<span class="vr">tbl</span>.<span class="fn">setStyle</span>(<span class="fn">TableStyle</span>([
+    (<span class="st">'BACKGROUND'</span>, (<span class="nm">0</span>,<span class="nm">0</span>), (<span class="op">-</span><span class="nm">1</span>,<span class="nm">0</span>), <span class="vr">colors</span>.<span class="fn">HexColor</span>(<span class="st">'#1E3A5F'</span>)), <span class="cm"># header bg</span>
+    (<span class="st">'TEXTCOLOR'</span>,  (<span class="nm">0</span>,<span class="nm">0</span>), (<span class="op">-</span><span class="nm">1</span>,<span class="nm">0</span>), <span class="vr">colors</span>.white),              <span class="cm"># header text</span>
+    (<span class="st">'FONTNAME'</span>,   (<span class="nm">0</span>,<span class="nm">0</span>), (<span class="op">-</span><span class="nm">1</span>,<span class="nm">0</span>), <span class="st">'Helvetica-Bold'</span>),
+    (<span class="st">'FONTSIZE'</span>,   (<span class="nm">0</span>,<span class="nm">0</span>), (<span class="op">-</span><span class="nm">1</span>,<span class="op">-</span><span class="nm">1</span>), <span class="nm">11</span>),
+    (<span class="st">'ALIGN'</span>,      (<span class="nm">1</span>,<span class="nm">0</span>), (<span class="nm">1</span>,<span class="op">-</span><span class="nm">1</span>), <span class="st">'RIGHT'</span>),               <span class="cm"># จัดขวาคอลัมน์ 2</span>
+    (<span class="st">'ROWBACKGROUNDS'</span>, (<span class="nm">0</span>,<span class="nm">1</span>), (<span class="op">-</span><span class="nm">1</span>,<span class="op">-</span><span class="nm">1</span>),                       <span class="cm"># สลับสีแถว</span>
+     [<span class="vr">colors</span>.<span class="fn">HexColor</span>(<span class="st">'#F8FAFC'</span>), <span class="vr">colors</span>.white]),
+    (<span class="st">'GRID'</span>,       (<span class="nm">0</span>,<span class="nm">0</span>), (<span class="op">-</span><span class="nm">1</span>,<span class="op">-</span><span class="nm">1</span>), <span class="nm">0.5</span>, <span class="vr">colors</span>.<span class="fn">HexColor</span>(<span class="st">'#CBD5E1'</span>)),
+    (<span class="st">'TOPPADDING'</span>,    (<span class="nm">0</span>,<span class="nm">0</span>), (<span class="op">-</span><span class="nm">1</span>,<span class="op">-</span><span class="nm">1</span>), <span class="nm">8</span>),
+    (<span class="st">'BOTTOMPADDING'</span>, (<span class="nm">0</span>,<span class="nm">0</span>), (<span class="op">-</span><span class="nm">1</span>,<span class="op">-</span><span class="nm">1</span>), <span class="nm">8</span>),
+]))
+<span class="vr">story</span>.<span class="fn">append</span>(<span class="vr">tbl</span>)
+
+<span class="cm"># ── สร้าง PDF ─────────────────────────────────────────────</span>
+<span class="vr">doc</span>.<span class="fn">build</span>(<span class="vr">story</span>)
+<span class="fn">print</span>(<span class="st">"✓ บันทึก Session1_SalesTrends.pdf สำเร็จ"</span>)</pre>
+    </div>
+
+    <div class="tbl">
+      <table>
+        <tr><th>reportlab class</th><th>ใช้ทำอะไร</th></tr>
+        <tr><td><code>SimpleDocTemplate</code></td><td>ตัวจัดการเอกสาร PDF กำหนดขนาด margin</td></tr>
+        <tr><td><code>Paragraph</code></td><td>ข้อความ / หัวข้อ ใส่ style ได้</td></tr>
+        <tr><td><code>Image</code></td><td>ใส่รูปภาพ PNG/JPG กำหนด width/height</td></tr>
+        <tr><td><code>Table</code></td><td>ตารางข้อมูล กำหนดความกว้างแต่ละคอลัมน์</td></tr>
+        <tr><td><code>TableStyle</code></td><td>ตกแต่งตาราง เช่น สี font border padding</td></tr>
+        <tr><td><code>Spacer</code></td><td>ช่องว่าง (1, pt) เพิ่มระยะห่างระหว่างองค์ประกอบ</td></tr>
+      </table>
+    </div>
+
+    <div class="ib cyan">
+      <div class="ib-t">📐 TableStyle coordinates</div>
+      <code>(0,0)</code> = คอลัมน์ 0, แถว 0 (มุมซ้ายบน) | <code>(-1,-1)</code> = คอลัมน์สุดท้าย แถวสุดท้าย<br>
+      <code>(-1,0)</code> = ทุกคอลัมน์ แถวที่ 0 (แถว header) | <code>(1,1)</code> = คอลัมน์ 1, แถว 1
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ FULL CODE ═══════════ -->
+<div class="sec fi" id="s7">
+  <div class="sec-chip sc-purple">FULL CODE</div>
+  <h2>โค้ดครบทั้งหมด Task 1.3</h2>
+  <p>copy ไปใช้ได้เลย วางไฟล์ CSV ไว้ใน data/</p>
+</div>
+
+<div class="card fi">
+  <div class="card-body">
+    <div class="cw">
+      <div class="cb">
+        <div class="cbl"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="fn2">task1_3_sales_trends.py — โค้ดเต็ม</span></div>
+        <button class="cpbtn" onclick="cp(this)">copy</button>
+      </div>
+      <pre><span class="kw">import</span> <span class="vr">pandas</span> <span class="kw">as</span> <span class="fn">pd</span>
+<span class="kw">import</span> <span class="vr">numpy</span>  <span class="kw">as</span> <span class="fn">np</span>
+<span class="kw">import</span> <span class="vr">matplotlib</span>
+<span class="vr">matplotlib</span>.<span class="fn">use</span>(<span class="st">'Agg'</span>)
+<span class="kw">import</span> <span class="vr">matplotlib.pyplot</span> <span class="kw">as</span> <span class="fn">plt</span>
+<span class="kw">import</span> <span class="vr">matplotlib.ticker</span> <span class="kw">as</span> <span class="fn">mticker</span>
+<span class="kw">from</span> <span class="vr">reportlab.lib.pagesizes</span> <span class="kw">import</span> <span class="vr">A4</span>
+<span class="kw">from</span> <span class="vr">reportlab.platypus</span> <span class="kw">import</span> <span class="vr">SimpleDocTemplate</span>, <span class="vr">Image</span>, <span class="vr">Spacer</span>, <span class="vr">Table</span>, <span class="vr">TableStyle</span>, <span class="vr">Paragraph</span>
+<span class="kw">from</span> <span class="vr">reportlab.lib.styles</span> <span class="kw">import</span> <span class="vr">ParagraphStyle</span>
+<span class="kw">from</span> <span class="vr">reportlab.lib</span> <span class="kw">import</span> <span class="vr">colors</span>
+<span class="kw">from</span> <span class="vr">reportlab.lib.units</span> <span class="kw">import</span> <span class="vr">cm</span>
+<span class="kw">import</span> <span class="vr">os</span>
+
+<span class="vr">os</span>.<span class="fn">makedirs</span>(<span class="st">'output'</span>, <span class="vr">exist_ok</span><span class="op">=</span><span class="kw">True</span>)
+
+<span class="cm"># ── โหลดและเตรียมข้อมูล ──────────────────────────────────</span>
+<span class="vr">sales</span> <span class="op">=</span> <span class="fn">pd.read_csv</span>(<span class="st">'data/sales_transactions.csv'</span>)
+<span class="vr">sales</span>[<span class="st">'date'</span>]          <span class="op">=</span> <span class="fn">pd.to_datetime</span>(<span class="vr">sales</span>[<span class="st">'date'</span>], <span class="vr">errors</span><span class="op">=</span><span class="st">'coerce'</span>)
+<span class="vr">sales</span>[<span class="st">'total_revenue'</span>] <span class="op">=</span> <span class="vr">sales</span>[<span class="st">'price'</span>] <span class="op">*</span> <span class="vr">sales</span>[<span class="st">'quantity'</span>]
+<span class="vr">sales</span>[<span class="st">'month'</span>]         <span class="op">=</span> <span class="vr">sales</span>[<span class="st">'date'</span>].<span class="vr">dt</span>.<span class="fn">to_period</span>(<span class="st">'M'</span>)
+
+<span class="cm"># ── คำนวณ Monthly Metrics ─────────────────────────────────</span>
+<span class="vr">monthly</span> <span class="op">=</span> <span class="vr">sales</span>.<span class="fn">groupby</span>(<span class="st">'month'</span>).<span class="fn">agg</span>(
+    <span class="vr">total_revenue</span>    <span class="op">=</span> (<span class="st">'total_revenue'</span>,  <span class="st">'sum'</span>),
+    <span class="vr">num_transactions</span> <span class="op">=</span> (<span class="st">'transaction_id'</span>, <span class="st">'count'</span>),
+).<span class="fn">reset_index</span>()
+<span class="vr">monthly</span>[<span class="st">'avg_order_value'</span>] <span class="op">=</span> <span class="vr">monthly</span>[<span class="st">'total_revenue'</span>] <span class="op">/</span> <span class="vr">monthly</span>[<span class="st">'num_transactions'</span>]
+<span class="vr">monthly</span>[<span class="st">'month_str'</span>]       <span class="op">=</span> <span class="vr">monthly</span>[<span class="st">'month'</span>].<span class="fn">astype</span>(<span class="fn">str</span>)
+
+<span class="cm"># ── ฟังก์ชันวาดกราฟ ──────────────────────────────────────</span>
+<span class="kw">def</span> <span class="fn">make_line_chart</span>(<span class="vr">x</span>, <span class="vr">y</span>, <span class="vr">title</span>, <span class="vr">ylabel</span>, <span class="vr">color</span>, <span class="vr">fname</span>):
+    <span class="vr">fig</span>, <span class="vr">ax</span> <span class="op">=</span> <span class="fn">plt.subplots</span>(<span class="vr">figsize</span><span class="op">=</span>(<span class="nm">9</span>, <span class="nm">3.5</span>), <span class="vr">facecolor</span><span class="op">=</span><span class="st">'#F8FAFC'</span>)
+    <span class="vr">ax</span>.<span class="fn">set_facecolor</span>(<span class="st">'#F8FAFC'</span>)
+    <span class="vr">ax</span>.<span class="fn">plot</span>(<span class="vr">x</span>, <span class="vr">y</span>, <span class="vr">color</span><span class="op">=</span><span class="vr">color</span>, <span class="vr">linewidth</span><span class="op">=</span><span class="nm">2.5</span>, <span class="vr">marker</span><span class="op">=</span><span class="st">'o'</span>, <span class="vr">markersize</span><span class="op">=</span><span class="nm">5</span>, <span class="vr">zorder</span><span class="op">=</span><span class="nm">3</span>)
+    <span class="vr">ax</span>.<span class="fn">fill_between</span>(<span class="vr">x</span>, <span class="vr">y</span>, <span class="vr">alpha</span><span class="op">=</span><span class="nm">0.1</span>, <span class="vr">color</span><span class="op">=</span><span class="vr">color</span>)
+    <span class="vr">ax</span>.<span class="fn">set_title</span>(<span class="vr">title</span>, <span class="vr">fontsize</span><span class="op">=</span><span class="nm">13</span>, <span class="vr">fontweight</span><span class="op">=</span><span class="st">'bold'</span>, <span class="vr">pad</span><span class="op">=</span><span class="nm">12</span>)
+    <span class="vr">ax</span>.<span class="fn">set_ylabel</span>(<span class="vr">ylabel</span>, <span class="vr">fontsize</span><span class="op">=</span><span class="nm">10</span>)
+    <span class="vr">ax</span>.<span class="fn">set_xlabel</span>(<span class="st">'Month'</span>, <span class="vr">fontsize</span><span class="op">=</span><span class="nm">10</span>)
+    <span class="vr">ax</span>.<span class="fn">tick_params</span>(<span class="vr">axis</span><span class="op">=</span><span class="st">'x'</span>, <span class="vr">rotation</span><span class="op">=</span><span class="nm">30</span>, <span class="vr">labelsize</span><span class="op">=</span><span class="nm">9</span>)
+    <span class="vr">ax</span>.<span class="vr">yaxis</span>.<span class="fn">set_major_formatter</span>(<span class="fn">mticker.FuncFormatter</span>(<span class="kw">lambda</span> <span class="vr">v</span>,<span class="vr">_</span>: <span class="fn">f</span><span class="st">'{v:,.0f}'</span>))
+    <span class="kw">for</span> <span class="vr">spine</span> <span class="kw">in</span> <span class="vr">ax</span>.spines.values(): <span class="vr">spine</span>.<span class="fn">set_edgecolor</span>(<span class="st">'#E2E8F0'</span>)
+    <span class="vr">ax</span>.<span class="fn">grid</span>(<span class="vr">axis</span><span class="op">=</span><span class="st">'y'</span>, <span class="vr">linestyle</span><span class="op">=</span><span class="st">'--'</span>, <span class="vr">alpha</span><span class="op">=</span><span class="nm">0.4</span>)
+    <span class="fn">plt.tight_layout</span>()
+    <span class="vr">path</span> <span class="op">=</span> <span class="fn">f</span><span class="st">'output/{fname}'</span>
+    <span class="fn">plt.savefig</span>(<span class="vr">path</span>, <span class="vr">dpi</span><span class="op">=</span><span class="nm">150</span>, <span class="vr">bbox_inches</span><span class="op">=</span><span class="st">'tight'</span>)
+    <span class="fn">plt.close</span>()
+    <span class="kw">return</span> <span class="vr">path</span>
+
+<span class="cm"># ── สร้าง 3 กราฟ ─────────────────────────────────────────</span>
+<span class="vr">chart1</span> <span class="op">=</span> <span class="fn">make_line_chart</span>(<span class="vr">monthly</span>[<span class="st">'month_str'</span>], <span class="vr">monthly</span>[<span class="st">'total_revenue'</span>],
+    <span class="st">'Total Sales Revenue per Month'</span>,    <span class="st">'Revenue (€)'</span>,       <span class="st">'#3B82F6'</span>, <span class="st">'chart_revenue.png'</span>)
+<span class="vr">chart2</span> <span class="op">=</span> <span class="fn">make_line_chart</span>(<span class="vr">monthly</span>[<span class="st">'month_str'</span>], <span class="vr">monthly</span>[<span class="st">'num_transactions'</span>],
+    <span class="st">'Number of Transactions per Month'</span>, <span class="st">'Transactions'</span>,      <span class="st">'#10B981'</span>, <span class="st">'chart_transactions.png'</span>)
+<span class="vr">chart3</span> <span class="op">=</span> <span class="fn">make_line_chart</span>(<span class="vr">monthly</span>[<span class="st">'month_str'</span>], <span class="vr">monthly</span>[<span class="st">'avg_order_value'</span>],
+    <span class="st">'Average Order Value per Month'</span>,    <span class="st">'Avg Order Value (€)'</span>,<span class="st">'#F59E0B'</span>, <span class="st">'chart_avg_order.png'</span>)
+
+<span class="cm"># ── Top 3 เดือน ───────────────────────────────────────────</span>
+<span class="vr">top3</span> <span class="op">=</span> <span class="vr">monthly</span>.<span class="fn">nlargest</span>(<span class="nm">3</span>, <span class="st">'total_revenue'</span>)[[<span class="st">'month_str'</span>,<span class="st">'total_revenue'</span>]].<span class="fn">reset_index</span>(<span class="vr">drop</span><span class="op">=</span><span class="kw">True</span>)
+
+<span class="cm"># ── สร้าง PDF ─────────────────────────────────────────────</span>
+<span class="vr">title_style</span> <span class="op">=</span> <span class="fn">ParagraphStyle</span>(<span class="st">'t'</span>, <span class="vr">fontSize</span><span class="op">=</span><span class="nm">18</span>, <span class="vr">fontName</span><span class="op">=</span><span class="st">'Helvetica-Bold'</span>, <span class="vr">spaceAfter</span><span class="op">=</span><span class="nm">4</span>)
+<span class="vr">head_style</span>  <span class="op">=</span> <span class="fn">ParagraphStyle</span>(<span class="st">'h'</span>, <span class="vr">fontSize</span><span class="op">=</span><span class="nm">13</span>, <span class="vr">fontName</span><span class="op">=</span><span class="st">'Helvetica-Bold'</span>, <span class="vr">spaceBefore</span><span class="op">=</span><span class="nm">12</span>, <span class="vr">spaceAfter</span><span class="op">=</span><span class="nm">6</span>)
+
+<span class="vr">doc</span> <span class="op">=</span> <span class="fn">SimpleDocTemplate</span>(<span class="st">'output/Session1_SalesTrends.pdf'</span>, <span class="vr">pagesize</span><span class="op">=</span><span class="vr">A4</span>,
+    <span class="vr">rightMargin</span><span class="op">=</span><span class="nm">2</span><span class="op">*</span><span class="vr">cm</span>, <span class="vr">leftMargin</span><span class="op">=</span><span class="nm">2</span><span class="op">*</span><span class="vr">cm</span>, <span class="vr">topMargin</span><span class="op">=</span><span class="nm">2</span><span class="op">*</span><span class="vr">cm</span>, <span class="vr">bottomMargin</span><span class="op">=</span><span class="nm">2</span><span class="op">*</span><span class="vr">cm</span>)
+
+<span class="vr">story</span> <span class="op">=</span> [<span class="fn">Paragraph</span>(<span class="st">"Session 1 — Sales Trend Analysis"</span>, <span class="vr">title_style</span>)]
+
+<span class="kw">for</span> <span class="vr">chart</span>, <span class="vr">heading</span> <span class="kw">in</span> [
+    (<span class="vr">chart1</span>, <span class="st">"Total Sales Revenue per Month"</span>),
+    (<span class="vr">chart2</span>, <span class="st">"Number of Transactions per Month"</span>),
+    (<span class="vr">chart3</span>, <span class="st">"Average Order Value per Month"</span>),
+]:
+    <span class="vr">story</span> <span class="op">+=</span> [<span class="fn">Paragraph</span>(<span class="vr">heading</span>, <span class="vr">head_style</span>), <span class="fn">Image</span>(<span class="vr">chart</span>, <span class="vr">width</span><span class="op">=</span><span class="nm">16</span><span class="op">*</span><span class="vr">cm</span>, <span class="vr">height</span><span class="op">=</span><span class="nm">6</span><span class="op">*</span><span class="vr">cm</span>), <span class="fn">Spacer</span>(<span class="nm">1</span>,<span class="nm">8</span>)]
+
+<span class="vr">story</span>.<span class="fn">append</span>(<span class="fn">Paragraph</span>(<span class="st">"Top 3 Months by Sales Revenue"</span>, <span class="vr">head_style</span>))
+<span class="vr">tbl_data</span> <span class="op">=</span> [[<span class="st">'Month'</span>, <span class="st">'Total Revenue (€)'</span>]]
+<span class="kw">for</span> <span class="vr">_</span>, <span class="vr">row</span> <span class="kw">in</span> <span class="vr">top3</span>.<span class="fn">iterrows</span>():
+    <span class="vr">tbl_data</span>.<span class="fn">append</span>([<span class="vr">row</span>[<span class="st">'month_str'</span>], <span class="fn">f</span><span class="st">"€ {row['total_revenue']:,.2f}"</span>])
+
+<span class="vr">tbl</span> <span class="op">=</span> <span class="fn">Table</span>(<span class="vr">tbl_data</span>, <span class="vr">colWidths</span><span class="op">=</span>[<span class="nm">8</span><span class="op">*</span><span class="vr">cm</span>, <span class="nm">8</span><span class="op">*</span><span class="vr">cm</span>])
+<span class="vr">tbl</span>.<span class="fn">setStyle</span>(<span class="fn">TableStyle</span>([
+    (<span class="st">'BACKGROUND'</span>, (<span class="nm">0</span>,<span class="nm">0</span>), (<span class="op">-</span><span class="nm">1</span>,<span class="nm">0</span>), <span class="vr">colors</span>.<span class="fn">HexColor</span>(<span class="st">'#1E3A5F'</span>)),
+    (<span class="st">'TEXTCOLOR'</span>,  (<span class="nm">0</span>,<span class="nm">0</span>), (<span class="op">-</span><span class="nm">1</span>,<span class="nm">0</span>), <span class="vr">colors</span>.white),
+    (<span class="st">'FONTNAME'</span>,   (<span class="nm">0</span>,<span class="nm">0</span>), (<span class="op">-</span><span class="nm">1</span>,<span class="op">-</span><span class="nm">1</span>), <span class="st">'Helvetica-Bold'</span>),
+    (<span class="st">'FONTSIZE'</span>,   (<span class="nm">0</span>,<span class="nm">0</span>), (<span class="op">-</span><span class="nm">1</span>,<span class="op">-</span><span class="nm">1</span>), <span class="nm">11</span>),
+    (<span class="st">'ALIGN'</span>,      (<span class="nm">1</span>,<span class="nm">0</span>), (<span class="nm">1</span>,<span class="op">-</span><span class="nm">1</span>), <span class="st">'RIGHT'</span>),
+    (<span class="st">'ROWBACKGROUNDS'</span>, (<span class="nm">0</span>,<span class="nm">1</span>), (<span class="op">-</span><span class="nm">1</span>,<span class="op">-</span><span class="nm">1</span>), [<span class="vr">colors</span>.<span class="fn">HexColor</span>(<span class="st">'#F8FAFC'</span>), <span class="vr">colors</span>.white]),
+    (<span class="st">'GRID'</span>,       (<span class="nm">0</span>,<span class="nm">0</span>), (<span class="op">-</span><span class="nm">1</span>,<span class="op">-</span><span class="nm">1</span>), <span class="nm">0.5</span>, <span class="vr">colors</span>.<span class="fn">HexColor</span>(<span class="st">'#CBD5E1'</span>)),
+    (<span class="st">'TOPPADDING'</span>,    (<span class="nm">0</span>,<span class="nm">0</span>), (<span class="op">-</span><span class="nm">1</span>,<span class="op">-</span><span class="nm">1</span>), <span class="nm">8</span>),
+    (<span class="st">'BOTTOMPADDING'</span>, (<span class="nm">0</span>,<span class="nm">0</span>), (<span class="op">-</span><span class="nm">1</span>,<span class="op">-</span><span class="nm">1</span>), <span class="nm">8</span>),
+]))
+<span class="vr">story</span>.<span class="fn">append</span>(<span class="vr">tbl</span>)
+<span class="vr">doc</span>.<span class="fn">build</span>(<span class="vr">story</span>)
+<span class="fn">print</span>(<span class="st">"✓ บันทึก Session1_SalesTrends.pdf สำเร็จ"</span>)</pre>
+    </div>
+
+    <div class="ib green">
+      <div class="ib-t">✅ ผลลัพธ์ที่ได้จากข้อมูลจริง</div>
+      <strong>Top 3 เดือน:</strong> 2024-07 (€69,530.17) · 2024-03 (€12,226.12) · 2024-05 (€12,194.93)<br>
+      ข้อมูลเดือน 2024-07 ผิดปกติมากเป็นพิเศษ — ควรแจ้งทีม management ด้วย
+    </div>
+  </div>
+</div>
+
+<!-- SUMMARY TABLE -->
+<div class="sec fi">
+  <div class="sec-chip sc-cyan">SUMMARY</div>
+  <h2>สรุปคำสั่งทั้งหมดของ Task 1.3</h2>
+</div>
+<div class="card fi">
+  <div class="card-body">
+    <div class="tbl">
+      <table>
+        <tr><th>งาน</th><th>คำสั่ง</th><th>หมายเหตุ</th></tr>
+        <tr><td>แปลงวันที่</td><td><code>pd.to_datetime(col, errors='coerce')</code></td><td></td></tr>
+        <tr><td>คำนวณ revenue/แถว</td><td><code>df['price'] * df['quantity']</code></td><td></td></tr>
+        <tr><td>จัดกลุ่มรายเดือน</td><td><code>df['date'].dt.to_period('M')</code></td><td>คืน Period object</td></tr>
+        <tr><td>รวมข้อมูลตามกลุ่ม</td><td><code>df.groupby('month').agg(...)</code></td><td>sum, count, mean</td></tr>
+        <tr><td>สร้างกราฟเส้น</td><td><code>ax.plot(x, y, color=..., marker='o')</code></td><td></td></tr>
+        <tr><td>เติมใต้เส้น</td><td><code>ax.fill_between(x, y, alpha=0.1)</code></td><td></td></tr>
+        <tr><td>บันทึกกราฟ</td><td><code>plt.savefig(path, dpi=150)</code></td><td>แล้ว plt.close()</td></tr>
+        <tr><td>Top N แถว</td><td><code>df.nlargest(3, 'col')</code></td><td></td></tr>
+        <tr><td>สร้าง PDF</td><td><code>SimpleDocTemplate(...).build(story)</code></td><td></td></tr>
+        <tr><td>ใส่รูปใน PDF</td><td><code>Image(path, width=16*cm, height=6*cm)</code></td><td></td></tr>
+        <tr><td>ใส่ตารางใน PDF</td><td><code>Table(data, colWidths=[...])</code></td><td></td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+</div><!-- /wrap -->
+
+<footer>
+  <strong>WSC2024</strong> · Task 1.3 Sales Trend Analysis Tutorial<br>
+  Belle Croissant Lyonnais · IT Software Solution for Business
+</footer>
+
+<script>
+function cp(btn){
+  const pre = btn.closest('.cw').querySelector('pre');
+  navigator.clipboard.writeText(pre.innerText).then(()=>{
+    btn.textContent='copied!';btn.classList.add('ok');
+    setTimeout(()=>{btn.textContent='copy';btn.classList.remove('ok');},2000);
+  });
+}
+const secs  = document.querySelectorAll('.sec[id]');
+const pills = document.querySelectorAll('.snav-pill');
+window.addEventListener('scroll',()=>{
+  let cur='';
+  secs.forEach(s=>{ if(window.scrollY>=s.offsetTop-110) cur=s.id; });
+  pills.forEach(p=>p.classList.toggle('on', p.getAttribute('href')==='#'+cur));
+});
+</script>
+</body>
+</html>
